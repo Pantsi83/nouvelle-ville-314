@@ -350,31 +350,44 @@
     };
 
     function NouvelleVilleLogoBadge({ size = "md" }) {
-      const dims =
-        size === "sm"
-          ? "w-9 h-9 rounded-lg p-1"
-          : "w-12 h-12 rounded-xl p-1.5";
-      return (
-        <div
-          className={`${dims} bg-[#490517] text-[#F9F4F6] border border-[#2D020E] shadow-sm flex flex-col items-center justify-center text-center select-none shrink-0 leading-none`}
-          title="Nouvelle Ville Independent Records"
-        >
-          <span className="text-[7px] sm:text-[8px] font-black tracking-[0.11em] uppercase">
-            NOUVELLE
-          </span>
-          <span className="text-[7px] sm:text-[8px] font-black tracking-[0.14em] uppercase mt-0.5">
-            VILLE
-          </span>
-          <span className="w-full h-[1px] bg-[#F9F4F6]/35 my-1" />
-          <span className="text-[4.8px] sm:text-[5.2px] font-bold tracking-[0.14em] uppercase text-[#EAD8DF]">
-            INDEPENDENT
-          </span>
-          <span className="text-[4.8px] sm:text-[5.2px] font-bold tracking-[0.16em] uppercase text-[#EAD8DF] mt-0.5">
-            RECORDS
-          </span>
-        </div>
-      );
-    }
+  const [imgFailed, setImgFailed] = useState(false);
+  const dims =
+    size === "sm"
+      ? "w-9 h-9 rounded-lg p-1"
+      : "w-12 h-12 rounded-xl p-1";
+
+  if (!imgFailed) {
+    return (
+      <img
+        src="https://raw.githubusercontent.com/Pantsi83/nouvelle-ville-314/refs/heads/main/logo.png"
+        alt="Nouvelle Ville Records"
+        onError={() => setImgFailed(true)}
+        className={`${dims} object-contain bg-[#490517] border border-[#2D020E] shadow-sm shrink-0`}
+      />
+    );
+  }
+
+  return (
+    <div
+      className={`${dims} bg-[#490517] text-[#F9F4F6] border border-[#2D020E] shadow-sm flex flex-col items-center justify-center text-center select-none shrink-0 leading-none`}
+      title="Nouvelle Ville Independent Records"
+    >
+      <span className="text-[7px] sm:text-[8px] font-black tracking-[0.11em] uppercase">
+        NOUVELLE
+      </span>
+      <span className="text-[7px] sm:text-[8px] font-black tracking-[0.14em] uppercase mt-0.5">
+        VILLE
+      </span>
+      <span className="w-full h-[1px] bg-[#F9F4F6]/35 my-1" />
+      <span className="text-[4.8px] sm:text-[5.2px] font-bold tracking-[0.14em] uppercase text-[#EAD8DF]">
+        INDEPENDENT
+      </span>
+      <span className="text-[4.8px] sm:text-[5.2px] font-bold tracking-[0.16em] uppercase text-[#EAD8DF] mt-0.5">
+        RECORDS
+      </span>
+    </div>
+  );
+}
 
     function EditableText({
       textKey,
