@@ -144,4 +144,3150 @@
       { id: 2, customer: "Χρονία Δαϊμανώλη", items: [{ product: PRODUCT_GALAXY, qty: 1 }], totalAmount: null, orderDate: "2026-11-12", salesChannel: "Direct Message", status: "Pending", courierName: "On hand", trackingNumber: "", invoiceNumber: "" },
       { id: 3, customer: "Νίκος Μπίλης", items: [{ product: PRODUCT_GALAXY, qty: 1 }], totalAmount: null, orderDate: "2026-11-12", salesChannel: "Direct Message", status: "Pending", courierName: "On hand", trackingNumber: "", invoiceNumber: "" },
       { id: 4, customer: "Νίκος Γιαννούλης", items: [{ product: PRODUCT_GALAXY, qty: 1 }], totalAmount: 25, orderDate: "2026-11-13", salesChannel: "Direct Message", status: "Delivered", courierName: "On hand", trackingNumber: "", invoiceNumber: "" },
-      { id: 5, customer: "Παναγιώτης Τσίρος", items: [{ product: PRODUCT_GALAXY, qty: 2 }], totalAmount: null, orderDate: "2026-11-13", salesChannel: "Direct Message", status:
+      { id: 5, customer: "Παναγιώτης Τσίρος", items: [{ product: PRODUCT_GALAXY, qty: 2 }], totalAmount: null, orderDate: "2026-11-13", salesChannel: "Direct Message", status: "Pending", courierName: "On hand", trackingNumber: "", invoiceNumber: "" },
+      { id: 6, customer: "Νίκος Τσίρος", items: [{ product: PRODUCT_GALAXY, qty: 1 }], totalAmount: 0, orderDate: "2026-11-12", salesChannel: "Gift", status: "Delivered", courierName: "On hand", trackingNumber: "", invoiceNumber: "" },
+      { id: 7, customer: "Φανηλία Κούκη", items: [{ product: PRODUCT_GALAXY, qty: 1 }], totalAmount: 20, orderDate: "2026-11-12", salesChannel: "Live Concert", status: "Shipped", courierName: "Box Now", trackingNumber: "3944259000", invoiceNumber: "" },
+      { id: 8, customer: "Δημήτρης Σίντος", items: [{ product: PRODUCT_GALAXY, qty: 3 }], totalAmount: 0, orderDate: "2026-11-12", salesChannel: "Gift", status: "Shipped", courierName: "Box Now", trackingNumber: "3195737000", invoiceNumber: "" },
+      { id: 9, customer: "Νατάσα Βασιλοπούλου", items: [{ product: PRODUCT_GALAXY, qty: 1 }], totalAmount: 0, orderDate: "2026-11-11", salesChannel: "Gift", status: "Shipped", courierName: "On hand", trackingNumber: "", invoiceNumber: "" },
+      { id: 10, customer: "Θάνος Τσελεμπής", items: [{ product: PRODUCT_GALAXY, qty: 1 }], totalAmount: 0, orderDate: "2026-11-12", salesChannel: "Gift", status: "Delivered", courierName: "Box Now", trackingNumber: "3678805000", invoiceNumber: "" },
+      { id: 11, customer: "Νάσος Νομικός", items: [{ product: PRODUCT_GALAXY, qty: 1 }], totalAmount: 0, orderDate: "2026-11-12", salesChannel: "Gift", status: "Pending", courierName: "Box Now", trackingNumber: "", invoiceNumber: "" },
+      { id: 12, customer: "Δέσποινα Σπανού", items: [{ product: PRODUCT_GALAXY, qty: 1 }], totalAmount: 0, orderDate: "2026-11-12", salesChannel: "Gift", status: "Shipped", courierName: "Box Now", trackingNumber: "9838389000", invoiceNumber: "" },
+      { id: 13, customer: "Θάλεια Γεννηματά", items: [{ product: PRODUCT_GALAXY, qty: 2 }], totalAmount: 0, orderDate: "2026-11-12", salesChannel: "Gift", status: "Pending", courierName: "Box Now", trackingNumber: "", invoiceNumber: "" },
+      { id: 14, customer: "Παύλος Κουμάντος", items: [{ product: PRODUCT_GALAXY, qty: 2 }], totalAmount: 70, orderDate: "2026-11-12", salesChannel: "Live Concert", status: "Pending", courierName: "On hand", trackingNumber: "", invoiceNumber: "" },
+      { id: 15, customer: "Μάγδα Ελευθεριάδη", items: [{ product: PRODUCT_GALAXY, qty: 1 }], totalAmount: null, orderDate: "2026-11-13", salesChannel: "Direct Message", status: "Pending", courierName: "On hand", trackingNumber: "", invoiceNumber: "" },
+      {
+        id: 16,
+        customer: "Ελπινίκη Γιαγκόγλου",
+        items: [
+          { product: PRODUCT_GALAXY, qty: 1 },
+          { product: PRODUCT_BLACK, qty: 1 }
+        ],
+        totalAmount: 47,
+        orderDate: "2026-11-13",
+        salesChannel: "Bandcamp",
+        status: "Shipped",
+        courierName: "Box Now",
+        trackingNumber: "6255013000",
+        invoiceNumber: ""
+      }
+    ];
+
+    const BADGE_COLORS = {
+      crimsonVinyl: {
+        label: "3,14 Crimson",
+        pill: "bg-[#6E1927] text-[#F9F6F8] border-[#4F101B]",
+        dot: "bg-[#F4A6B3]",
+        borderTop: "border-t-[#6E1927]",
+        borderLeft: "border-l-[#6E1927]",
+        groupHeaderBg: "bg-[#EAE2E7] border-[#C7BAC2]",
+        bar: "bg-gradient-to-r from-[#2D0B12] via-[#6E1927] to-[#8A2233]"
+      },
+      blackVinyl: {
+        label: "3,14 Obsidian",
+        pill: "bg-[#2C1820] text-[#F5F2F4] border-[#1A0D12]",
+        dot: "bg-[#C7BAC2]",
+        borderTop: "border-t-[#2C1820]",
+        borderLeft: "border-l-[#2C1820]",
+        groupHeaderBg: "bg-[#E7E3E8] border-[#C3BCC5]",
+        bar: "bg-[#2C1820]"
+      },
+      amber: {
+        label: "Πορτοκαλί",
+        pill: "bg-amber-100 text-amber-950 border-amber-300",
+        dot: "bg-amber-600",
+        borderTop: "border-t-amber-600",
+        borderLeft: "border-l-amber-600",
+        groupHeaderBg: "bg-amber-50 border-amber-200",
+        bar: "bg-amber-600"
+      },
+      sky: {
+        label: "Γαλάζιο",
+        pill: "bg-sky-100 text-sky-950 border-sky-300",
+        dot: "bg-sky-600",
+        borderTop: "border-t-sky-600",
+        borderLeft: "border-l-sky-600",
+        groupHeaderBg: "bg-sky-50 border-sky-200",
+        bar: "bg-sky-600"
+      },
+      emerald: {
+        label: "Πράσινο",
+        pill: "bg-emerald-100 text-emerald-950 border-emerald-300",
+        dot: "bg-emerald-600",
+        borderTop: "border-t-emerald-600",
+        borderLeft: "border-l-emerald-600",
+        groupHeaderBg: "bg-emerald-50 border-emerald-200",
+        bar: "bg-emerald-600"
+      },
+      cyan: {
+        label: "Κυανό",
+        pill: "bg-cyan-100 text-cyan-950 border-cyan-300",
+        dot: "bg-cyan-700",
+        borderTop: "border-t-cyan-700",
+        borderLeft: "border-l-cyan-700",
+        groupHeaderBg: "bg-cyan-50 border-cyan-200",
+        bar: "bg-cyan-700"
+      },
+      indigo: {
+        label: "Λουλακί",
+        pill: "bg-indigo-100 text-indigo-950 border-indigo-300",
+        dot: "bg-indigo-600",
+        borderTop: "border-t-indigo-600",
+        borderLeft: "border-l-indigo-600",
+        groupHeaderBg: "bg-indigo-50 border-indigo-200",
+        bar: "bg-indigo-600"
+      },
+      fuchsia: {
+        label: "Ματζέντα",
+        pill: "bg-fuchsia-100 text-fuchsia-950 border-fuchsia-300",
+        dot: "bg-fuchsia-700",
+        borderTop: "border-t-fuchsia-700",
+        borderLeft: "border-l-fuchsia-700",
+        groupHeaderBg: "bg-fuchsia-50 border-fuchsia-200",
+        bar: "bg-fuchsia-700"
+      },
+      rose: {
+        label: "Τριανταφυλλί",
+        pill: "bg-rose-100 text-rose-950 border-rose-300",
+        dot: "bg-rose-700",
+        borderTop: "border-t-rose-700",
+        borderLeft: "border-l-rose-700",
+        groupHeaderBg: "bg-rose-50 border-rose-200",
+        bar: "bg-rose-700"
+      },
+      lime: {
+        label: "Λαχανί",
+        pill: "bg-lime-100 text-lime-950 border-lime-300",
+        dot: "bg-lime-700",
+        borderTop: "border-t-lime-700",
+        borderLeft: "border-l-lime-700",
+        groupHeaderBg: "bg-lime-50 border-lime-200",
+        bar: "bg-lime-700"
+      },
+      purple: {
+        label: "Μωβ",
+        pill: "bg-purple-100 text-purple-950 border-purple-300",
+        dot: "bg-purple-700",
+        borderTop: "border-t-purple-700",
+        borderLeft: "border-l-purple-700",
+        groupHeaderBg: "bg-purple-50 border-purple-200",
+        bar: "bg-purple-700"
+      },
+      stone: {
+        label: "Γκρι / Πέτρα",
+        pill: "bg-[#E6E2E7] text-[#40101A] border-[#C4BBC3]",
+        dot: "bg-[#6E5C68]",
+        borderTop: "border-t-[#6E5C68]",
+        borderLeft: "border-l-[#6E5C68]",
+        groupHeaderBg: "bg-[#EAE5EA] border-[#C7BEC6]",
+        bar: "bg-[#6E5C68]"
+      }
+    };
+
+    const COLOR_KEYS = Object.keys(BADGE_COLORS);
+
+    const DEFAULT_CONFIG = {
+      statuses: [
+        { name: "Pending", color: "amber" },
+        { name: "Shipped", color: "sky" },
+        { name: "Delivered", color: "emerald" }
+      ],
+      channels: [
+        { name: "Bandcamp", color: "cyan" },
+        { name: "Direct Message", color: "indigo" },
+        { name: "Live Concert", color: "fuchsia" },
+        { name: "Gift", color: "rose" }
+      ],
+      couriers: [
+        { name: "On hand", color: "stone" },
+        { name: "Box Now", color: "lime" }
+      ],
+      products: [
+        {
+          name: PRODUCT_GALAXY,
+          shortName: "Galaxy red-black",
+          subtitle: "Περιορισμένη Έκδοση • Αρχικό 100",
+          initialStock: 100,
+          color: "crimsonVinyl"
+        },
+        {
+          name: PRODUCT_BLACK,
+          shortName: "Black",
+          subtitle: "Κλασικό Μαύρο Βινύλιο • Αρχικό 100",
+          initialStock: 100,
+          color: "blackVinyl"
+        }
+      ]
+    };
+
+    const LS_ORDERS = "nvr_314_orders_v2";
+    const LS_CONFIG = "nvr_314_config_v2";
+    const LS_TEXT_OVERRIDES = "nvr_314_text_overrides_v1";
+
+    const DEFAULT_UI_TEXT = {
+      appTitle: "Nouvelle Ville Records — «3,14»",
+      appBadge: "Παραγγελίες & Stock",
+      appSubtitle: "Πάνος Τσίρος • Galaxy red-black (100) & Black (100)",
+      initialStockLabel: "ΑΡΧΙΚΟ:",
+      availableLabel: "ΔΙΑΘΕΣΙΜΑ",
+      allocatedLabel: "ΔΕΣΜΕΥΜΕΝΑ:",
+      shelfLabel: "ΡΑΦΙ:",
+      revenueLabel: "ΕΣΟΔΑ",
+      ordersKpiLabel: "ΠΑΡΑΓΓΕΛΙΕΣ",
+      channelsHeading: "ΚΑΝΑΛΙΑ ΠΩΛΗΣΗΣ",
+      filtersLabel: "Φίλτρα:",
+      thId: "ID",
+      thCustomer: "Customer",
+      thProduct: "Product",
+      thQty: "Qty",
+      thTotal: "Total (€)",
+      thDate: "Order Date",
+      thChannel: "Channel",
+      thStatus: "Status",
+      thCourier: "Courier",
+      thTracking: "Tracking",
+      thInvoice: "Invoice/Rec.",
+      thActions: "ΕΝΕΡΓΕΙΕΣ"
+    };
+
+    function NouvelleVilleLogoBadge({ size = "md" }) {
+      const dims =
+        size === "sm"
+          ? "w-9 h-9 rounded-lg p-1"
+          : "w-12 h-12 rounded-xl p-1.5";
+      return (
+        <div
+          className={`${dims} bg-[#490517] text-[#F9F4F6] border border-[#2D020E] shadow-sm flex flex-col items-center justify-center text-center select-none shrink-0 leading-none`}
+          title="Nouvelle Ville Independent Records"
+        >
+          <span className="text-[7px] sm:text-[8px] font-black tracking-[0.11em] uppercase">
+            NOUVELLE
+          </span>
+          <span className="text-[7px] sm:text-[8px] font-black tracking-[0.14em] uppercase mt-0.5">
+            VILLE
+          </span>
+          <span className="w-full h-[1px] bg-[#F9F4F6]/35 my-1" />
+          <span className="text-[4.8px] sm:text-[5.2px] font-bold tracking-[0.14em] uppercase text-[#EAD8DF]">
+            INDEPENDENT
+          </span>
+          <span className="text-[4.8px] sm:text-[5.2px] font-bold tracking-[0.16em] uppercase text-[#EAD8DF] mt-0.5">
+            RECORDS
+          </span>
+        </div>
+      );
+    }
+
+    function EditableText({
+      textKey,
+      fallback,
+      overrides,
+      editMode,
+      onChangeText,
+      className = "",
+      as = "span",
+      title = "Κλικ για επεξεργασία κειμένου"
+    }) {
+      const [editing, setEditing] = useState(false);
+      const currentVal =
+        overrides && Object.prototype.hasOwnProperty.call(overrides, textKey)
+          ? overrides[textKey]
+          : fallback;
+      const [draft, setDraft] = useState(currentVal);
+
+      useEffect(() => {
+        setDraft(currentVal);
+      }, [currentVal]);
+
+      const commit = () => {
+        setEditing(false);
+        const cleaned = draft.trim();
+        onChangeText(textKey, cleaned === "" ? fallback : draft);
+      };
+
+      if (editMode && editing) {
+        return (
+          <input
+            type="text"
+            value={draft}
+            onChange={(e) => setDraft(e.target.value)}
+            onBlur={commit}
+            onKeyDown={(e) => {
+              if (e.key === "Enter") {
+                e.preventDefault();
+                commit();
+              }
+              if (e.key === "Escape") {
+                setDraft(currentVal);
+                setEditing(false);
+              }
+            }}
+            onClick={(e) => e.stopPropagation()}
+            className="px-1.5 py-0.5 text-inherit font-inherit bg-white text-[#40101A] border border-[#6E1927] rounded shadow-xs focus:outline-none min-w-[90px]"
+            autoFocus
+          />
+        );
+      }
+
+      const Tag = as;
+      return (
+        <Tag
+          onClick={(e) => {
+            if (!editMode) return;
+            e.preventDefault();
+            e.stopPropagation();
+            setDraft(currentVal);
+            setEditing(true);
+          }}
+          title={editMode ? title : undefined}
+          className={`${className} ${editMode ? "nvr-editable-active" : ""}`}
+        >
+          {currentVal}
+        </Tag>
+      );
+    }
+
+    const formatDateGR = (isoDate) => {
+      if (!isoDate) return "—";
+      if (isoDate.includes("/")) return isoDate;
+      const parts = isoDate.split("-");
+      if (parts.length !== 3) return isoDate;
+      return `${parts[2]}/${parts[1]}/${parts[0]}`;
+    };
+
+    const toISODate = (dateStr) => {
+      if (!dateStr) return new Date().toISOString().slice(0, 10);
+      if (dateStr.includes("/")) {
+        const [d, m, y] = dateStr.split("/");
+        if (d && m && y) return `${y}-${m.padStart(2, "0")}-${d.padStart(2, "0")}`;
+      }
+      return dateStr;
+    };
+
+    const formatCurrency = (amount) => {
+      if (amount === null || amount === undefined || amount === "") return "—";
+      return `€${Number(amount).toFixed(2)}`;
+    };
+
+    const getColorTokens = (colorKey, fallback = "stone") => {
+      return BADGE_COLORS[colorKey] || BADGE_COLORS[fallback] || BADGE_COLORS.stone;
+    };
+
+    try {
+      const manifest = {
+        name: "Nouvelle Ville Records — 3,14 LP",
+        short_name: "3,14 LP",
+        start_url: window.location.href,
+        display: "standalone",
+        background_color: "#9E939C",
+        theme_color: "#6E1927",
+        description: "Διαχείριση παραγγελιών και αποθέματος βινυλίου «3,14»"
+      };
+      const blob = new Blob([JSON.stringify(manifest)], { type: "application/manifest+json" });
+      const manifestUrl = URL.createObjectURL(blob);
+      const link = document.createElement("link");
+      link.rel = "manifest";
+      link.href = manifestUrl;
+      document.head.appendChild(link);
+    } catch {}
+
+    function OptionSelect({
+      value,
+      options,
+      onChange,
+      onQuickAdd,
+      categoryLabel = "επιλογής",
+      placeholder = "Νέα επιλογή...",
+      defaultColor = "crimsonVinyl",
+      compact = false
+    }) {
+      const [open, setOpen] = useState(false);
+      const [adding, setAdding] = useState(false);
+      const [newName, setNewName] = useState("");
+      const [newColor, setNewColor] = useState(defaultColor);
+      const ref = useRef(null);
+
+      useEffect(() => {
+        if (!open) return;
+        const onDocClick = (e) => {
+          if (ref.current && !ref.current.contains(e.target)) {
+            setOpen(false);
+            setAdding(false);
+          }
+        };
+        document.addEventListener("mousedown", onDocClick);
+        return () => document.removeEventListener("mousedown", onDocClick);
+      }, [open]);
+
+      const current = options.find((o) => o.name === value);
+      const tokens = getColorTokens(current?.color, defaultColor);
+
+      const submitNew = (e) => {
+        if (e) e.preventDefault();
+        const trimmed = newName.trim();
+        if (!trimmed) return;
+        onQuickAdd(trimmed, newColor);
+        onChange(trimmed);
+        setNewName("");
+        setAdding(false);
+        setOpen(false);
+      };
+
+      return (
+        <div ref={ref} className="relative inline-block w-full">
+          <button
+            type="button"
+            onClick={() => {
+              setOpen((prev) => !prev);
+              setAdding(false);
+            }}
+            className={`inline-flex items-center justify-between gap-1.5 font-semibold border transition-all cursor-pointer focus:outline-none ${
+              compact
+                ? "px-2.5 py-0.5 rounded-full text-[11px]"
+                : "w-full px-3 py-2 rounded-lg text-xs"
+            } ${tokens.pill}`}
+          >
+            <span className="truncate">{value || "Επιλογή..."}</span>
+            <span className="text-[9px] opacity-75 shrink-0">▼</span>
+          </button>
+
+          {open && (
+            <div className="absolute left-0 mt-1 w-64 bg-[#F6F4F7] rounded-xl shadow-2xl border border-[#C7BEC6] z-50 overflow-hidden text-left">
+              <div className="max-h-52 overflow-y-auto p-1.5 space-y-0.5">
+                {options.map((opt) => {
+                  const optTokens = getColorTokens(opt.color, defaultColor);
+                  const active = opt.name === value;
+                  return (
+                    <button
+                      key={opt.name}
+                      type="button"
+                      onClick={() => {
+                        onChange(opt.name);
+                        setOpen(false);
+                      }}
+                      className={`w-full flex items-center justify-between px-2 py-1.5 rounded-lg text-xs transition-colors ${
+                        active ? "bg-[#E6DFE4] font-bold text-[#40101A]" : "hover:bg-[#EDE8EC] text-[#40101A]"
+                      }`}
+                    >
+                      <span className={`inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full text-[11px] font-medium border ${optTokens.pill}`}>
+                        <span className={`w-1.5 h-1.5 rounded-full ${optTokens.dot}`} />
+                        {opt.name}
+                      </span>
+                      {active && <span className="text-[#6E1927] font-bold">✓</span>}
+                    </button>
+                  );
+                })}
+              </div>
+
+              <div className="border-t border-[#D6CED5] bg-[#EFECEF] p-2">
+                {!adding ? (
+                  <button
+                    type="button"
+                    onClick={() => setAdding(true)}
+                    className="w-full flex items-center gap-1.5 px-2 py-1.5 rounded-lg text-xs font-semibold text-[#6E1927] hover:bg-[#E4DCE1] transition-colors"
+                  >
+                    <span>+ Προσθήκη νέας {categoryLabel}...</span>
+                  </button>
+                ) : (
+                  <div className="space-y-2">
+                    <input
+                      type="text"
+                      value={newName}
+                      onChange={(e) => setNewName(e.target.value)}
+                      onKeyDown={(e) => {
+                        if (e.key === "Enter") {
+                          e.preventDefault();
+                          submitNew();
+                        }
+                        if (e.key === "Escape") setAdding(false);
+                      }}
+                      placeholder={placeholder}
+                      className="w-full px-2.5 py-1.5 text-xs bg-white text-[#40101A] border border-[#C7BEC6] rounded-lg focus:outline-none focus:border-[#6E1927]"
+                      autoFocus
+                    />
+                    <div className="flex items-center justify-between gap-1">
+                      <div className="flex flex-wrap gap-1">
+                        {COLOR_KEYS.slice(0, 7).map((cKey) => (
+                          <button
+                            key={cKey}
+                            type="button"
+                            onClick={() => setNewColor(cKey)}
+                            title={BADGE_COLORS[cKey].label}
+                            className={`w-4 h-4 rounded-full ${BADGE_COLORS[cKey].dot} ${
+                              newColor === cKey ? "ring-2 ring-offset-1 ring-[#40101A] scale-110" : "opacity-75"
+                            }`}
+                          />
+                        ))}
+                      </div>
+                      <button
+                        type="button"
+                        onClick={submitNew}
+                        disabled={!newName.trim()}
+                        className="px-2.5 py-1 text-[11px] font-semibold bg-[#6E1927] text-white rounded-md hover:bg-[#8A2233] disabled:opacity-40"
+                      >
+                        Προσθήκη
+                      </button>
+                    </div>
+                  </div>
+                )}
+              </div>
+            </div>
+          )}
+        </div>
+      );
+    }
+
+    // =========================================================================
+    // MAIN APPLICATION
+    // =========================================================================
+    function App() {
+      const [orders, setOrders] = useState(() => {
+        try {
+          const saved = localStorage.getItem(LS_ORDERS);
+          if (saved) return JSON.parse(saved);
+        } catch {}
+        return INITIAL_ORDERS;
+      });
+
+      const [config, setConfig] = useState(() => {
+        try {
+          const saved = localStorage.getItem(LS_CONFIG);
+          if (saved) {
+            const p = JSON.parse(saved);
+            return {
+              statuses: p.statuses?.length ? p.statuses : DEFAULT_CONFIG.statuses,
+              channels: p.channels?.length ? p.channels : DEFAULT_CONFIG.channels,
+              couriers: p.couriers?.length ? p.couriers : DEFAULT_CONFIG.couriers,
+              products: p.products?.length ? p.products : DEFAULT_CONFIG.products
+            };
+          }
+        } catch {}
+        return DEFAULT_CONFIG;
+      });
+
+      const [textOverrides, setTextOverrides] = useState(() => {
+        try {
+          const saved = localStorage.getItem(LS_TEXT_OVERRIDES);
+          return saved ? JSON.parse(saved) : {};
+        } catch {
+          return {};
+        }
+      });
+      const [editMode, setEditMode] = useState(false);
+
+      const [syncState, setSyncState] = useState({
+        status: "syncing", // "syncing" | "synced" | "offline"
+        lastSync: null,
+        errorMsg: ""
+      });
+
+      const ordersRef = useRef(orders);
+      const configRef = useRef(config);
+      ordersRef.current = orders;
+      configRef.current = config;
+
+      const [viewMode, setViewMode] = useState("table");
+      const [searchQuery, setSearchQuery] = useState("");
+      const [statusFilter, setStatusFilter] = useState("ALL");
+      const [channelFilter, setChannelFilter] = useState("ALL");
+      const [productFilter, setProductFilter] = useState("ALL");
+      const [courierFilter, setCourierFilter] = useState("ALL");
+      const [groupByStatus, setGroupByStatus] = useState(true);
+      const [collapsedGroups, setCollapsedGroups] = useState({});
+
+      const [isOrderModalOpen, setIsOrderModalOpen] = useState(false);
+      const [editingOrder, setEditingOrder] = useState(null);
+      const [defaultModalStatus, setDefaultModalStatus] = useState(null);
+      const [orderToDelete, setOrderToDelete] = useState(null);
+      const [isResetOpen, setIsResetOpen] = useState(false);
+      const [isOptionsOpen, setIsOptionsOpen] = useState(false);
+      const [optionsTab, setOptionsTab] = useState("couriers");
+      const [isSyncModalOpen, setIsSyncModalOpen] = useState(false);
+      const [isShortcutModalOpen, setIsShortcutModalOpen] = useState(false);
+
+      const [editingStockKey, setEditingStockKey] = useState(null);
+      const [tempStockValue, setTempStockValue] = useState("");
+      const [inlineEdit, setInlineEdit] = useState(null);
+      const [draggedOrderId, setDraggedOrderId] = useState(null);
+      const [dragOverColumn, setDragOverColumn] = useState(null);
+      const [toast, setToast] = useState(null);
+
+      const fileInputRef = useRef(null);
+
+      const showToast = (message, type = "success") => {
+        setToast({ message, type });
+        setTimeout(() => setToast(null), 3200);
+      };
+
+      useEffect(() => {
+        try { localStorage.setItem(LS_ORDERS, JSON.stringify(orders)); } catch {}
+      }, [orders]);
+
+      useEffect(() => {
+        try { localStorage.setItem(LS_CONFIG, JSON.stringify(config)); } catch {}
+      }, [config]);
+
+      useEffect(() => {
+        try { localStorage.setItem(LS_TEXT_OVERRIDES, JSON.stringify(textOverrides)); } catch {}
+      }, [textOverrides]);
+
+      // =======================================================================
+      // SUPABASE SYNC ENGINE (orders & app_config tables)
+      // =======================================================================
+      const saveConfigToSupabase = async (nextConfig) => {
+        setSyncState((s) => ({ ...s, status: "syncing", errorMsg: "" }));
+        try {
+          await sbFetch("app_config?id=eq.1", {
+            method: "PATCH",
+            body: JSON.stringify({
+              products: nextConfig.products,
+              couriers: nextConfig.couriers,
+              channels: nextConfig.channels,
+              statuses: nextConfig.statuses,
+              updated_at: new Date().toISOString()
+            })
+          });
+          setSyncState({ status: "synced", lastSync: new Date(), errorMsg: "" });
+        } catch (err) {
+          setSyncState({ status: "offline", lastSync: syncState.lastSync, errorMsg: err.message });
+          showToast(`Σφάλμα Supabase: ${err.message}`, "error");
+        }
+      };
+
+      const pullFromSupabase = async (seedIfEmpty = false) => {
+        setSyncState((s) => ({ ...s, status: "syncing", errorMsg: "" }));
+        try {
+          const [dbOrders, dbConfig] = await Promise.all([
+            sbFetch("orders?select=*&order=id.asc"),
+            sbFetch("app_config?id=eq.1&select=*")
+          ]);
+
+          if (Array.isArray(dbOrders) && dbOrders.length > 0) {
+            const normalized = dbOrders.map(normalizeOrderFromDb);
+            setOrders(normalized);
+          } else if (seedIfEmpty && ordersRef.current.length > 0) {
+            await sbFetch("orders", {
+              method: "POST",
+              body: JSON.stringify(ordersRef.current.map((o) => serializeOrderForDb(o, true)))
+            });
+          } else if (Array.isArray(dbOrders)) {
+            setOrders([]);
+          }
+
+          if (Array.isArray(dbConfig) && dbConfig.length > 0) {
+            const row = dbConfig[0];
+            setConfig({
+              statuses: row.statuses?.length ? row.statuses : DEFAULT_CONFIG.statuses,
+              channels: row.channels?.length ? row.channels : DEFAULT_CONFIG.channels,
+              couriers: row.couriers?.length ? row.couriers : DEFAULT_CONFIG.couriers,
+              products: row.products?.length ? row.products : DEFAULT_CONFIG.products
+            });
+          }
+
+          setSyncState({ status: "synced", lastSync: new Date(), errorMsg: "" });
+        } catch (err) {
+          setSyncState({ status: "offline", lastSync: syncState.lastSync, errorMsg: err.message });
+        }
+      };
+
+      useEffect(() => {
+        pullFromSupabase(true);
+        const interval = setInterval(() => pullFromSupabase(false), 8000);
+        const onFocus = () => pullFromSupabase(false);
+        window.addEventListener("focus", onFocus);
+        return () => {
+          clearInterval(interval);
+          window.removeEventListener("focus", onFocus);
+        };
+      }, []);
+
+      const updateConfigState = (updater) => {
+        setConfig((prev) => {
+          const next = typeof updater === "function" ? updater(prev) : updater;
+          saveConfigToSupabase(next);
+          return next;
+        });
+      };
+
+      const handleEditTextOverride = (key, value) => {
+        setTextOverrides((prev) => {
+          const next = { ...prev };
+          if (value === DEFAULT_UI_TEXT[key]) delete next[key];
+          else next[key] = value;
+          return next;
+        });
+      };
+
+      const handleResetAllTextOverrides = () => {
+        setTextOverrides({});
+        showToast("Επανήλθαν τα προεπιλεγμένα κείμενα UI.");
+      };
+
+      // =======================================================================
+      // OPTIONS & PRODUCTS HANDLERS
+      // =======================================================================
+      const handleAddOption = (category, name, color = "crimsonVinyl", extra = {}) => {
+        const trimmed = name.trim();
+        if (!trimmed) return false;
+        const list = config[category] || [];
+        if (list.some((item) => item.name.toLowerCase() === trimmed.toLowerCase())) {
+          showToast(`Η επιλογή "${trimmed}" υπάρχει ήδη.`, "info");
+          return false;
+        }
+
+        const newItem =
+          category === "products"
+            ? {
+                name: trimmed,
+                shortName: extra.shortName?.trim() || trimmed,
+                subtitle: extra.subtitle?.trim() || `Νέα Έκδοση • Αρχικό ${Math.max(0, parseInt(extra.initialStock, 10) || 0)}`,
+                initialStock: Math.max(0, parseInt(extra.initialStock, 10) || 0),
+                color
+              }
+            : { name: trimmed, color };
+
+        updateConfigState((prev) => ({
+          ...prev,
+          [category]: [...prev[category], newItem]
+        }));
+        showToast(`Προστέθηκε: "${trimmed}"`);
+        return true;
+      };
+
+      const handleUpdateOption = (category, oldName, updates) => {
+        const newName = updates.name !== undefined ? updates.name.trim() : oldName;
+        if (!newName) return;
+        if (
+          newName.toLowerCase() !== oldName.toLowerCase() &&
+          config[category].some((i) => i.name.toLowerCase() === newName.toLowerCase())
+        ) {
+          showToast(`Υπάρχει ήδη επιλογή "${newName}".`, "error");
+          return;
+        }
+
+        updateConfigState((prev) => ({
+          ...prev,
+          [category]: prev[category].map((item) =>
+            item.name === oldName ? { ...item, ...updates, name: newName } : item
+          )
+        }));
+
+        if (newName !== oldName) {
+          setOrders((prevOrders) =>
+            prevOrders.map((order) => {
+              let updated = order;
+              if (category === "couriers" && order.courierName === oldName) updated = { ...order, courierName: newName };
+              if (category === "channels" && order.salesChannel === oldName) updated = { ...order, salesChannel: newName };
+              if (category === "statuses" && order.status === oldName) updated = { ...order, status: newName };
+              if (category === "products") {
+                updated = {
+                  ...order,
+                  items: order.items.map((it) => (it.product === oldName ? { ...it, product: newName } : it))
+                };
+              }
+              if (updated !== order) {
+                sbFetch(`orders?id=eq.${order.id}`, {
+                  method: "PATCH",
+                  body: JSON.stringify(serializeOrderForDb(updated))
+                }).catch(() => {});
+              }
+              return updated;
+            })
+          );
+          if (category === "couriers" && courierFilter === oldName) setCourierFilter(newName);
+          if (category === "channels" && channelFilter === oldName) setChannelFilter(newName);
+          if (category === "statuses" && statusFilter === oldName) setStatusFilter(newName);
+          if (category === "products" && productFilter === oldName) setProductFilter(newName);
+        }
+        showToast("Ενημερώθηκε επιτυχώς.");
+      };
+
+      const handleDeleteOption = (category, optionName) => {
+        if (config[category].length <= 1) {
+          showToast("Πρέπει να υπάρχει τουλάχιστον 1 επιλογή.", "error");
+          return;
+        }
+        const inUse = orders.filter((o) => {
+          if (category === "couriers") return o.courierName === optionName;
+          if (category === "channels") return o.salesChannel === optionName;
+          if (category === "statuses") return o.status === optionName;
+          if (category === "products") return o.items.some((i) => i.product === optionName && i.qty > 0);
+          return false;
+        }).length;
+
+        if (inUse > 0) {
+          showToast(`Δεν διαγράφεται: χρησιμοποιείται σε ${inUse} παραγγελίες.`, "error");
+          return;
+        }
+
+        updateConfigState((prev) => ({
+          ...prev,
+          [category]: prev[category].filter((i) => i.name !== optionName)
+        }));
+        if (category === "couriers" && courierFilter === optionName) setCourierFilter("ALL");
+        if (category === "channels" && channelFilter === optionName) setChannelFilter("ALL");
+        if (category === "statuses" && statusFilter === optionName) setStatusFilter("ALL");
+        if (category === "products" && productFilter === optionName) setProductFilter("ALL");
+        showToast(`Διαγράφηκε το "${optionName}".`, "info");
+      };
+
+      const handleMoveOption = (category, index, dir) => {
+        const nextIdx = index + dir;
+        if (nextIdx < 0 || nextIdx >= config[category].length) return;
+        updateConfigState((prev) => {
+          const copy = [...prev[category]];
+          const [moved] = copy.splice(index, 1);
+          copy.splice(nextIdx, 0, moved);
+          return { ...prev, [category]: copy };
+        });
+      };
+
+      // =======================================================================
+      // INVENTORY & KPI CALCULATIONS
+      // =======================================================================
+      const inventoryStats = useMemo(() => {
+        const stats = {};
+        config.products.forEach((prod) => {
+          stats[prod.name] = {
+            ...prod,
+            initial: Number(prod.initialStock) || 0,
+            allocated: 0,
+            pending: 0,
+            shippedOrDelivered: 0
+          };
+        });
+
+        orders.forEach((order) => {
+          order.items.forEach((item) => {
+            if (stats[item.product]) {
+              const qty = Number(item.qty) || 0;
+              stats[item.product].allocated += qty;
+              if (order.status === "Pending") {
+                stats[item.product].pending += qty;
+              } else {
+                stats[item.product].shippedOrDelivered += qty;
+              }
+            }
+          });
+        });
+
+        Object.keys(stats).forEach((k) => {
+          stats[k].availableAfterAllocated = stats[k].initial - stats[k].allocated;
+          stats[k].physicalOnShelf = stats[k].initial - stats[k].shippedOrDelivered;
+        });
+
+        return stats;
+      }, [orders, config.products]);
+
+      const summaryStats = useMemo(() => {
+        let totalRevenue = 0;
+        let pendingCount = 0;
+        let totalUnits = 0;
+        const channelBreakdown = {};
+
+        config.channels.forEach((ch) => {
+          channelBreakdown[ch.name] = { count: 0, units: 0, revenue: 0, color: ch.color };
+        });
+
+        orders.forEach((o) => {
+          totalRevenue += Number(o.totalAmount) || 0;
+          if (o.status === "Pending") pendingCount += 1;
+          const units = o.items.reduce((s, i) => s + (Number(i.qty) || 0), 0);
+          totalUnits += units;
+
+          if (!channelBreakdown[o.salesChannel]) {
+            channelBreakdown[o.salesChannel] = { count: 0, units: 0, revenue: 0, color: "stone" };
+          }
+          channelBreakdown[o.salesChannel].count += 1;
+          channelBreakdown[o.salesChannel].units += units;
+          channelBreakdown[o.salesChannel].revenue += Number(o.totalAmount) || 0;
+        });
+
+        return { totalRevenue, totalOrders: orders.length, totalUnits, pendingCount, channelBreakdown };
+      }, [orders, config.channels]);
+
+      // =======================================================================
+      // FILTERED & GROUPED ORDERS
+      // =======================================================================
+      const filteredOrders = useMemo(() => {
+        return orders.filter((order) => {
+          if (searchQuery.trim() !== "") {
+            const q = searchQuery.toLowerCase().trim();
+            const matchCustomer = (order.customer || "").toLowerCase().includes(q);
+            const matchTracking = (order.trackingNumber || "").toLowerCase().includes(q);
+            const matchId = String(order.id) === q || `#${order.id}` === q;
+            const matchInvoice = (order.invoiceNumber || "").toLowerCase().includes(q);
+            const matchCourier = (order.courierName || "").toLowerCase().includes(q);
+            const matchChannel = (order.salesChannel || "").toLowerCase().includes(q);
+            if (!matchCustomer && !matchTracking && !matchId && !matchInvoice && !matchCourier && !matchChannel) {
+              return false;
+            }
+          }
+          if (statusFilter !== "ALL" && order.status !== statusFilter) return false;
+          if (channelFilter !== "ALL" && order.salesChannel !== channelFilter) return false;
+          if (courierFilter !== "ALL" && order.courierName !== courierFilter) return false;
+          if (productFilter !== "ALL") {
+            if (!order.items.some((i) => i.product === productFilter && i.qty > 0)) return false;
+          }
+          return true;
+        });
+      }, [orders, searchQuery, statusFilter, channelFilter, productFilter, courierFilter]);
+
+      const groupedSections = useMemo(() => {
+        const known = new Set(config.statuses.map((s) => s.name));
+        const sections = config.statuses.map((st) => {
+          const groupOrders = filteredOrders.filter((o) => o.status === st.name);
+          const totalUnits = groupOrders.reduce(
+            (sum, o) => sum + o.items.reduce((s, i) => s + (Number(i.qty) || 0), 0),
+            0
+          );
+          const totalRevenue = groupOrders.reduce((sum, o) => sum + (Number(o.totalAmount) || 0), 0);
+          return { statusName: st.name, color: st.color, orders: groupOrders, totalUnits, totalRevenue };
+        });
+
+        const extras = filteredOrders.filter((o) => !known.has(o.status));
+        if (extras.length > 0) {
+          const mapExtras = {};
+          extras.forEach((o) => {
+            if (!mapExtras[o.status]) mapExtras[o.status] = [];
+            mapExtras[o.status].push(o);
+          });
+          Object.entries(mapExtras).forEach(([statusName, groupOrders]) => {
+            const totalUnits = groupOrders.reduce(
+              (sum, o) => sum + o.items.reduce((s, i) => s + (Number(i.qty) || 0), 0),
+              0
+            );
+            const totalRevenue = groupOrders.reduce((sum, o) => sum + (Number(o.totalAmount) || 0), 0);
+            sections.push({ statusName, color: "stone", orders: groupOrders, totalUnits, totalRevenue });
+          });
+        }
+        return sections;
+      }, [filteredOrders, config.statuses]);
+
+      const activeFiltersCount = [
+        statusFilter !== "ALL",
+        channelFilter !== "ALL",
+        productFilter !== "ALL",
+        courierFilter !== "ALL",
+        searchQuery.trim() !== ""
+      ].filter(Boolean).length;
+
+      const clearAllFilters = () => {
+        setSearchQuery("");
+        setStatusFilter("ALL");
+        setChannelFilter("ALL");
+        setProductFilter("ALL");
+        setCourierFilter("ALL");
+      };
+
+      // =======================================================================
+      // ORDER CRUD & INLINE EDITS (PERSISTED TO SUPABASE)
+      // =======================================================================
+      const nextOrderId = useMemo(() => {
+        if (!orders.length) return 1;
+        return Math.max(...orders.map((o) => Number(o.id) || 0)) + 1;
+      }, [orders]);
+
+      const handleSaveOrder = async (data) => {
+        setSyncState((s) => ({ ...s, status: "syncing", errorMsg: "" }));
+        try {
+          if (editingOrder) {
+            const updatedObj = { ...data, id: editingOrder.id };
+            await sbFetch(`orders?id=eq.${editingOrder.id}`, {
+              method: "PATCH",
+              body: JSON.stringify(serializeOrderForDb(updatedObj))
+            });
+            setOrders((prev) => prev.map((o) => (o.id === editingOrder.id ? updatedObj : o)));
+            showToast(`Η παραγγελία #${editingOrder.id} ενημερώθηκε στο Supabase.`);
+          } else {
+            const createdRows = await sbFetch("orders", {
+              method: "POST",
+              body: JSON.stringify(serializeOrderForDb(data, false))
+            });
+            const createdObj = createdRows?.[0]
+              ? normalizeOrderFromDb(createdRows[0])
+              : { ...data, id: nextOrderId };
+            setOrders((prev) => [...prev, createdObj]);
+            showToast(`Προστέθηκε η παραγγελία #${createdObj.id} στο Supabase.`);
+          }
+          setSyncState({ status: "synced", lastSync: new Date(), errorMsg: "" });
+          setIsOrderModalOpen(false);
+          setEditingOrder(null);
+          setDefaultModalStatus(null);
+        } catch (err) {
+          setSyncState({ status: "offline", lastSync: syncState.lastSync, errorMsg: err.message });
+          showToast(`Σφάλμα αποθήκευσης: ${err.message}`, "error");
+        }
+      };
+
+      const handleDeleteOrder = async (id) => {
+        setSyncState((s) => ({ ...s, status: "syncing", errorMsg: "" }));
+        try {
+          await sbFetch(`orders?id=eq.${id}`, { method: "DELETE" });
+          setOrders((prev) => prev.filter((o) => o.id !== id));
+          setOrderToDelete(null);
+          setSyncState({ status: "synced", lastSync: new Date(), errorMsg: "" });
+          showToast(`Η παραγγελία #${id} διαγράφηκε.`, "info");
+        } catch (err) {
+          setSyncState({ status: "offline", lastSync: syncState.lastSync, errorMsg: err.message });
+          showToast(`Σφάλμα διαγραφής: ${err.message}`, "error");
+        }
+      };
+
+      const handleStatusChange = async (orderId, newStatus) => {
+        setOrders((prev) => prev.map((o) => (o.id === orderId ? { ...o, status: newStatus } : o)));
+        setSyncState((s) => ({ ...s, status: "syncing", errorMsg: "" }));
+        try {
+          await sbFetch(`orders?id=eq.${orderId}`, {
+            method: "PATCH",
+            body: JSON.stringify({ status: newStatus, updated_at: new Date().toISOString() })
+          });
+          setSyncState({ status: "synced", lastSync: new Date(), errorMsg: "" });
+          showToast(`#${orderId} → ${newStatus}`);
+        } catch (err) {
+          setSyncState({ status: "offline", lastSync: syncState.lastSync, errorMsg: err.message });
+          showToast(`Σφάλμα ενημέρωσης: ${err.message}`, "error");
+        }
+      };
+
+      const handleInlineSave = async (orderId, field, rawVal) => {
+        let updatedRow = null;
+        setOrders((prev) =>
+          prev.map((o) => {
+            if (o.id !== orderId) return o;
+            if (field === "totalAmount") {
+              const num = rawVal === "" ? null : parseFloat(rawVal);
+              updatedRow = { ...o, totalAmount: isNaN(num) ? null : num };
+            } else {
+              updatedRow = { ...o, [field]: rawVal };
+            }
+            return updatedRow;
+          })
+        );
+        setInlineEdit(null);
+
+        if (updatedRow) {
+          setSyncState((s) => ({ ...s, status: "syncing", errorMsg: "" }));
+          try {
+            await sbFetch(`orders?id=eq.${orderId}`, {
+              method: "PATCH",
+              body: JSON.stringify(serializeOrderForDb(updatedRow))
+            });
+            setSyncState({ status: "synced", lastSync: new Date(), errorMsg: "" });
+          } catch (err) {
+            setSyncState({ status: "offline", lastSync: syncState.lastSync, errorMsg: err.message });
+            showToast(`Σφάλμα αποθήκευσης: ${err.message}`, "error");
+          }
+        }
+      };
+
+      const saveStockValue = (prodName) => {
+        const val = parseInt(tempStockValue, 10);
+        if (!isNaN(val) && val >= 0) {
+          updateConfigState((prev) => ({
+            ...prev,
+            products: prev.products.map((p) =>
+              p.name === prodName
+                ? {
+                    ...p,
+                    initialStock: val,
+                    subtitle: p.subtitle?.includes("Αρχικό")
+                      ? p.subtitle.replace(/Αρχικό\s+\d+/, `Αρχικό ${val}`)
+                      : `Αρχικό Stock: ${val}`
+                  }
+                : p
+            )
+          }));
+          showToast(`Αρχικό απόθεμα: ${val} τεμ.`);
+        }
+        setEditingStockKey(null);
+      };
+
+      // =======================================================================
+      // CSV EXPORT & IMPORT
+      // =======================================================================
+      const handleExportCSV = () => {
+        const prodCols = config.products.map((p) => `${p.shortName || p.name} Qty`);
+        const headers = [
+          "Order ID",
+          "Customer",
+          "Product",
+          "Quantity",
+          ...prodCols,
+          "Total Amount",
+          "Order Date",
+          "Sales Channel",
+          "Status",
+          "Courier Name",
+          "Tracking Number",
+          "Invoice/Receipt Number"
+        ];
+
+        const rows = orders.map((o) => {
+          const perProd = config.products.map((p) => {
+            const found = o.items.find((i) => i.product === p.name);
+            return found ? found.qty : 0;
+          });
+          const totalQty = o.items.reduce((s, i) => s + (Number(i.qty) || 0), 0);
+          const prodSummary = o.items.map((i) => `${i.product} (x${i.qty})`).join(", ");
+
+          return [
+            o.id,
+            `"${(o.customer || "").replace(/"/g, '""')}"`,
+            `"${prodSummary}"`,
+            totalQty,
+            ...perProd,
+            o.totalAmount !== null && o.totalAmount !== undefined ? o.totalAmount : "",
+            formatDateGR(o.orderDate),
+            `"${o.salesChannel}"`,
+            `"${o.status}"`,
+            `"${o.courierName}"`,
+            `"${o.trackingNumber || ""}"`,
+            `"${o.invoiceNumber || ""}"`
+          ].join(",");
+        });
+
+        const csv = "\uFEFF" + [headers.join(","), ...rows].join("\n");
+        const blob = new Blob([csv], { type: "text/csv;charset=utf-8;" });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement("a");
+        a.href = url;
+        a.download = `Nouvelle_Ville_314LP_${new Date().toISOString().slice(0, 10)}.csv`;
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        URL.revokeObjectURL(url);
+        showToast("Εξήχθη το αρχείο CSV.");
+      };
+
+      const handleImportCSV = (e) => {
+        const file = e.target.files?.[0];
+        if (!file) return;
+        const reader = new FileReader();
+        reader.onload = async (ev) => {
+          try {
+            const text = ev.target?.result;
+            if (typeof text !== "string") return;
+            const lines = text.split(/\r?\n/).filter((l) => l.trim().length > 0);
+            if (lines.length < 2) {
+              showToast("Το CSV δεν περιέχει εγγραφές.", "error");
+              return;
+            }
+
+            const parseLine = (line) => {
+              const out = [];
+              let cur = "";
+              let q = false;
+              for (let i = 0; i < line.length; i++) {
+                const ch = line[i];
+                if (ch === '"') {
+                  if (q && line[i + 1] === '"') {
+                    cur += '"';
+                    i++;
+                  } else {
+                    q = !q;
+                  }
+                } else if (ch === "," && !q) {
+                  out.push(cur.trim());
+                  cur = "";
+                } else {
+                  cur += ch;
+                }
+              }
+              out.push(cur.trim());
+              return out;
+            };
+
+            const head = parseLine(lines[0]).map((h) => h.replace(/^\uFEFF/, "").toLowerCase());
+            const imported = [];
+
+            for (let i = 1; i < lines.length; i++) {
+              const cols = parseLine(lines[i]);
+              if (cols.length < 2) continue;
+              const getCol = (keys) => {
+                const idx = head.findIndex((h) => keys.some((k) => h.includes(k)));
+                return idx >= 0 ? cols[idx] : "";
+              };
+
+              const idNum = parseInt(getCol(["order id", "id"]), 10);
+              const customer = getCol(["customer", "πελάτης"]) || `Πελάτης #${i}`;
+              const prodStr = getCol(["product", "προϊόν"]);
+              const qtyNum = parseInt(getCol(["quantity", "ποσότητα"]), 10) || 1;
+              const galQty = parseInt(getCol(["galaxy"]), 10);
+              const blkQty = parseInt(getCol(["black qty"]), 10);
+
+              const items = [];
+              if (!isNaN(galQty) || !isNaN(blkQty)) {
+                if (galQty > 0) items.push({ product: PRODUCT_GALAXY, qty: galQty });
+                if (blkQty > 0) items.push({ product: PRODUCT_BLACK, qty: blkQty });
+              } else {
+                const hasGal = prodStr.toLowerCase().includes("galaxy");
+                const hasBlk = prodStr.toLowerCase().includes("black") && !prodStr.toLowerCase().includes("red-black");
+                if (hasGal && hasBlk) {
+                  items.push({ product: PRODUCT_GALAXY, qty: 1 }, { product: PRODUCT_BLACK, qty: 1 });
+                } else if (hasBlk) {
+                  items.push({ product: PRODUCT_BLACK, qty: qtyNum });
+                } else {
+                  items.push({ product: PRODUCT_GALAXY, qty: qtyNum });
+                }
+              }
+              if (!items.length) items.push({ product: PRODUCT_GALAXY, qty: 1 });
+
+              const amtRaw = getCol(["total amount", "amount", "ποσό"]).replace(/[€\s]/g, "");
+              const totalAmount = amtRaw === "" ? null : parseFloat(amtRaw);
+
+              imported.push({
+                id: isNaN(idNum) ? i : idNum,
+                customer,
+                items,
+                totalAmount: isNaN(totalAmount) ? null : totalAmount,
+                orderDate: toISODate(getCol(["order date", "date", "ημερομηνία"])),
+                salesChannel: getCol(["sales channel", "channel"]) || "Direct Message",
+                status: getCol(["status", "κατάσταση"]) || "Pending",
+                courierName: getCol(["courier"]) || "On hand",
+                trackingNumber: getCol(["tracking"]),
+                invoiceNumber: getCol(["invoice", "receipt"])
+              });
+            }
+
+            if (imported.length > 0) {
+              await sbFetch("orders", { method: "DELETE" });
+              await sbFetch("orders", {
+                method: "POST",
+                body: JSON.stringify(imported.map((o) => serializeOrderForDb(o, true)))
+              });
+              setOrders(imported);
+              showToast(`Εισήχθησαν ${imported.length} παραγγελίες στο Supabase.`);
+            }
+          } catch (err) {
+            showToast(`Σφάλμα εισαγωγής CSV: ${err.message}`, "error");
+          }
+        };
+        reader.readAsText(file);
+        e.target.value = "";
+      };
+
+      const handleResetAll = async () => {
+        setSyncState((s) => ({ ...s, status: "syncing", errorMsg: "" }));
+        try {
+          await sbFetch("orders", { method: "DELETE" });
+          await sbFetch("orders", {
+            method: "POST",
+            body: JSON.stringify(INITIAL_ORDERS.map((o) => serializeOrderForDb(o, true)))
+          });
+          await sbFetch("app_config?id=eq.1", {
+            method: "PATCH",
+            body: JSON.stringify({
+              products: DEFAULT_CONFIG.products,
+              couriers: DEFAULT_CONFIG.couriers,
+              channels: DEFAULT_CONFIG.channels,
+              statuses: DEFAULT_CONFIG.statuses,
+              updated_at: new Date().toISOString()
+            })
+          });
+          setOrders(INITIAL_ORDERS);
+          setConfig(DEFAULT_CONFIG);
+          setTextOverrides({});
+          clearAllFilters();
+          setIsResetOpen(false);
+          setSyncState({ status: "synced", lastSync: new Date(), errorMsg: "" });
+          showToast("Έγινε επαναφορά στα αρχικά δεδομένα στο Supabase.");
+        } catch (err) {
+          setSyncState({ status: "offline", lastSync: syncState.lastSync, errorMsg: err.message });
+          showToast(`Σφάλμα επαναφοράς: ${err.message}`, "error");
+        }
+      };
+
+      // =======================================================================
+      // TABLE RENDERERS
+      // =======================================================================
+      const renderTableHead = () => (
+        <thead>
+          <tr className="bg-[#ECE6EB] border-b border-[#CFC5CE] text-[11px] font-bold uppercase tracking-wider text-[#5A2D38] select-none">
+            <th className="py-2.5 px-3 border-r border-[#D8CFD7] w-14 text-center">
+              <EditableText textKey="thId" fallback={DEFAULT_UI_TEXT.thId} overrides={textOverrides} editMode={editMode} onChangeText={handleEditTextOverride} />
+            </th>
+            <th className="py-2.5 px-3 border-r border-[#D8CFD7] min-w-[165px]">
+              <EditableText textKey="thCustomer" fallback={DEFAULT_UI_TEXT.thCustomer} overrides={textOverrides} editMode={editMode} onChangeText={handleEditTextOverride} />
+            </th>
+            <th className="py-2.5 px-3 border-r border-[#D8CFD7] min-w-[220px]">
+              <EditableText textKey="thProduct" fallback={DEFAULT_UI_TEXT.thProduct} overrides={textOverrides} editMode={editMode} onChangeText={handleEditTextOverride} />
+            </th>
+            <th className="py-2.5 px-3 border-r border-[#D8CFD7] w-16 text-center">
+              <EditableText textKey="thQty" fallback={DEFAULT_UI_TEXT.thQty} overrides={textOverrides} editMode={editMode} onChangeText={handleEditTextOverride} />
+            </th>
+            <th className="py-2.5 px-3 border-r border-[#D8CFD7] w-28 text-right">
+              <EditableText textKey="thTotal" fallback={DEFAULT_UI_TEXT.thTotal} overrides={textOverrides} editMode={editMode} onChangeText={handleEditTextOverride} />
+            </th>
+            <th className="py-2.5 px-3 border-r border-[#D8CFD7] w-28">
+              <EditableText textKey="thDate" fallback={DEFAULT_UI_TEXT.thDate} overrides={textOverrides} editMode={editMode} onChangeText={handleEditTextOverride} />
+            </th>
+            <th className="py-2.5 px-3 border-r border-[#D8CFD7] min-w-[150px]">
+              <EditableText textKey="thChannel" fallback={DEFAULT_UI_TEXT.thChannel} overrides={textOverrides} editMode={editMode} onChangeText={handleEditTextOverride} />
+            </th>
+            <th className="py-2.5 px-3 border-r border-[#D8CFD7] min-w-[135px]">
+              <EditableText textKey="thStatus" fallback={DEFAULT_UI_TEXT.thStatus} overrides={textOverrides} editMode={editMode} onChangeText={handleEditTextOverride} />
+            </th>
+            <th className="py-2.5 px-3 border-r border-[#D8CFD7] min-w-[140px]">
+              <EditableText textKey="thCourier" fallback={DEFAULT_UI_TEXT.thCourier} overrides={textOverrides} editMode={editMode} onChangeText={handleEditTextOverride} />
+            </th>
+            <th className="py-2.5 px-3 border-r border-[#D8CFD7] min-w-[130px]">
+              <EditableText textKey="thTracking" fallback={DEFAULT_UI_TEXT.thTracking} overrides={textOverrides} editMode={editMode} onChangeText={handleEditTextOverride} />
+            </th>
+            <th className="py-2.5 px-3 border-r border-[#D8CFD7] min-w-[120px]">
+              <EditableText textKey="thInvoice" fallback={DEFAULT_UI_TEXT.thInvoice} overrides={textOverrides} editMode={editMode} onChangeText={handleEditTextOverride} />
+            </th>
+            <th className="py-2.5 px-3 text-center w-20">
+              <EditableText textKey="thActions" fallback={DEFAULT_UI_TEXT.thActions} overrides={textOverrides} editMode={editMode} onChangeText={handleEditTextOverride} />
+            </th>
+          </tr>
+        </thead>
+      );
+
+      const renderRow = (order) => {
+        const totalQty = order.items.reduce((s, i) => s + (Number(i.qty) || 0), 0);
+
+        return (
+          <tr key={order.id} className="hover:bg-[#ECE4EA]/75 transition-colors">
+            <td className="py-2 px-3 border-r border-[#E2DAE1] text-center font-mono text-xs text-[#6E5C68] font-bold">
+              {order.id}
+            </td>
+
+            <td className="py-2 px-3 border-r border-[#E2DAE1] font-semibold text-[#40101A]">
+              <button
+                onClick={() => {
+                  setEditingOrder(order);
+                  setDefaultModalStatus(null);
+                  setIsOrderModalOpen(true);
+                }}
+                className="text-left hover:text-[#8A2233] hover:underline decoration-[#C7BAC2] underline-offset-2"
+              >
+                {order.customer}
+              </button>
+            </td>
+
+            <td className="py-2 px-3 border-r border-[#E2DAE1]">
+              <div className="flex flex-wrap gap-1">
+                {order.items.map((item, idx) => {
+                  const cfg = config.products.find((p) => p.name === item.product);
+                  const tok = getColorTokens(cfg?.color, "crimsonVinyl");
+                  return (
+                    <span
+                      key={idx}
+                      className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-md text-[11px] font-medium border ${tok.pill}`}
+                    >
+                      <span className={`w-1.5 h-1.5 rounded-full ${tok.dot}`} />
+                      <span>{cfg?.shortName || item.product}</span>
+                      {item.qty > 1 && (
+                        <span className="ml-0.5 px-1 rounded bg-black/20 text-[10px] font-bold">
+                          ×{item.qty}
+                        </span>
+                      )}
+                    </span>
+                  );
+                })}
+              </div>
+            </td>
+
+            <td className="py-2 px-3 border-r border-[#E2DAE1] text-center font-bold text-[#40101A] tabular-nums">
+              {totalQty}
+            </td>
+
+            <td className="py-2 px-3 border-r border-[#E2DAE1] text-right tabular-nums">
+              {inlineEdit?.orderId === order.id && inlineEdit?.field === "totalAmount" ? (
+                <input
+                  type="number"
+                  step="0.01"
+                  value={inlineEdit.value}
+                  onChange={(e) => setInlineEdit({ ...inlineEdit, value: e.target.value })}
+                  onBlur={() => handleInlineSave(order.id, "totalAmount", inlineEdit.value)}
+                  onKeyDown={(e) => {
+                    if (e.key === "Enter") handleInlineSave(order.id, "totalAmount", inlineEdit.value);
+                    if (e.key === "Escape") setInlineEdit(null);
+                  }}
+                  className="w-20 px-1.5 py-0.5 text-right text-xs border border-[#6E1927] rounded bg-white text-[#40101A] focus:outline-none"
+                  autoFocus
+                />
+              ) : (
+                <button
+                  onClick={() =>
+                    setInlineEdit({
+                      orderId: order.id,
+                      field: "totalAmount",
+                      value: order.totalAmount ?? ""
+                    })
+                  }
+                  title="Κλικ για επεξεργασία ποσού"
+                  className={`w-full text-right px-1.5 py-0.5 rounded hover:bg-[#E4DCE1] ${
+                    order.totalAmount === null
+                      ? "text-[#8A7A84] italic"
+                      : order.totalAmount === 0
+                      ? "text-[#6E5C68]"
+                      : "font-bold text-[#40101A]"
+                  }`}
+                >
+                  {formatCurrency(order.totalAmount)}
+                </button>
+              )}
+            </td>
+
+            <td className="py-2 px-3 border-r border-[#E2DAE1] text-xs text-[#5A4652] tabular-nums">
+              {formatDateGR(order.orderDate)}
+            </td>
+
+            <td className="py-2 px-3 border-r border-[#E2DAE1]">
+              <OptionSelect
+                compact
+                value={order.salesChannel}
+                options={config.channels}
+                onChange={(val) => handleInlineSave(order.id, "salesChannel", val)}
+                onQuickAdd={(name, color) => handleAddOption("channels", name, color)}
+                categoryLabel="καναλιού"
+                placeholder="π.χ. Discogs, e-shop..."
+                defaultColor="indigo"
+              />
+            </td>
+
+            <td className="py-2 px-3 border-r border-[#E2DAE1]">
+              <OptionSelect
+                compact
+                value={order.status}
+                options={config.statuses}
+                onChange={(val) => handleStatusChange(order.id, val)}
+                onQuickAdd={(name, color) => handleAddOption("statuses", name, color)}
+                categoryLabel="κατάστασης"
+                placeholder="π.χ. Ready to Ship..."
+                defaultColor="amber"
+              />
+            </td>
+
+            <td className="py-2 px-3 border-r border-[#E2DAE1]">
+              <OptionSelect
+                compact
+                value={order.courierName}
+                options={config.couriers}
+                onChange={(val) => handleInlineSave(order.id, "courierName", val)}
+                onQuickAdd={(name, color) => handleAddOption("couriers", name, color)}
+                categoryLabel="μεταφορικής"
+                placeholder="π.χ. ACS, ΕΛΤΑ..."
+                defaultColor="lime"
+              />
+            </td>
+
+            <td className="py-2 px-3 border-r border-[#E2DAE1] font-mono text-xs">
+              {inlineEdit?.orderId === order.id && inlineEdit?.field === "trackingNumber" ? (
+                <input
+                  type="text"
+                  value={inlineEdit.value}
+                  onChange={(e) => setInlineEdit({ ...inlineEdit, value: e.target.value })}
+                  onBlur={() => handleInlineSave(order.id, "trackingNumber", inlineEdit.value)}
+                  onKeyDown={(e) => {
+                    if (e.key === "Enter") handleInlineSave(order.id, "trackingNumber", inlineEdit.value);
+                    if (e.key === "Escape") setInlineEdit(null);
+                  }}
+                  className="w-28 px-1.5 py-0.5 text-xs border border-[#6E1927] rounded bg-white text-[#40101A] focus:outline-none"
+                  autoFocus
+                />
+              ) : (
+                <button
+                  onClick={() =>
+                    setInlineEdit({
+                      orderId: order.id,
+                      field: "trackingNumber",
+                      value: order.trackingNumber || ""
+                    })
+                  }
+                  className="w-full text-left px-1.5 py-0.5 rounded hover:bg-[#E4DCE1] text-[#40101A] min-h-[24px] flex items-center"
+                >
+                  {order.trackingNumber ? (
+                    <span className="font-semibold">{order.trackingNumber}</span>
+                  ) : (
+                    <span className="text-[#9E8E98] text-[11px]">+ tracking</span>
+                  )}
+                </button>
+              )}
+            </td>
+
+            <td className="py-2 px-3 border-r border-[#E2DAE1] font-mono text-xs">
+              {inlineEdit?.orderId === order.id && inlineEdit?.field === "invoiceNumber" ? (
+                <input
+                  type="text"
+                  value={inlineEdit.value}
+                  onChange={(e) => setInlineEdit({ ...inlineEdit, value: e.target.value })}
+                  onBlur={() => handleInlineSave(order.id, "invoiceNumber", inlineEdit.value)}
+                  onKeyDown={(e) => {
+                    if (e.key === "Enter") handleInlineSave(order.id, "invoiceNumber", inlineEdit.value);
+                    if (e.key === "Escape") setInlineEdit(null);
+                  }}
+                  className="w-24 px-1.5 py-0.5 text-xs border border-[#6E1927] rounded bg-white text-[#40101A] focus:outline-none"
+                  autoFocus
+                />
+              ) : (
+                <button
+                  onClick={() =>
+                    setInlineEdit({
+                      orderId: order.id,
+                      field: "invoiceNumber",
+                      value: order.invoiceNumber || ""
+                    })
+                  }
+                  className="w-full text-left px-1.5 py-0.5 rounded hover:bg-[#E4DCE1] text-[#40101A] min-h-[24px] flex items-center"
+                >
+                  {order.invoiceNumber ? (
+                    <span>{order.invoiceNumber}</span>
+                  ) : (
+                    <span className="text-[#9E8E98] text-[11px]">+ ΑΠΥ/ΤΔΑ</span>
+                  )}
+                </button>
+              )}
+            </td>
+
+            <td className="py-2 px-3 text-center">
+              <div className="inline-flex items-center gap-1">
+                <button
+                  onClick={() => {
+                    setEditingOrder(order);
+                    setDefaultModalStatus(null);
+                    setIsOrderModalOpen(true);
+                  }}
+                  title="Επεξεργασία"
+                  className="p-1 text-[#6E5C68] hover:text-[#40101A] hover:bg-[#E4DCE1] rounded"
+                >
+                  ✎
+                </button>
+                <button
+                  onClick={() => setOrderToDelete(order)}
+                  title="Διαγραφή"
+                  className="p-1 text-[#6E5C68] hover:text-[#8A2233] hover:bg-rose-100 rounded"
+                >
+                  ✕
+                </button>
+              </div>
+            </td>
+          </tr>
+        );
+      };
+
+      // =======================================================================
+      // RENDER
+      // =======================================================================
+      return (
+        <div className="min-h-screen flex flex-col">
+          {toast && (
+            <div className="fixed bottom-5 right-5 z-50 flex items-center gap-2 bg-[#40101A] text-[#F9F6F8] px-4 py-3 rounded-xl shadow-2xl border border-[#6E1927] text-xs sm:text-sm font-semibold">
+              <span className="text-[#F4A6B3]">●</span>
+              <span>{toast.message}</span>
+            </div>
+          )}
+
+          {/* TOP BAR */}
+          <header className="bg-[#F6F4F7]/92 backdrop-blur-md border-b border-[#C7BEC6] sticky top-0 z-30 shadow-2xs">
+            <div className="max-w-[1600px] mx-auto px-4 sm:px-6 min-h-16 py-2 flex flex-wrap items-center justify-between gap-2.5">
+              <div className="flex items-center gap-3 min-w-0">
+                <NouvelleVilleLogoBadge size="md" />
+                <div className="min-w-0">
+                  <div className="flex items-center gap-2 flex-wrap">
+                    <EditableText
+                      as="h1"
+                      textKey="appTitle"
+                      fallback={DEFAULT_UI_TEXT.appTitle}
+                      overrides={textOverrides}
+                      editMode={editMode}
+                      onChangeText={handleEditTextOverride}
+                      className="text-sm sm:text-base font-extrabold text-[#40101A] truncate"
+                    />
+                    <EditableText
+                      as="span"
+                      textKey="appBadge"
+                      fallback={DEFAULT_UI_TEXT.appBadge}
+                      overrides={textOverrides}
+                      editMode={editMode}
+                      onChangeText={handleEditTextOverride}
+                      className="hidden md:inline-flex items-center px-2 py-0.5 rounded-full text-[11px] font-bold bg-[#EFE4E8] text-[#6E1927] border border-[#D4BAC3]"
+                    />
+                  </div>
+                  <EditableText
+                    as="p"
+                    textKey="appSubtitle"
+                    fallback={DEFAULT_UI_TEXT.appSubtitle}
+                    overrides={textOverrides}
+                    editMode={editMode}
+                    onChangeText={handleEditTextOverride}
+                    className="text-[11px] text-[#6E5C68] truncate font-medium"
+                  />
+                </div>
+              </div>
+
+              <div className="flex items-center gap-1.5 sm:gap-2 flex-wrap">
+                <button
+                  type="button"
+                  onClick={() => {
+                    const next = !editMode;
+                    setEditMode(next);
+                    showToast(
+                      next
+                        ? "Edit Mode ενεργό: πάτησε σε οποιοδήποτε κείμενο για διόρθωση."
+                        : "Edit Mode ανενεργό.",
+                      "info"
+                    );
+                  }}
+                  title="Ενεργοποίηση/απενεργοποίηση επεξεργασίας κειμένων στη σελίδα"
+                  className={`inline-flex items-center gap-1.5 px-2.5 py-1.5 text-xs font-bold rounded-lg border transition-all cursor-pointer ${
+                    editMode
+                      ? "bg-amber-300 text-[#40101A] border-[#6E1927] ring-2 ring-[#6E1927]/40"
+                      : "bg-white/85 text-[#40101A] border-[#C7BEC6] hover:bg-white"
+                  }`}
+                >
+                  <span>✎</span>
+                  <span>{editMode ? "Edit Mode: ON" : "Edit Mode"}</span>
+                </button>
+
+                {editMode && Object.keys(textOverrides).length > 0 && (
+                  <button
+                    type="button"
+                    onClick={handleResetAllTextOverrides}
+                    className="px-2 py-1.5 text-[11px] font-bold text-[#6E1927] bg-rose-100 hover:bg-rose-200 border border-rose-300 rounded-lg cursor-pointer"
+                  >
+                    Επαναφορά Κειμένων
+                  </button>
+                )}
+
+                {/* Supabase Sync Status Pill */}
+                <button
+                  onClick={() => setIsSyncModalOpen(true)}
+                  title={syncState.errorMsg || "Supabase Database Status"}
+                  className={`inline-flex items-center gap-1.5 px-2.5 py-1.5 text-xs font-bold rounded-lg border transition-colors cursor-pointer ${
+                    syncState.status === "synced"
+                      ? "bg-emerald-50 text-emerald-900 border-emerald-300"
+                      : syncState.status === "syncing"
+                      ? "bg-amber-50 text-amber-900 border-amber-300"
+                      : "bg-rose-50 text-rose-900 border-rose-300 hover:bg-rose-100"
+                  }`}
+                >
+                  <span
+                    className={`w-2 h-2 rounded-full ${
+                      syncState.status === "synced"
+                        ? "bg-emerald-600"
+                        : syncState.status === "syncing"
+                        ? "bg-amber-500 animate-pulse"
+                        : "bg-rose-600"
+                    }`}
+                  />
+                  <span>
+                    {syncState.status === "synced"
+                      ? "Supabase Live"
+                      : syncState.status === "syncing"
+                      ? "Συγχρονισμός..."
+                      : "Supabase Offline"}
+                  </span>
+                </button>
+
+                <button
+                  onClick={() => setIsShortcutModalOpen(true)}
+                  className="inline-flex items-center gap-1 px-2.5 py-1.5 text-xs font-bold text-[#40101A] bg-white/85 hover:bg-white border border-[#C7BEC6] rounded-lg transition-colors cursor-pointer"
+                >
+                  <span>📲</span>
+                  <span className="hidden sm:inline">Συντόμευση</span>
+                </button>
+
+                <button
+                  onClick={() => setIsOptionsOpen(true)}
+                  className="inline-flex items-center gap-1 px-2.5 py-1.5 text-xs font-semibold text-[#40101A] bg-[#EFECEF] hover:bg-[#E4DCE1] border border-[#C7BEC6] rounded-lg transition-colors cursor-pointer"
+                >
+                  <span>⚙</span>
+                  <span className="hidden lg:inline">Επιλογές</span>
+                </button>
+
+                <input ref={fileInputRef} type="file" accept=".csv" onChange={handleImportCSV} className="hidden" />
+                <button
+                  onClick={() => fileInputRef.current?.click()}
+                  className="hidden xl:inline-flex items-center gap-1 px-2.5 py-1.5 text-xs font-medium text-[#40101A] bg-white/80 hover:bg-white border border-[#C7BEC6] rounded-lg transition-colors cursor-pointer"
+                >
+                  <span>↑ Import</span>
+                </button>
+                <button
+                  onClick={handleExportCSV}
+                  className="hidden md:inline-flex items-center gap-1 px-2.5 py-1.5 text-xs font-medium text-[#40101A] bg-white/80 hover:bg-white border border-[#C7BEC6] rounded-lg transition-colors cursor-pointer"
+                >
+                  <span>↓ CSV</span>
+                </button>
+
+                <button
+                  onClick={() => setIsResetOpen(true)}
+                  title="Επαναφορά αρχικών δεδομένων"
+                  className="px-2 py-1.5 text-xs font-bold text-[#6E5C68] hover:text-[#6E1927] hover:bg-[#E4DCE1] rounded-lg transition-colors cursor-pointer"
+                >
+                  ↺
+                </button>
+
+                <button
+                  onClick={() => {
+                    setEditingOrder(null);
+                    setDefaultModalStatus(statusFilter !== "ALL" ? statusFilter : null);
+                    setIsOrderModalOpen(true);
+                  }}
+                  className="inline-flex items-center gap-1.5 px-3.5 py-2 text-xs sm:text-sm font-bold text-[#F9F6F8] bg-[#6E1927] hover:bg-[#8A2233] active:bg-[#4F101B] rounded-lg shadow-xs transition-all cursor-pointer"
+                >
+                  <span>+ Νέα Παραγγελία</span>
+                </button>
+              </div>
+            </div>
+          </header>
+
+          {/* MAIN WORKSPACE */}
+          <main className="flex-1 max-w-[1600px] w-full mx-auto px-4 sm:px-6 py-5 space-y-5">
+            {syncState.errorMsg && (
+              <div className="bg-rose-50 border border-rose-300 rounded-xl p-3.5 flex flex-wrap items-center justify-between gap-3 text-xs text-rose-900">
+                <div>
+                  <strong>Σφάλμα Supabase:</strong> {syncState.errorMsg}
+                </div>
+                <button
+                  onClick={() => pullFromSupabase(true)}
+                  className="px-3 py-1.5 bg-[#6E1927] text-white font-bold rounded-lg hover:bg-[#8A2233] cursor-pointer"
+                >
+                  Επανάληψη Συγχρονισμού
+                </button>
+              </div>
+            )}
+
+            {/* KPI & INVENTORY CARDS */}
+            <section className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-12 gap-4">
+              {config.products.map((prod) => {
+                const st = inventoryStats[prod.name] || {
+                  initial: prod.initialStock,
+                  allocated: 0,
+                  pending: 0,
+                  shippedOrDelivered: 0,
+                  availableAfterAllocated: prod.initialStock,
+                  physicalOnShelf: prod.initialStock
+                };
+                const tok = getColorTokens(prod.color, "crimsonVinyl");
+                const isGalaxy = prod.name === PRODUCT_GALAXY;
+
+                return (
+                  <div
+                    key={prod.name}
+                    className="xl:col-span-4 bg-[#F6F4F7]/95 backdrop-blur-sm rounded-xl border border-[#C7BEC6] p-4 shadow-sm flex flex-col justify-between"
+                  >
+                    <div className="flex items-start justify-between gap-2">
+                      <div className="flex items-center gap-2.5 min-w-0">
+                        <div
+                          className={`w-10 h-10 rounded-full flex items-center justify-center shadow-inner ring-2 shrink-0 ${
+                            isGalaxy
+                              ? "bg-gradient-to-tr from-[#1B060A] via-[#6E1927] to-[#B03045] ring-[#6E1927]/30"
+                              : `${tok.bar} ring-[#40101A]/20`
+                          }`}
+                        >
+                          <div className="w-2.5 h-2.5 rounded-full bg-[#F6F4F7]" />
+                        </div>
+
+                        <div className="min-w-0">
+                          <h2 className="text-sm font-extrabold text-[#40101A] truncate" title={prod.name}>
+                            {prod.name}
+                          </h2>
+                          <div className="flex items-center gap-1.5 text-xs text-[#6E5C68] mt-0.5">
+                            <EditableText
+                              as="span"
+                              textKey="initialStockLabel"
+                              fallback={DEFAULT_UI_TEXT.initialStockLabel}
+                              overrides={textOverrides}
+                              editMode={editMode}
+                              onChangeText={handleEditTextOverride}
+                              className="uppercase tracking-wider text-[10px] font-bold"
+                            />
+                            {editingStockKey === prod.name ? (
+                              <span className="inline-flex items-center gap-1">
+                                <input
+                                  type="number"
+                                  min="0"
+                                  value={tempStockValue}
+                                  onChange={(e) => setTempStockValue(e.target.value)}
+                                  onKeyDown={(e) => e.key === "Enter" && saveStockValue(prod.name)}
+                                  className="w-16 px-1.5 py-0.5 text-xs font-bold border border-[#6E1927] rounded bg-white text-[#40101A]"
+                                  autoFocus
+                                />
+                                <button
+                                  onClick={() => saveStockValue(prod.name)}
+                                  className="px-1.5 py-0.5 text-[11px] font-bold bg-[#6E1927] text-white rounded"
+                                >
+                                  ✓
+                                </button>
+                              </span>
+                            ) : (
+                              <button
+                                onClick={() => {
+                                  setEditingStockKey(prod.name);
+                                  setTempStockValue(String(st.initial));
+                                }}
+                                title="Κλικ για αλλαγή αρχικού αποθέματος"
+                                className="font-bold text-[#40101A] hover:text-[#8A2233] underline decoration-dotted"
+                              >
+                                {st.initial} τεμ.
+                              </button>
+                            )}
+                          </div>
+                        </div>
+                      </div>
+
+                      <div className="text-right shrink-0">
+                        <EditableText
+                          as="span"
+                          textKey="availableLabel"
+                          fallback={DEFAULT_UI_TEXT.availableLabel}
+                          overrides={textOverrides}
+                          editMode={editMode}
+                          onChangeText={handleEditTextOverride}
+                          className="text-[10px] font-bold uppercase tracking-wider text-[#6E5C68] block"
+                        />
+                        <span
+                          className={`text-2xl font-black tabular-nums ${
+                            st.availableAfterAllocated <= 15 ? "text-[#8A2233]" : "text-[#40101A]"
+                          }`}
+                        >
+                          {st.availableAfterAllocated}
+                        </span>
+                      </div>
+                    </div>
+
+                    <div className="mt-3.5">
+                      <div className="w-full h-2.5 bg-[#DFD7DE] rounded-full overflow-hidden flex">
+                        <div
+                          className={`${tok.bar} h-full transition-all duration-500`}
+                          style={{ width: `${Math.min(100, (st.shippedOrDelivered / Math.max(1, st.initial)) * 100)}%` }}
+                        />
+                        <div
+                          className="bg-amber-500 h-full transition-all duration-500"
+                          style={{ width: `${Math.min(100, (st.pending / Math.max(1, st.initial)) * 100)}%` }}
+                        />
+                      </div>
+
+                      <div className="flex flex-wrap items-center justify-between gap-2 text-[11px] text-[#5A4652] mt-2 tabular-nums">
+                        <div className="flex items-center gap-2.5">
+                          <span>
+                            <EditableText textKey="allocatedLabel" fallback={DEFAULT_UI_TEXT.allocatedLabel} overrides={textOverrides} editMode={editMode} onChangeText={handleEditTextOverride} />{" "}
+                            <strong className="text-[#40101A]">{st.allocated}</strong>
+                          </span>
+                          <span>
+                            PENDING: <strong className="text-amber-800">{st.pending}</strong>
+                          </span>
+                        </div>
+                        <span className="font-semibold text-[#40101A]">
+                          <EditableText textKey="shelfLabel" fallback={DEFAULT_UI_TEXT.shelfLabel} overrides={textOverrides} editMode={editMode} onChangeText={handleEditTextOverride} />{" "}
+                          <strong>{st.physicalOnShelf}</strong> τεμ.
+                        </span>
+                      </div>
+                    </div>
+                  </div>
+                );
+              })}
+
+              {/* Summary & Channel Filter Card */}
+              <div className="md:col-span-2 xl:col-span-4 bg-[#F6F4F7]/95 backdrop-blur-sm rounded-xl border border-[#C7BEC6] p-4 shadow-sm flex flex-col justify-between">
+                <div className="grid grid-cols-3 gap-2 pb-3 border-b border-[#DDD5DC] tabular-nums">
+                  <div>
+                    <EditableText
+                      as="span"
+                      textKey="revenueLabel"
+                      fallback={DEFAULT_UI_TEXT.revenueLabel}
+                      overrides={textOverrides}
+                      editMode={editMode}
+                      onChangeText={handleEditTextOverride}
+                      className="text-[10px] font-bold text-[#6E5C68] uppercase block"
+                    />
+                    <span className="text-lg sm:text-xl font-black text-[#40101A]">
+                      €{summaryStats.totalRevenue.toFixed(2)}
+                    </span>
+                  </div>
+                  <div>
+                    <EditableText
+                      as="span"
+                      textKey="ordersKpiLabel"
+                      fallback={DEFAULT_UI_TEXT.ordersKpiLabel}
+                      overrides={textOverrides}
+                      editMode={editMode}
+                      onChangeText={handleEditTextOverride}
+                      className="text-[10px] font-bold text-[#6E5C68] uppercase block"
+                    />
+                    <div className="flex items-baseline gap-1">
+                      <span className="text-lg sm:text-xl font-black text-[#40101A]">
+                        {summaryStats.totalOrders}
+                      </span>
+                      <span className="text-[11px] text-[#6E5C68]">({summaryStats.totalUnits} τεμ.)</span>
+                    </div>
+                  </div>
+                  <div>
+                    <span className="text-[10px] font-bold text-[#6E5C68] uppercase block">PENDING</span>
+                    <span className="text-lg sm:text-xl font-black text-amber-700">
+                      {summaryStats.pendingCount}
+                    </span>
+                  </div>
+                </div>
+
+                <div className="pt-2.5">
+                  <div className="flex items-center justify-between mb-1.5">
+                    <EditableText
+                      as="span"
+                      textKey="channelsHeading"
+                      fallback={DEFAULT_UI_TEXT.channelsHeading}
+                      overrides={textOverrides}
+                      editMode={editMode}
+                      onChangeText={handleEditTextOverride}
+                      className="text-[10px] font-bold uppercase tracking-wider text-[#6E5C68]"
+                    />
+                    <button
+                      onClick={() => {
+                        setOptionsTab("channels");
+                        setIsOptionsOpen(true);
+                      }}
+                      className="text-[10px] font-bold text-[#6E1927] hover:underline"
+                    >
+                      + Κανάλι
+                    </button>
+                  </div>
+                  <div className="grid grid-cols-2 gap-1.5">
+                    {config.channels.map((ch) => {
+                      const d = summaryStats.channelBreakdown[ch.name] || { count: 0, units: 0 };
+                      const sel = channelFilter === ch.name;
+                      const tok = getColorTokens(ch.color, "indigo");
+                      return (
+                        <button
+                          key={ch.name}
+                          onClick={() => setChannelFilter(sel ? "ALL" : ch.name)}
+                          className={`flex items-center justify-between px-2 py-1 rounded-md text-[11px] border transition-all cursor-pointer ${
+                            sel
+                              ? "ring-2 ring-[#6E1927] border-[#6E1927] bg-[#EFE8EC] font-bold"
+                              : "border-[#D8CFD7] hover:border-[#6E1927]/50 bg-white/80"
+                          }`}
+                        >
+                          <span className="inline-flex items-center gap-1.5 truncate text-[#40101A]">
+                            <span className={`w-1.5 h-1.5 rounded-full shrink-0 ${tok.dot}`} />
+                            <span className="truncate">{ch.name}</span>
+                          </span>
+                          <span className="font-extrabold text-[#40101A] ml-1 tabular-nums shrink-0">
+                            {d.count} <span className="font-normal text-[#6E5C68]">({d.units})</span>
+                          </span>
+                        </button>
+                      );
+                    })}
+                  </div>
+                </div>
+              </div>
+            </section>
+
+            {/* TOOLBAR */}
+            <section className="bg-[#F6F4F7]/95 backdrop-blur-sm rounded-xl border border-[#C7BEC6] p-3 shadow-sm space-y-3">
+              <div className="flex flex-wrap items-center justify-between gap-3">
+                <div className="flex items-center gap-1 bg-[#E6DFE5] p-1 rounded-lg border border-[#D4CAD3]">
+                  <button
+                    onClick={() => setViewMode("table")}
+                    className={`px-3 py-1.5 rounded-md text-xs font-bold transition-all cursor-pointer ${
+                      viewMode === "table"
+                        ? "bg-[#6E1927] text-[#F9F6F8] shadow-2xs"
+                        : "text-[#40101A] hover:bg-white/60"
+                    }`}
+                  >
+                    ⊞ Πίνακας
+                  </button>
+                  <button
+                    onClick={() => setViewMode("kanban")}
+                    className={`px-3 py-1.5 rounded-md text-xs font-bold transition-all cursor-pointer ${
+                      viewMode === "kanban"
+                        ? "bg-[#6E1927] text-[#F9F6F8] shadow-2xs"
+                        : "text-[#40101A] hover:bg-white/60"
+                    }`}
+                  >
+                    ◫ Kanban
+                  </button>
+                </div>
+
+                <div className="flex flex-wrap items-center gap-1.5">
+                  <button
+                    onClick={() => setStatusFilter("ALL")}
+                    className={`px-2.5 py-1 rounded-full text-xs font-bold border transition-all cursor-pointer ${
+                      statusFilter === "ALL"
+                        ? "bg-[#40101A] text-[#F9F6F8] border-[#40101A]"
+                        : "bg-white/85 text-[#40101A] border-[#C7BEC6] hover:border-[#6E1927]"
+                    }`}
+                  >
+                    Όλα ({orders.length})
+                  </button>
+
+                  {config.statuses.map((st) => {
+                    const cnt = orders.filter((o) => o.status === st.name).length;
+                    const tok = getColorTokens(st.color, "amber");
+                    const sel = statusFilter === st.name;
+                    return (
+                      <button
+                        key={st.name}
+                        onClick={() => setStatusFilter(sel ? "ALL" : st.name)}
+                        className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-bold border transition-all cursor-pointer ${
+                          sel
+                            ? `ring-2 ring-[#40101A] border-[#40101A] ${tok.pill}`
+                            : "bg-white/85 text-[#40101A] border-[#C7BEC6] hover:border-[#6E1927]"
+                        }`}
+                      >
+                        <span className={`w-2 h-2 rounded-full ${tok.dot}`} />
+                        <span>{st.name}</span>
+                        <span className="text-[11px] opacity-75">({cnt})</span>
+                      </button>
+                    );
+                  })}
+
+                  {viewMode === "table" && statusFilter === "ALL" && (
+                    <button
+                      type="button"
+                      onClick={() => setGroupByStatus((p) => !p)}
+                      className={`ml-1 inline-flex items-center gap-2 px-2.5 py-1 rounded-lg border text-xs font-bold transition-all cursor-pointer ${
+                        groupByStatus
+                          ? "bg-[#EFE4E8] text-[#6E1927] border-[#6E1927]/40"
+                          : "bg-white/75 text-[#6E5C68] border-[#C7BEC6]"
+                      }`}
+                    >
+                      <span>Ομαδοποίηση Status</span>
+                      <span
+                        className={`w-6 h-3.5 rounded-full p-0.5 transition-colors flex items-center ${
+                          groupByStatus ? "bg-[#6E1927] justify-end" : "bg-[#B8AEB6] justify-start"
+                        }`}
+                      >
+                        <span className="w-2.5 h-2.5 rounded-full bg-white" />
+                      </span>
+                    </button>
+                  )}
+                </div>
+
+                <div className="relative flex-1 min-w-[210px] max-w-sm">
+                  <input
+                    type="text"
+                    value={searchQuery}
+                    onChange={(e) => setSearchQuery(e.target.value)}
+                    placeholder="Αναζήτηση πελάτη, Box Now, #ID..."
+                    className="w-full pl-3 pr-7 py-1.5 text-xs sm:text-sm bg-white/90 text-[#40101A] placeholder-[#8E7E88] border border-[#C7BEC6] rounded-lg focus:outline-none focus:bg-white focus:border-[#6E1927]"
+                  />
+                  {searchQuery && (
+                    <button
+                      onClick={() => setSearchQuery("")}
+                      className="absolute right-2.5 top-1/2 -translate-y-1/2 text-[#6E5C68] hover:text-[#40101A] text-xs"
+                    >
+                      ✕
+                    </button>
+                  )}
+                </div>
+              </div>
+
+              <div className="flex flex-wrap items-center gap-2 pt-2 border-t border-[#DDD5DC] text-xs">
+                <EditableText
+                  as="span"
+                  textKey="filtersLabel"
+                  fallback={DEFAULT_UI_TEXT.filtersLabel}
+                  overrides={textOverrides}
+                  editMode={editMode}
+                  onChangeText={handleEditTextOverride}
+                  className="text-[#6E5C68] font-semibold mr-1"
+                />
+
+                <select
+                  value={productFilter}
+                  onChange={(e) => setProductFilter(e.target.value)}
+                  className={`px-2.5 py-1 rounded-md border text-xs font-semibold cursor-pointer focus:outline-none ${
+                    productFilter !== "ALL"
+                      ? "bg-[#6E1927] text-white border-[#6E1927]"
+                      : "bg-white/85 text-[#40101A] border-[#C7BEC6]"
+                  }`}
+                >
+                  <option value="ALL">Έκδοση: Όλες</option>
+                  {config.products.map((p) => (
+                    <option key={p.name} value={p.name}>
+                      {p.name}
+                    </option>
+                  ))}
+                </select>
+
+                <select
+                  value={channelFilter}
+                  onChange={(e) => setChannelFilter(e.target.value)}
+                  className={`px-2.5 py-1 rounded-md border text-xs font-semibold cursor-pointer focus:outline-none ${
+                    channelFilter !== "ALL"
+                      ? "bg-[#6E1927] text-white border-[#6E1927]"
+                      : "bg-white/85 text-[#40101A] border-[#C7BEC6]"
+                  }`}
+                >
+                  <option value="ALL">Κανάλι: Όλα</option>
+                  {config.channels.map((c) => (
+                    <option key={c.name} value={c.name}>
+                      {c.name}
+                    </option>
+                  ))}
+                </select>
+
+                <select
+                  value={courierFilter}
+                  onChange={(e) => setCourierFilter(e.target.value)}
+                  className={`px-2.5 py-1 rounded-md border text-xs font-semibold cursor-pointer focus:outline-none ${
+                    courierFilter !== "ALL"
+                      ? "bg-[#6E1927] text-white border-[#6E1927]"
+                      : "bg-white/85 text-[#40101A] border-[#C7BEC6]"
+                  }`}
+                >
+                  <option value="ALL">Μεταφορική: Όλες</option>
+                  {config.couriers.map((c) => (
+                    <option key={c.name} value={c.name}>
+                      {c.name}
+                    </option>
+                  ))}
+                </select>
+
+                {activeFiltersCount > 0 && (
+                  <button
+                    onClick={clearAllFilters}
+                    className="px-2.5 py-1 rounded-md text-xs font-bold text-[#6E1927] bg-rose-100 hover:bg-rose-200 border border-rose-300 cursor-pointer"
+                  >
+                    ✕ Καθαρισμός ({activeFiltersCount})
+                  </button>
+                )}
+
+                <div className="ml-auto text-xs text-[#6E5C68] tabular-nums">
+                  Εμφάνιση <strong className="text-[#40101A]">{filteredOrders.length}</strong> /{" "}
+                  <strong className="text-[#40101A]">{orders.length}</strong>
+                </div>
+              </div>
+            </section>
+
+            {/* TABLE VIEW */}
+            {viewMode === "table" && (
+              <>
+                {statusFilter === "ALL" && groupByStatus ? (
+                  <section className="space-y-4">
+                    {groupedSections.map((grp) => {
+                      const tok = getColorTokens(grp.color, "amber");
+                      const collapsed = !!collapsedGroups[grp.statusName];
+
+                      return (
+                        <div
+                          key={grp.statusName}
+                          className={`bg-[#F6F4F7]/95 backdrop-blur-sm rounded-xl border border-[#C7BEC6] border-l-4 ${tok.borderLeft} shadow-sm overflow-visible`}
+                        >
+                          <div
+                            className={`px-4 py-3 border-b ${
+                              collapsed ? "border-transparent rounded-xl" : "border-[#CFC5CE] rounded-t-xl"
+                            } ${tok.groupHeaderBg} flex flex-wrap items-center justify-between gap-3`}
+                          >
+                            <div className="flex items-center gap-3">
+                              <button
+                                type="button"
+                                onClick={() =>
+                                  setCollapsedGroups((p) => ({ ...p, [grp.statusName]: !p[grp.statusName] }))
+                                }
+                                className="px-1.5 py-0.5 rounded hover:bg-black/5 text-xs font-bold text-[#40101A] cursor-pointer"
+                              >
+                                {collapsed ? "▸" : "▾"}
+                              </button>
+
+                              <span className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-extrabold border ${tok.pill}`}>
+                                <span className={`w-2 h-2 rounded-full ${tok.dot}`} />
+                                <span>{grp.statusName}</span>
+                              </span>
+
+                              <span className="text-xs font-extrabold text-[#40101A] bg-white/90 px-2.5 py-0.5 rounded-full border border-[#C7BEC6] tabular-nums">
+                                {grp.orders.length} {grp.orders.length === 1 ? "παραγγελία" : "παραγγελίες"}
+                              </span>
+
+                              <div className="hidden sm:flex items-center gap-3 text-xs text-[#5A4652] pl-2 border-l border-[#C7BEC6] tabular-nums">
+                                <span>
+                                  Τεμάχια: <strong className="text-[#40101A]">{grp.totalUnits}</strong>
+                                </span>
+                                <span>
+                                  Σύνολο: <strong className="text-[#40101A]">€{grp.totalRevenue.toFixed(2)}</strong>
+                                </span>
+                              </div>
+                            </div>
+
+                            <button
+                              type="button"
+                              onClick={() => {
+                                setEditingOrder(null);
+                                setDefaultModalStatus(grp.statusName);
+                                setIsOrderModalOpen(true);
+                              }}
+                              className="px-2.5 py-1 rounded-lg text-xs font-bold bg-white/95 hover:bg-white text-[#40101A] border border-[#C7BEC6] cursor-pointer"
+                            >
+                              + Σε {grp.statusName}
+                            </button>
+                          </div>
+
+                          {!collapsed && (
+                            <>
+                              <div className="overflow-x-auto overflow-y-visible">
+                                <table className="w-full text-left border-collapse text-xs sm:text-sm">
+                                  {renderTableHead()}
+                                  <tbody className="divide-y divide-[#E2DAE1]">
+                                    {grp.orders.length === 0 ? (
+                                      <tr>
+                                        <td colSpan={12} className="py-6 text-center text-xs text-[#6E5C68] italic">
+                                          Καμία παραγγελία σε κατάσταση «{grp.statusName}».
+                                        </td>
+                                      </tr>
+                                    ) : (
+                                      grp.orders.map(renderRow)
+                                    )}
+                                  </tbody>
+                                </table>
+                              </div>
+                              <div className="bg-[#EFECEF] border-t border-[#D8CFD7] px-4 py-2 flex items-center justify-between text-[11px] text-[#5A4652] rounded-b-xl tabular-nums">
+                                <button
+                                  type="button"
+                                  onClick={() => {
+                                    setEditingOrder(null);
+                                    setDefaultModalStatus(grp.statusName);
+                                    setIsOrderModalOpen(true);
+                                  }}
+                                  className="font-bold text-[#6E1927] hover:underline cursor-pointer"
+                                >
+                                  + Νέα παραγγελία σε {grp.statusName}
+                                </button>
+                                <div className="flex items-center gap-4">
+                                  <span>
+                                    Τεμάχια: <strong className="text-[#40101A]">{grp.totalUnits}</strong>
+                                  </span>
+                                  <span>
+                                    Σύνολο: <strong className="text-[#40101A]">€{grp.totalRevenue.toFixed(2)}</strong>
+                                  </span>
+                                </div>
+                              </div>
+                            </>
+                          )}
+                        </div>
+                      );
+                    })}
+                  </section>
+                ) : (
+                  <section className="bg-[#F6F4F7]/95 backdrop-blur-sm rounded-xl border border-[#C7BEC6] shadow-sm overflow-visible">
+                    <div className="overflow-x-auto overflow-y-visible">
+                      <table className="w-full text-left border-collapse text-xs sm:text-sm">
+                        {renderTableHead()}
+                        <tbody className="divide-y divide-[#E2DAE1]">
+                          {filteredOrders.length === 0 ? (
+                            <tr>
+                              <td colSpan={12} className="py-12 text-center text-[#6E5C68] text-sm font-semibold">
+                                Δεν βρέθηκαν παραγγελίες με αυτά τα φίλτρα.
+                              </td>
+                            </tr>
+                          ) : (
+                            filteredOrders.map(renderRow)
+                          )}
+                        </tbody>
+                      </table>
+                    </div>
+                  </section>
+                )}
+              </>
+            )}
+
+            {/* KANBAN VIEW */}
+            {viewMode === "kanban" && (
+              <section className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 items-start">
+                {config.statuses.map((stObj, idx) => {
+                  const status = stObj.name;
+                  const tok = getColorTokens(stObj.color, "amber");
+                  const list = filteredOrders.filter((o) => o.status === status);
+                  const units = list.reduce(
+                    (s, o) => s + o.items.reduce((a, i) => a + (Number(i.qty) || 0), 0),
+                    0
+                  );
+                  const prevSt = idx > 0 ? config.statuses[idx - 1].name : null;
+                  const nextSt = idx < config.statuses.length - 1 ? config.statuses[idx + 1].name : null;
+
+                  return (
+                    <div
+                      key={status}
+                      onDragOver={(e) => {
+                        e.preventDefault();
+                        if (dragOverColumn !== status) setDragOverColumn(status);
+                      }}
+                      onDragLeave={() => setDragOverColumn(null)}
+                      onDrop={(e) => {
+                        e.preventDefault();
+                        setDragOverColumn(null);
+                        const id = draggedOrderId || parseInt(e.dataTransfer.getData("text/plain"), 10);
+                        if (id) handleStatusChange(id, status);
+                        setDraggedOrderId(null);
+                      }}
+                      className={`bg-[#EFECEF]/92 backdrop-blur-sm rounded-xl border border-[#C7BEC6] border-t-4 ${
+                        tok.borderTop
+                      } p-3 min-h-[380px] shadow-sm transition-colors ${
+                        dragOverColumn === status ? "ring-2 ring-[#6E1927] bg-[#F6F4F7]" : ""
+                      }`}
+                    >
+                      <div className="flex items-center justify-between mb-3 px-1">
+                        <div className="flex items-center gap-2">
+                          <span className={`px-2.5 py-0.5 rounded-full text-xs font-extrabold border ${tok.pill}`}>
+                            {status}
+                          </span>
+                          <span className="text-xs font-extrabold text-[#40101A] bg-white px-2 py-0.5 rounded-full border border-[#C7BEC6]">
+                            {list.length}
+                          </span>
+                        </div>
+                        <span className="text-[11px] font-semibold text-[#5A4652] tabular-nums">{units} τεμ.</span>
+                      </div>
+
+                      <div className="space-y-2.5">
+                        {list.length === 0 ? (
+                          <div className="border-2 border-dashed border-[#C7BEC6] rounded-lg py-10 text-center text-xs text-[#6E5C68]">
+                            Σύρε μια κάρτα εδώ
+                          </div>
+                        ) : (
+                          list.map((order) => {
+                            const chTok = getColorTokens(
+                              config.channels.find((c) => c.name === order.salesChannel)?.color,
+                              "indigo"
+                            );
+                            const crTok = getColorTokens(
+                              config.couriers.find((c) => c.name === order.courierName)?.color,
+                              "stone"
+                            );
+                            return (
+                              <div
+                                key={order.id}
+                                draggable
+                                onDragStart={(e) => {
+                                  setDraggedOrderId(order.id);
+                                  e.dataTransfer.setData("text/plain", String(order.id));
+                                }}
+                                className="bg-white/95 rounded-lg border border-[#D4CAD3] p-3 shadow-2xs hover:shadow-md hover:border-[#6E1927]/60 transition-all cursor-grab active:cursor-grabbing"
+                              >
+                                <div className="flex items-center justify-between text-[11px] text-[#6E5C68] mb-1 tabular-nums">
+                                  <span className="font-mono font-bold text-[#5A4652]">
+                                    #{order.id} • {formatDateGR(order.orderDate)}
+                                  </span>
+                                  <span className="font-extrabold text-[#40101A] text-xs">
+                                    {formatCurrency(order.totalAmount)}
+                                  </span>
+                                </div>
+
+                                <h3
+                                  onClick={() => {
+                                    setEditingOrder(order);
+                                    setDefaultModalStatus(null);
+                                    setIsOrderModalOpen(true);
+                                  }}
+                                  className="font-extrabold text-sm text-[#40101A] hover:text-[#8A2233] cursor-pointer mb-2"
+                                >
+                                  {order.customer}
+                                </h3>
+
+                                <div className="flex flex-wrap gap-1 mb-2.5">
+                                  {order.items.map((item, i) => {
+                                    const pCfg = config.products.find((p) => p.name === item.product);
+                                    const pTok = getColorTokens(pCfg?.color, "crimsonVinyl");
+                                    return (
+                                      <span
+                                        key={i}
+                                        className={`inline-flex items-center gap-1 px-2 py-0.5 rounded text-[11px] font-medium border ${pTok.pill}`}
+                                      >
+                                        <span>{pCfg?.shortName || item.product}</span>
+                                        <span className="font-bold">×{item.qty}</span>
+                                      </span>
+                                    );
+                                  })}
+                                </div>
+
+                                <div className="flex items-center justify-between gap-1.5 pt-2 border-t border-[#EAE2E8] text-[11px]">
+                                  <span className={`px-2 py-0.5 rounded-full border font-semibold ${chTok.pill}`}>
+                                    {order.salesChannel}
+                                  </span>
+                                  <span className={`px-2 py-0.5 rounded border font-semibold ${crTok.pill}`}>
+                                    {order.courierName}
+                                  </span>
+                                </div>
+
+                                {order.trackingNumber && (
+                                  <div className="mt-2 px-2 py-1 bg-[#F6F4F7] rounded border border-[#D8CFD7] font-mono text-[11px] flex items-center justify-between">
+                                    <span className="text-[#6E5C68]">Tracking:</span>
+                                    <span className="font-bold text-[#40101A]">{order.trackingNumber}</span>
+                                  </div>
+                                )}
+
+                                <div className="mt-2.5 pt-2 border-t border-[#EAE2E8] flex items-center justify-between gap-1">
+                                  {prevSt ? (
+                                    <button
+                                      onClick={() => handleStatusChange(order.id, prevSt)}
+                                      className="text-[11px] font-semibold text-[#5A4652] hover:text-[#40101A] px-1.5 py-0.5 rounded hover:bg-[#EFECEF] cursor-pointer"
+                                    >
+                                      ← {prevSt}
+                                    </button>
+                                  ) : (
+                                    <span />
+                                  )}
+                                  {nextSt && (
+                                    <button
+                                      onClick={() => handleStatusChange(order.id, nextSt)}
+                                      className="text-[11px] font-bold text-white bg-[#6E1927] hover:bg-[#8A2233] px-2 py-0.5 rounded cursor-pointer"
+                                    >
+                                      {nextSt} →
+                                    </button>
+                                  )}
+                                </div>
+                              </div>
+                            );
+                          })
+                        )}
+                      </div>
+                    </div>
+                  );
+                })}
+              </section>
+            )}
+          </main>
+
+          {/* MODAL 1: ADD / EDIT ORDER */}
+          {isOrderModalOpen && (
+            <OrderModal
+              initialData={editingOrder}
+              presetStatus={defaultModalStatus}
+              nextId={nextOrderId}
+              config={config}
+              onQuickAdd={handleAddOption}
+              onClose={() => {
+                setIsOrderModalOpen(false);
+                setEditingOrder(null);
+                setDefaultModalStatus(null);
+              }}
+              onSave={handleSaveOrder}
+            />
+          )}
+
+          {/* MODAL 2: MANAGE OPTIONS & PRODUCTS */}
+          {isOptionsOpen && (
+            <OptionsModal
+              config={config}
+              activeTab={optionsTab}
+              setActiveTab={setOptionsTab}
+              onAdd={handleAddOption}
+              onUpdate={handleUpdateOption}
+              onDelete={handleDeleteOption}
+              onMove={handleMoveOption}
+              onClose={() => setIsOptionsOpen(false)}
+            />
+          )}
+
+          {/* MODAL 3: SUPABASE STATUS & SYNC */}
+          {isSyncModalOpen && (
+            <div className="fixed inset-0 z-50 bg-[#2C0B12]/60 backdrop-blur-xs flex items-center justify-center p-4 overflow-y-auto">
+              <div className="bg-[#F6F4F7] rounded-2xl border border-[#C7BEC6] max-w-md w-full shadow-2xl overflow-hidden my-auto">
+                <div className="px-5 py-4 border-b border-[#D8CFD7] flex items-center justify-between bg-[#EFECEF]">
+                  <h2 className="text-base font-extrabold text-[#40101A]">Supabase Database Sync</h2>
+                  <button onClick={() => setIsSyncModalOpen(false)} className="p-1 text-[#6E5C68] hover:text-[#40101A]">
+                    ✕
+                  </button>
+                </div>
+                <div className="p-5 space-y-3 text-xs text-[#40101A]">
+                  <div className="p-3 rounded-xl bg-white/90 border border-[#D4CAD3] space-y-1">
+                    <div className="font-bold text-[#6E1927]">Project URL</div>
+                    <div className="font-mono break-all">{SUPABASE_URL}</div>
+                  </div>
+                  <div className="p-3 rounded-xl bg-white/90 border border-[#D4CAD3] flex items-center justify-between">
+                    <span className="font-bold">Κατάσταση:</span>
+                    <span className="font-extrabold">
+                      {syncState.status === "synced"
+                        ? "Συνδεδεμένο (Live)"
+                        : syncState.status === "syncing"
+                        ? "Συγχρονισμός..."
+                        : "Offline / Σφάλμα"}
+                    </span>
+                  </div>
+                  {syncState.errorMsg && (
+                    <div className="p-3 rounded-xl bg-rose-100 border border-rose-300 text-rose-900 font-semibold">
+                      {syncState.errorMsg}
+                    </div>
+                  )}
+                  <div className="pt-2 flex justify-between items-center">
+                    <button
+                      type="button"
+                      onClick={() => pullFromSupabase(true)}
+                      className="px-3.5 py-2 text-xs font-bold bg-[#EFECEF] hover:bg-[#E4DCE1] border border-[#C7BEC6] rounded-lg cursor-pointer"
+                    >
+                      ↻ Φόρτωση από Supabase
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => setIsSyncModalOpen(false)}
+                      className="px-4 py-2 text-xs font-bold text-white bg-[#6E1927] hover:bg-[#8A2233] rounded-lg cursor-pointer"
+                    >
+                      Κλείσιμο
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* MODAL 4: SHORTCUT GUIDE */}
+          {isShortcutModalOpen && (
+            <div className="fixed inset-0 z-50 bg-[#2C0B12]/60 backdrop-blur-xs flex items-center justify-center p-4">
+              <div className="bg-[#F6F4F7] rounded-2xl border border-[#C7BEC6] max-w-md w-full shadow-2xl overflow-hidden">
+                <div className="px-5 py-4 border-b border-[#D8CFD7] flex items-center justify-between bg-[#EFECEF]">
+                  <h2 className="text-base font-extrabold text-[#40101A]">
+                    📲 Συντόμευση σε Κινητό & Desktop
+                  </h2>
+                  <button
+                    onClick={() => setIsShortcutModalOpen(false)}
+                    className="p-1 text-[#6E5C68] hover:text-[#40101A] rounded-lg"
+                  >
+                    ✕
+                  </button>
+                </div>
+
+                <div className="p-5 space-y-3.5 text-xs text-[#40101A] leading-relaxed">
+                  <div className="p-3 rounded-xl bg-white/90 border border-[#D4CAD3]">
+                    <div className="font-extrabold mb-1">📱 iPhone / iPad (Safari)</div>
+                    Πάτησε το κουμπί <strong>Κοινή χρήση (Share ↑)</strong> και επίλεξε{" "}
+                    <strong>«Προσθήκη στην Οθόνη Αφετηρίας»</strong>.
+                  </div>
+                  <div className="p-3 rounded-xl bg-white/90 border border-[#D4CAD3]">
+                    <div className="font-extrabold mb-1">🤖 Android (Chrome)</div>
+                    Πάτησε τις <strong>τρεις τελείες (⋮)</strong> πάνω δεξιά και επίλεξε{" "}
+                    <strong>«Προσθήκη στην αρχική οθόνη»</strong>.
+                  </div>
+                  <div className="p-3 rounded-xl bg-white/90 border border-[#D4CAD3]">
+                    <div className="font-extrabold mb-1">💻 Desktop (Chrome / Edge)</div>
+                    Πάτησε <strong>Install as app</strong> από το μενού του browser ώστε να ανοίγει σαν αυτόνομη εφαρμογή.
+                  </div>
+                </div>
+
+                <div className="px-5 py-3 bg-[#EFECEF] border-t border-[#D8CFD7] flex justify-end">
+                  <button
+                    onClick={() => setIsShortcutModalOpen(false)}
+                    className="px-4 py-1.5 text-xs font-bold text-white bg-[#6E1927] hover:bg-[#8A2233] rounded-lg cursor-pointer"
+                  >
+                    Κατάλαβα
+                  </button>
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* DELETE & RESET CONFIRMATIONS */}
+          {orderToDelete && (
+            <div className="fixed inset-0 z-50 bg-[#2C0B12]/60 backdrop-blur-xs flex items-center justify-center p-4">
+              <div className="bg-[#F6F4F7] rounded-xl border border-[#C7BEC6] max-w-sm w-full p-5 shadow-2xl">
+                <h3 className="font-extrabold text-[#40101A] text-base mb-1">
+                  Διαγραφή παραγγελίας #{orderToDelete.id};
+                </h3>
+                <p className="text-xs text-[#5A4652] mb-4">
+                  Πελάτης: <strong>{orderToDelete.customer}</strong>. Τα βινύλια θα επιστρέψουν στο διαθέσιμο απόθεμα.
+                </p>
+                <div className="flex justify-end gap-2">
+                  <button
+                    onClick={() => setOrderToDelete(null)}
+                    className="px-3.5 py-1.5 text-xs font-semibold text-[#40101A] bg-[#E6DFE5] hover:bg-[#D8CFD7] rounded-lg cursor-pointer"
+                  >
+                    Ακύρωση
+                  </button>
+                  <button
+                    onClick={() => handleDeleteOrder(orderToDelete.id)}
+                    className="px-3.5 py-1.5 text-xs font-bold text-white bg-[#6E1927] hover:bg-[#8A2233] rounded-lg cursor-pointer"
+                  >
+                    Διαγραφή
+                  </button>
+                </div>
+              </div>
+            </div>
+          )}
+
+          {isResetOpen && (
+            <div className="fixed inset-0 z-50 bg-[#2C0B12]/60 backdrop-blur-xs flex items-center justify-center p-4">
+              <div className="bg-[#F6F4F7] rounded-xl border border-[#C7BEC6] max-w-sm w-full p-5 shadow-2xl">
+                <h3 className="font-extrabold text-[#40101A] text-base mb-1.5">
+                  Επαναφορά αρχικών δεδομένων;
+                </h3>
+                <p className="text-xs text-[#5A4652] mb-4">
+                  Θα επανέλθουν οι 16 αρχικές παραγγελίες και το αρχικό απόθεμα (100 Galaxy / 100 Black).
+                </p>
+                <div className="flex justify-end gap-2">
+                  <button
+                    onClick={() => setIsResetOpen(false)}
+                    className="px-3.5 py-1.5 text-xs font-semibold text-[#40101A] bg-[#E6DFE5] hover:bg-[#D8CFD7] rounded-lg cursor-pointer"
+                  >
+                    Ακύρωση
+                  </button>
+                  <button
+                    onClick={handleResetAll}
+                    className="px-3.5 py-1.5 text-xs font-bold text-white bg-[#6E1927] hover:bg-[#8A2233] rounded-lg cursor-pointer"
+                  >
+                    Επαναφορά
+                  </button>
+                </div>
+              </div>
+            </div>
+          )}
+        </div>
+      );
+    }
+
+    // =========================================================================
+    // SUB-MODALS
+    // =========================================================================
+    function OrderModal({ initialData, presetStatus, nextId, config, onQuickAdd, onClose, onSave }) {
+      const [productQtys, setProductQtys] = useState(() => {
+        const map = {};
+        config.products.forEach((p, idx) => {
+          const existing = initialData?.items?.find((i) => i.product === p.name)?.qty;
+          map[p.name] = initialData ? existing || 0 : idx === 0 ? 1 : 0;
+        });
+        return map;
+      });
+      const [customer, setCustomer] = useState(initialData?.customer || "");
+      const [totalAmount, setTotalAmount] = useState(
+        initialData?.totalAmount !== null && initialData?.totalAmount !== undefined
+          ? String(initialData.totalAmount)
+          : ""
+      );
+      const [orderDate, setOrderDate] = useState(
+        initialData?.orderDate || new Date().toISOString().slice(0, 10)
+      );
+      const [salesChannel, setSalesChannel] = useState(
+        initialData?.salesChannel || config.channels[1]?.name || config.channels[0]?.name || "Direct Message"
+      );
+      const [status, setStatus] = useState(
+        initialData?.status || presetStatus || config.statuses[0]?.name || "Pending"
+      );
+      const [courierName, setCourierName] = useState(
+        initialData?.courierName || config.couriers[0]?.name || "On hand"
+      );
+      const [trackingNumber, setTrackingNumber] = useState(initialData?.trackingNumber || "");
+      const [invoiceNumber, setInvoiceNumber] = useState(initialData?.invoiceNumber || "");
+      const [error, setError] = useState("");
+
+      const [addingProd, setAddingProd] = useState(false);
+      const [newProdName, setNewProdName] = useState("");
+      const [newProdStock, setNewProdStock] = useState("50");
+
+      const totalUnits = Object.values(productQtys).reduce(
+        (s, q) => s + Math.max(0, parseInt(q, 10) || 0),
+        0
+      );
+
+      const submitOrder = (e) => {
+        e.preventDefault();
+        if (!customer.trim()) {
+          setError("Συμπλήρωσε το όνομα του πελάτη.");
+          return;
+        }
+        const items = [];
+        Object.entries(productQtys).forEach(([prodName, rawQ]) => {
+          const q = Math.max(0, parseInt(rawQ, 10) || 0);
+          if (q > 0) items.push({ product: prodName, qty: q });
+        });
+        if (!items.length) {
+          setError("Επίλεξε τουλάχιστον 1 τεμάχιο.");
+          return;
+        }
+        const amt = totalAmount.trim() === "" ? null : parseFloat(totalAmount);
+        onSave({
+          customer: customer.trim(),
+          items,
+          totalAmount: isNaN(amt) ? null : amt,
+          orderDate,
+          salesChannel,
+          status,
+          courierName,
+          trackingNumber: trackingNumber.trim(),
+          invoiceNumber: invoiceNumber.trim()
+        });
+      };
+
+      return (
+        <div className="fixed inset-0 z-50 bg-[#2C0B12]/60 backdrop-blur-xs flex items-center justify-center p-4 overflow-y-auto">
+          <div className="bg-[#F6F4F7] rounded-2xl border border-[#C7BEC6] max-w-lg w-full shadow-2xl overflow-visible my-auto">
+            <div className="px-5 py-4 border-b border-[#D8CFD7] flex items-center justify-between bg-[#EFECEF] rounded-t-2xl">
+              <div className="flex items-center gap-2">
+                <span className="px-2 py-0.5 rounded bg-[#6E1927] text-white font-mono text-xs font-bold">
+                  #{initialData ? initialData.id : nextId}
+                </span>
+                <h2 className="text-base font-extrabold text-[#40101A]">
+                  {initialData ? "Επεξεργασία Παραγγελίας" : "Νέα Παραγγελία «3,14»"}
+                </h2>
+              </div>
+              <button onClick={onClose} className="p-1 text-[#6E5C68] hover:text-[#40101A] rounded-lg">
+                ✕
+              </button>
+            </div>
+
+            <form onSubmit={submitOrder} className="p-5 space-y-4 text-sm">
+              {error && (
+                <div className="p-2.5 rounded-lg bg-rose-100 border border-rose-300 text-[#6E1927] text-xs font-bold">
+                  {error}
+                </div>
+              )}
+
+              <div>
+                <label className="block text-xs font-bold text-[#40101A] mb-1">Πελάτης *</label>
+                <input
+                  type="text"
+                  value={customer}
+                  onChange={(e) => setCustomer(e.target.value)}
+                  placeholder="Ονοματεπώνυμο πελάτη"
+                  className="w-full px-3 py-2 rounded-lg border border-[#C7BEC6] bg-white text-[#40101A] focus:outline-none focus:border-[#6E1927]"
+                  autoFocus
+                />
+              </div>
+
+              <div className="bg-[#EFECEF] p-3.5 rounded-xl border border-[#D4CAD3] space-y-2.5">
+                <div className="flex items-center justify-between">
+                  <span className="text-xs font-extrabold text-[#40101A]">Εκδόσεις & Ποσότητα</span>
+                  <span className="text-[11px] text-[#5A4652] tabular-nums">
+                    Σύνολο: <strong className="text-[#40101A]">{totalUnits}</strong> τεμ.
+                  </span>
+                </div>
+
+                <div className="space-y-2 max-h-44 overflow-y-auto">
+                  {config.products.map((prod) => {
+                    const q = productQtys[prod.name] ?? 0;
+                    const tok = getColorTokens(prod.color, "crimsonVinyl");
+                    const isGalaxy = prod.name === PRODUCT_GALAXY;
+                    return (
+                      <div
+                        key={prod.name}
+                        className="flex items-center justify-between bg-white/95 p-2.5 rounded-lg border border-[#D4CAD3]"
+                      >
+                        <div className="flex items-center gap-2.5 min-w-0 pr-2">
+                          <div
+                            className={`w-6 h-6 rounded-full shrink-0 ${
+                              isGalaxy
+                                ? "bg-gradient-to-tr from-[#1B060A] via-[#6E1927] to-[#B03045]"
+                                : tok.bar
+                            }`}
+                          />
+                          <div className="min-w-0">
+                            <div className="text-xs font-extrabold text-[#40101A] truncate">{prod.name}</div>
+                            <div className="text-[10px] text-[#6E5C68] truncate">
+                              {prod.subtitle || `Αρχικό: ${prod.initialStock}`}
+                            </div>
+                          </div>
+                        </div>
+
+                        <div className="flex items-center gap-1 shrink-0">
+                          <button
+                            type="button"
+                            onClick={() =>
+                              setProductQtys((p) => ({
+                                ...p,
+                                [prod.name]: Math.max(0, (parseInt(p[prod.name], 10) || 0) - 1)
+                              }))
+                            }
+                            className="w-7 h-7 rounded-md bg-[#E6DFE5] hover:bg-[#D8CFD7] font-bold text-[#40101A]"
+                          >
+                            -
+                          </button>
+                          <input
+                            type="number"
+                            min="0"
+                            value={q}
+                            onChange={(e) => setProductQtys((p) => ({ ...p, [prod.name]: e.target.value }))}
+                            className="w-12 text-center py-1 text-xs font-bold border border-[#C7BEC6] rounded-md text-[#40101A]"
+                          />
+                          <button
+                            type="button"
+                            onClick={() =>
+                              setProductQtys((p) => ({
+                                ...p,
+                                [prod.name]: (parseInt(p[prod.name], 10) || 0) + 1
+                              }))
+                            }
+                            className="w-7 h-7 rounded-md bg-[#E6DFE5] hover:bg-[#D8CFD7] font-bold text-[#40101A]"
+                          >
+                            +
+                          </button>
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
+
+                {!addingProd ? (
+                  <button
+                    type="button"
+                    onClick={() => setAddingProd(true)}
+                    className="text-[11px] font-bold text-[#6E1927] hover:underline pt-0.5"
+                  >
+                    + Προσθήκη νέας έκδοσης / προϊόντος
+                  </button>
+                ) : (
+                  <div className="pt-2 border-t border-[#D4CAD3] flex items-center gap-2">
+                    <input
+                      type="text"
+                      value={newProdName}
+                      onChange={(e) => setNewProdName(e.target.value)}
+                      placeholder="π.χ. 3,14 CD / Merch"
+                      className="flex-1 px-2.5 py-1.5 text-xs bg-white border border-[#C7BEC6] rounded-lg"
+                    />
+                    <input
+                      type="number"
+                      min="0"
+                      value={newProdStock}
+                      onChange={(e) => setNewProdStock(e.target.value)}
+                      className="w-16 px-2 py-1.5 text-xs bg-white border border-[#C7BEC6] rounded-lg"
+                    />
+                    <button
+                      type="button"
+                      onClick={() => {
+                        if (!newProdName.trim()) return;
+                        const ok = onQuickAdd("products", newProdName, "purple", {
+                          initialStock: newProdStock,
+                          shortName: newProdName.trim()
+                        });
+                        if (ok) {
+                          setProductQtys((p) => ({ ...p, [newProdName.trim()]: 1 }));
+                          setNewProdName("");
+                          setAddingProd(false);
+                        }
+                      }}
+                      className="px-2.5 py-1.5 text-xs font-bold bg-[#6E1927] text-white rounded-lg"
+                    >
+                      OK
+                    </button>
+                  </div>
+                )}
+              </div>
+
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                <div>
+                  <label className="block text-xs font-bold text-[#40101A] mb-1">Ποσό (€)</label>
+                  <input
+                    type="number"
+                    step="0.01"
+                    value={totalAmount}
+                    onChange={(e) => setTotalAmount(e.target.value)}
+                    placeholder="π.χ. 25.00 (ή 0 για Gift)"
+                    className="w-full px-3 py-2 rounded-lg border border-[#C7BEC6] bg-white text-[#40101A] focus:outline-none focus:border-[#6E1927] text-xs"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-xs font-bold text-[#40101A] mb-1">Ημερομηνία</label>
+                  <input
+                    type="date"
+                    value={orderDate}
+                    onChange={(e) => setOrderDate(e.target.value)}
+                    className="w-full px-3 py-2 rounded-lg border border-[#C7BEC6] bg-white text-[#40101A] focus:outline-none focus:border-[#6E1927] text-xs"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-xs font-bold text-[#40101A] mb-1">Κανάλι Πώλησης</label>
+                  <OptionSelect
+                    value={salesChannel}
+                    options={config.channels}
+                    onChange={(val) => {
+                      setSalesChannel(val);
+                      if (val === "Gift" && totalAmount === "") setTotalAmount("0");
+                    }}
+                    onQuickAdd={(n, c) => onQuickAdd("channels", n, c)}
+                    categoryLabel="καναλιού"
+                    defaultColor="indigo"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-xs font-bold text-[#40101A] mb-1">Κατάσταση</label>
+                  <OptionSelect
+                    value={status}
+                    options={config.statuses}
+                    onChange={setStatus}
+                    onQuickAdd={(n, c) => onQuickAdd("statuses", n, c)}
+                    categoryLabel="κατάστασης"
+                    defaultColor="amber"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-xs font-bold text-[#40101A] mb-1">Μεταφορική</label>
+                  <OptionSelect
+                    value={courierName}
+                    options={config.couriers}
+                    onChange={setCourierName}
+                    onQuickAdd={(n, c) => onQuickAdd("couriers", n, c)}
+                    categoryLabel="μεταφορικής"
+                    defaultColor="lime"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-xs font-bold text-[#40101A] mb-1">Tracking Number</label>
+                  <input
+                    type="text"
+                    value={trackingNumber}
+                    onChange={(e) => setTrackingNumber(e.target.value)}
+                    placeholder="π.χ. 3944259000"
+                    className="w-full px-3 py-2 rounded-lg border border-[#C7BEC6] bg-white text-[#40101A] focus:outline-none focus:border-[#6E1927] text-xs font-mono"
+                  />
+                </div>
+              </div>
+
+              <div>
+                <label className="block text-xs font-bold text-[#40101A] mb-1">Απόδειξη / Τιμολόγιο</label>
+                <input
+                  type="text"
+                  value={invoiceNumber}
+                  onChange={(e) => setInvoiceNumber(e.target.value)}
+                  placeholder="Προαιρετικό"
+                  className="w-full px-3 py-2 rounded-lg border border-[#C7BEC6] bg-white text-[#40101A] focus:outline-none focus:border-[#6E1927] text-xs font-mono"
+                />
+              </div>
+
+              <div className="pt-3 border-t border-[#D8CFD7] flex justify-end gap-2">
+                <button
+                  type="button"
+                  onClick={onClose}
+                  className="px-4 py-2 text-xs font-semibold text-[#40101A] bg-[#E6DFE5] hover:bg-[#D8CFD7] rounded-lg cursor-pointer"
+                >
+                  Ακύρωση
+                </button>
+                <button
+                  type="submit"
+                  className="px-4 py-2 text-xs font-bold text-white bg-[#6E1927] hover:bg-[#8A2233] rounded-lg cursor-pointer"
+                >
+                  {initialData ? "Αποθήκευση" : "Καταχώρηση"}
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      );
+    }
+
+    function OptionsModal({ config, activeTab, setActiveTab, onAdd, onUpdate, onDelete, onMove, onClose }) {
+      const [newName, setNewName] = useState("");
+      const [newColor, setNewColor] = useState("crimsonVinyl");
+      const [newStock, setNewStock] = useState("50");
+      const [editingName, setEditingName] = useState(null);
+      const [draftName, setDraftName] = useState("");
+      const [draftStock, setDraftStock] = useState("0");
+
+      const tabs = [
+        { id: "couriers", label: "Μεταφορικές", defColor: "lime" },
+        { id: "channels", label: "Κανάλια", defColor: "indigo" },
+        { id: "statuses", label: "Status", defColor: "amber" },
+        { id: "products", label: "Προϊόντα", defColor: "crimsonVinyl" }
+      ];
+
+      const list = config[activeTab] || [];
+
+      const createOpt = (e) => {
+        e.preventDefault();
+        if (!newName.trim()) return;
+        const ok = onAdd(activeTab, newName, newColor, {
+          initialStock: newStock,
+          shortName: newName.trim()
+        });
+        if (ok) setNewName("");
+      };
+
+      return (
+        <div className="fixed inset-0 z-50 bg-[#2C0B12]/60 backdrop-blur-xs flex items-center justify-center p-4 overflow-y-auto">
+          <div className="bg-[#F6F4F7] rounded-2xl border border-[#C7BEC6] max-w-xl w-full shadow-2xl overflow-hidden my-auto">
+            <div className="px-5 py-4 border-b border-[#D8CFD7] flex items-center justify-between bg-[#EFECEF]">
+              <h2 className="text-base font-extrabold text-[#40101A]">Διαχείριση Επιλογών & Προϊόντων</h2>
+              <button onClick={onClose} className="p-1 text-[#6E5C68] hover:text-[#40101A]">
+                ✕
+              </button>
+            </div>
+
+            <div className="px-5 pt-3 border-b border-[#D8CFD7] bg-[#EAE3E8] flex flex-wrap gap-1.5">
+              {tabs.map((t) => (
+                <button
+                  key={t.id}
+                  onClick={() => {
+                    setActiveTab(t.id);
+                    setEditingName(null);
+                    setNewColor(t.defColor);
+                  }}
+                  className={`px-3 py-2 text-xs font-bold rounded-t-lg border-b-2 transition-all cursor-pointer ${
+                    activeTab === t.id
+                      ? "border-[#6E1927] text-[#40101A] bg-[#F6F4F7]"
+                      : "border-transparent text-[#6E5C68] hover:text-[#40101A]"
+                  }`}
+                >
+                  {t.label} ({(config[t.id] || []).length})
+                </button>
+              ))}
+            </div>
+
+            <div className="p-5 space-y-4">
+              <form onSubmit={createOpt} className="bg-[#EFECEF] p-3.5 rounded-xl border border-[#D4CAD3] space-y-2.5">
+                <div className="flex flex-col sm:flex-row gap-2">
+                  <input
+                    type="text"
+                    value={newName}
+                    onChange={(e) => setNewName(e.target.value)}
+                    placeholder="Νέα επιλογή..."
+                    className="flex-1 px-3 py-2 text-xs bg-white text-[#40101A] border border-[#C7BEC6] rounded-lg focus:outline-none focus:border-[#6E1927]"
+                  />
+                  {activeTab === "products" && (
+                    <input
+                      type="number"
+                      min="0"
+                      value={newStock}
+                      onChange={(e) => setNewStock(e.target.value)}
+                      placeholder="Stock"
+                      className="w-20 px-2.5 py-2 text-xs font-bold bg-white border border-[#C7BEC6] rounded-lg"
+                    />
+                  )}
+                  <button
+                    type="submit"
+                    disabled={!newName.trim()}
+                    className="px-4 py-2 text-xs font-bold text-white bg-[#6E1927] hover:bg-[#8A2233] disabled:opacity-40 rounded-lg cursor-pointer"
+                  >
+                    + Προσθήκη
+                  </button>
+                </div>
+
+                <div className="flex items-center gap-1.5 flex-wrap">
+                  <span className="text-[11px] text-[#5A4652] mr-1">Χρώμα:</span>
+                  {COLOR_KEYS.map((cKey) => (
+                    <button
+                      key={cKey}
+                      type="button"
+                      onClick={() => setNewColor(cKey)}
+                      title={BADGE_COLORS[cKey].label}
+                      className={`w-4 h-4 rounded-full ${BADGE_COLORS[cKey].dot} ${
+                        newColor === cKey ? "ring-2 ring-offset-1 ring-[#40101A] scale-110" : "opacity-75"
+                      }`}
+                    />
+                  ))}
+                </div>
+              </form>
+
+              <div className="space-y-1.5 max-h-64 overflow-y-auto">
+                {list.map((item, idx) => {
+                  const tok = getColorTokens(item.color, "stone");
+                  const isEd = editingName === item.name;
+                  return (
+                    <div
+                      key={item.name}
+                      className="flex items-center justify-between gap-2 p-2.5 rounded-xl border border-[#D4CAD3] bg-white/90"
+                    >
+                      {isEd ? (
+                        <div className="flex-1 flex flex-wrap items-center gap-2">
+                          <input
+                            type="text"
+                            value={draftName}
+                            onChange={(e) => setDraftName(e.target.value)}
+                            className="flex-1 min-w-[140px] px-2 py-1 text-xs font-bold border border-[#6E1927] rounded"
+                            autoFocus
+                          />
+                          {activeTab === "products" && (
+                            <input
+                              type="number"
+                              min="0"
+                              value={draftStock}
+                              onChange={(e) => setDraftStock(e.target.value)}
+                              className="w-16 px-2 py-1 text-xs font-bold border border-[#6E1927] rounded"
+                            />
+                          )}
+                          <button
+                            onClick={() => {
+                              if (!draftName.trim()) return;
+                              onUpdate(
+                                activeTab,
+                                item.name,
+                                activeTab === "products"
+                                  ? {
+                                      name: draftName.trim(),
+                                      shortName: draftName.trim(),
+                                      initialStock: Math.max(0, parseInt(draftStock, 10) || 0)
+                                    }
+                                  : { name: draftName.trim() }
+                              );
+                              setEditingName(null);
+                            }}
+                            className="px-2.5 py-1 text-xs font-bold bg-[#6E1927] text-white rounded"
+                          >
+                            Αποθήκευση
+                          </button>
+                          <button onClick={() => setEditingName(null)} className="text-xs text-[#6E5C68]">
+                            Άκυρο
+                          </button>
+                        </div>
+                      ) : (
+                        <>
+                          <div className="flex items-center gap-2 min-w-0">
+                            <div className="flex flex-col text-[10px] leading-none text-[#6E5C68]">
+                              <button
+                                onClick={() => onMove(activeTab, idx, -1)}
+                                disabled={idx === 0}
+                                className="disabled:opacity-20 hover:text-[#40101A]"
+                              >
+                                ▲
+                              </button>
+                              <button
+                                onClick={() => onMove(activeTab, idx, 1)}
+                                disabled={idx === list.length - 1}
+                                className="disabled:opacity-20 hover:text-[#40101A]"
+                              >
+                                ▼
+                              </button>
+                            </div>
+                            <span className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-bold border ${tok.pill}`}>
+                              <span className={`w-2 h-2 rounded-full ${tok.dot}`} />
+                              <span>{item.name}</span>
+                            </span>
+                            {activeTab === "products" && (
+                              <span className="text-xs text-[#5A4652]">({item.initialStock} τεμ.)</span>
+                            )}
+                          </div>
+
+                          <div className="flex items-center gap-1.5 shrink-0">
+                            <select
+                              value={item.color}
+                              onChange={(e) => onUpdate(activeTab, item.name, { color: e.target.value })}
+                              className="text-[11px] px-1.5 py-1 rounded border border-[#C7BEC6] bg-[#F6F4F7]"
+                            >
+                              {COLOR_KEYS.map((cKey) => (
+                                <option key={cKey} value={cKey}>
+                                  {BADGE_COLORS[cKey].label}
+                                </option>
+                              ))}
+                            </select>
+                            <button
+                              onClick={() => {
+                                setEditingName(item.name);
+                                setDraftName(item.name);
+                                setDraftStock(String(item.initialStock ?? 0));
+                              }}
+                              className="p-1 text-xs text-[#6E5C68] hover:text-[#40101A] rounded"
+                            >
+                              ✎
+                            </button>
+                            <button
+                              onClick={() => onDelete(activeTab, item.name)}
+                              className="p-1 text-xs text-[#6E5C68] hover:text-[#8A2233] rounded"
+                            >
+                              ✕
+                            </button>
+                          </div>
+                        </>
+                      )}
+                    </div>
+                  );
+                })}
+              </div>
+            </div>
+
+            <div className="px-5 py-3 bg-[#EFECEF] border-t border-[#D8CFD7] flex justify-end">
+              <button
+                onClick={onClose}
+                className="px-4 py-1.5 text-xs font-bold text-white bg-[#6E1927] hover:bg-[#8A2233] rounded-lg cursor-pointer"
+              >
+                Κλείσιμο
+              </button>
+            </div>
+          </div>
+        </div>
+      );
+    }
+
+    const rootElement = document.getElementById("root");
+    if (rootElement && window.React && window.ReactDOM) {
+      createRoot(rootElement).render(<App />);
+    }
+  </script>
+</body>
+</html>
