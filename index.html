@@ -358,20 +358,18 @@
       ordersKpiLabel: "ΠΑΡΑΓΓΕΛΙΕΣ",
       channelsHeading: "ΚΑΝΑΛΙΑ ΠΩΛΗΣΗΣ",
       filtersLabel: "Φίλτρα:",
-      thId: "ID",
-      thCustomer: "Customer",
-      thProduct: "Product",
-      thQty: "Qty",
-      thTotal: "Total (€)",
+      thId: "#",
+      thCustomer: "Πελάτης",
+      thProduct: "Έκδοση / Ποσ.",
+      thTotal: "Ποσό",
       thPaid: "Πληρωμή",
-      thPaymentMethod: "Τρόπος Πληρωμής",
-      thDate: "Order Date",
-      thChannel: "Channel",
+      thDate: "Ημ/νία",
+      thChannel: "Κανάλι",
       thStatus: "Status",
-      thCourier: "Courier",
+      thCourier: "Αποστολή",
       thTracking: "Tracking",
-      thInvoice: "Invoice/Rec.",
-      thActions: "ΕΝΕΡΓΕΙΕΣ"
+      thInvoice: "ΑΠΥ/ΤΔΑ",
+      thActions: ""
     };
 
     function NouvelleVilleLogoBadge({ size = "md" }) {
@@ -459,7 +457,7 @@
               }
             }}
             onClick={(e) => e.stopPropagation()}
-            className="px-1.5 py-0.5 text-inherit font-inherit bg-white text-[#40101A] border border-[#6E1927] rounded shadow-xs focus:outline-none min-w-[90px]"
+            className="px-1.5 py-0.5 text-inherit font-inherit bg-white text-[#40101A] border border-[#6E1927] rounded shadow-xs focus:outline-none min-w-[70px]"
             autoFocus
           />
         );
@@ -483,6 +481,14 @@
       );
     }
 
+    const formatDateShort = (isoDate) => {
+      if (!isoDate) return "—";
+      if (isoDate.includes("/")) return isoDate;
+      const parts = isoDate.split("-");
+      if (parts.length !== 3) return isoDate;
+      return `${parts[2]}/${parts[1]}/${parts[0].slice(-2)}`;
+    };
+
     const formatDateGR = (isoDate) => {
       if (!isoDate) return "—";
       if (isoDate.includes("/")) return isoDate;
@@ -495,14 +501,18 @@
       if (!dateStr) return new Date().toISOString().slice(0, 10);
       if (dateStr.includes("/")) {
         const [d, m, y] = dateStr.split("/");
-        if (d && m && y) return `${y}-${m.padStart(2, "0")}-${d.padStart(2, "0")}`;
+        if (d && m && y) {
+          const fullY = y.length === 2 ? `20${y}` : y;
+          return `${fullY}-${m.padStart(2, "0")}-${d.padStart(2, "0")}`;
+        }
       }
       return dateStr;
     };
 
     const formatCurrency = (amount) => {
       if (amount === null || amount === undefined || amount === "") return "—";
-      return `€${Number(amount).toFixed(2)}`;
+      const num = Number(amount);
+      return Number.isInteger(num) ? `€${num}` : `€${num.toFixed(2)}`;
     };
 
     const getColorTokens = (colorKey, fallback = "stone") => {
@@ -548,7 +558,8 @@
       categoryLabel = "επιλογής",
       placeholder = "Νέα επιλογή...",
       defaultColor = "crimsonVinyl",
-      compact = false
+      compact = false,
+      placeholderLabel = "Επιλογή..."
     }) {
       const [open, setOpen] = useState(false);
       const [adding, setAdding] = useState(false);
@@ -583,25 +594,25 @@
       };
 
       return (
-        <div ref={ref} className="relative inline-block w-full">
+        <div ref={ref} className="relative inline-block max-w-full">
           <button
             type="button"
             onClick={() => {
               setOpen((prev) => !prev);
               setAdding(false);
             }}
-            className={`inline-flex items-center justify-between gap-1.5 font-semibold border transition-all cursor-pointer focus:outline-none ${
+            className={`inline-flex items-center justify-between gap-1 font-semibold border transition-all cursor-pointer focus:outline-none max-w-full ${
               compact
-                ? "px-2.5 py-0.5 rounded-full text-[11px]"
+                ? "px-2 py-0.5 rounded-full text-[10.5px] leading-tight"
                 : "w-full px-3 py-2 rounded-lg text-xs"
             } ${tokens.pill}`}
           >
-            <span className="truncate">{value || "Επιλογή..."}</span>
-            <span className="text-[9px] opacity-75 shrink-0">▼</span>
+            <span className="truncate">{value || placeholderLabel}</span>
+            <span className="text-[8px] opacity-75 shrink-0">▼</span>
           </button>
 
           {open && (
-            <div className="absolute left-0 mt-1 w-64 bg-[#F6F4F7] rounded-xl shadow-2xl border border-[#C7BEC6] z-50 overflow-hidden text-left">
+            <div className="absolute left-0 mt-1 w-60 bg-[#F6F4F7] rounded-xl shadow-2xl border border-[#C7BEC6] z-50 overflow-hidden text-left">
               <div className="max-h-52 overflow-y-auto p-1.5 space-y-0.5">
                 {options.map((opt) => {
                   const optTokens = getColorTokens(opt.color, defaultColor);
@@ -1573,51 +1584,45 @@
       };
 
       // =======================================================================
-      // TABLE RENDERERS
+      // COMPACT FULL-WIDTH TABLE RENDERERS (NO HORIZONTAL SCROLLBAR)
       // =======================================================================
       const renderTableHead = () => (
         <thead>
-          <tr className="bg-[#ECE6EB] border-b border-[#CFC5CE] text-[11px] font-bold uppercase tracking-wider text-[#5A2D38] select-none">
-            <th className="py-2.5 px-3 border-r border-[#D8CFD7] w-14 text-center">
+          <tr className="bg-[#ECE6EB] border-b border-[#CFC5CE] text-[10px] font-extrabold uppercase tracking-wide text-[#5A2D38] select-none">
+            <th className="py-2 px-1.5 border-r border-[#D8CFD7] w-9 text-center">
               <EditableText textKey="thId" fallback={DEFAULT_UI_TEXT.thId} overrides={textOverrides} editMode={editMode} onChangeText={handleEditTextOverride} />
             </th>
-            <th className="py-2.5 px-3 border-r border-[#D8CFD7] min-w-[175px]">
+            <th className="py-2 px-2 border-r border-[#D8CFD7]">
               <EditableText textKey="thCustomer" fallback={DEFAULT_UI_TEXT.thCustomer} overrides={textOverrides} editMode={editMode} onChangeText={handleEditTextOverride} />
             </th>
-            <th className="py-2.5 px-3 border-r border-[#D8CFD7] min-w-[200px]">
+            <th className="py-2 px-2 border-r border-[#D8CFD7]">
               <EditableText textKey="thProduct" fallback={DEFAULT_UI_TEXT.thProduct} overrides={textOverrides} editMode={editMode} onChangeText={handleEditTextOverride} />
             </th>
-            <th className="py-2.5 px-3 border-r border-[#D8CFD7] w-14 text-center">
-              <EditableText textKey="thQty" fallback={DEFAULT_UI_TEXT.thQty} overrides={textOverrides} editMode={editMode} onChangeText={handleEditTextOverride} />
-            </th>
-            <th className="py-2.5 px-3 border-r border-[#D8CFD7] w-24 text-right">
+            <th className="py-2 px-1.5 border-r border-[#D8CFD7] w-16 text-right">
               <EditableText textKey="thTotal" fallback={DEFAULT_UI_TEXT.thTotal} overrides={textOverrides} editMode={editMode} onChangeText={handleEditTextOverride} />
             </th>
-            <th className="py-2.5 px-3 border-r border-[#D8CFD7] w-32 text-center">
+            <th className="py-2 px-1.5 border-r border-[#D8CFD7] w-[112px] text-center">
               <EditableText textKey="thPaid" fallback={DEFAULT_UI_TEXT.thPaid} overrides={textOverrides} editMode={editMode} onChangeText={handleEditTextOverride} />
             </th>
-            <th className="py-2.5 px-3 border-r border-[#D8CFD7] min-w-[140px]">
-              <EditableText textKey="thPaymentMethod" fallback={DEFAULT_UI_TEXT.thPaymentMethod} overrides={textOverrides} editMode={editMode} onChangeText={handleEditTextOverride} />
-            </th>
-            <th className="py-2.5 px-3 border-r border-[#D8CFD7] w-28">
+            <th className="py-2 px-1.5 border-r border-[#D8CFD7] w-[68px] text-center">
               <EditableText textKey="thDate" fallback={DEFAULT_UI_TEXT.thDate} overrides={textOverrides} editMode={editMode} onChangeText={handleEditTextOverride} />
             </th>
-            <th className="py-2.5 px-3 border-r border-[#D8CFD7] min-w-[145px]">
+            <th className="py-2 px-1.5 border-r border-[#D8CFD7] w-[116px]">
               <EditableText textKey="thChannel" fallback={DEFAULT_UI_TEXT.thChannel} overrides={textOverrides} editMode={editMode} onChangeText={handleEditTextOverride} />
             </th>
-            <th className="py-2.5 px-3 border-r border-[#D8CFD7] min-w-[130px]">
+            <th className="py-2 px-1.5 border-r border-[#D8CFD7] w-[104px]">
               <EditableText textKey="thStatus" fallback={DEFAULT_UI_TEXT.thStatus} overrides={textOverrides} editMode={editMode} onChangeText={handleEditTextOverride} />
             </th>
-            <th className="py-2.5 px-3 border-r border-[#D8CFD7] min-w-[135px]">
+            <th className="py-2 px-1.5 border-r border-[#D8CFD7] w-[100px]">
               <EditableText textKey="thCourier" fallback={DEFAULT_UI_TEXT.thCourier} overrides={textOverrides} editMode={editMode} onChangeText={handleEditTextOverride} />
             </th>
-            <th className="py-2.5 px-3 border-r border-[#D8CFD7] min-w-[125px]">
+            <th className="py-2 px-1.5 border-r border-[#D8CFD7] w-[96px]">
               <EditableText textKey="thTracking" fallback={DEFAULT_UI_TEXT.thTracking} overrides={textOverrides} editMode={editMode} onChangeText={handleEditTextOverride} />
             </th>
-            <th className="py-2.5 px-3 border-r border-[#D8CFD7] min-w-[115px]">
+            <th className="py-2 px-1.5 border-r border-[#D8CFD7] w-[74px]">
               <EditableText textKey="thInvoice" fallback={DEFAULT_UI_TEXT.thInvoice} overrides={textOverrides} editMode={editMode} onChangeText={handleEditTextOverride} />
             </th>
-            <th className="py-2.5 px-3 text-center w-20">
+            <th className="py-2 px-1 text-center w-12">
               <EditableText textKey="thActions" fallback={DEFAULT_UI_TEXT.thActions} overrides={textOverrides} editMode={editMode} onChangeText={handleEditTextOverride} />
             </th>
           </tr>
@@ -1625,17 +1630,16 @@
       );
 
       const renderRow = (order) => {
-        const totalQty = order.items.reduce((s, i) => s + (Number(i.qty) || 0), 0);
         const gift = isOrderGift(order);
         const hasContact = hasCustomerDetails(order);
 
         return (
-          <tr key={order.id} className="hover:bg-[#ECE4EA]/75 transition-colors">
-            <td className="py-2 px-3 border-r border-[#E2DAE1] text-center font-mono text-xs text-[#6E5C68] font-bold">
+          <tr key={order.id} className="hover:bg-[#ECE4EA]/75 transition-colors text-xs">
+            <td className="py-1.5 px-1.5 border-r border-[#E2DAE1] text-center font-mono text-[11px] text-[#6E5C68] font-bold">
               {order.id}
             </td>
 
-            <td className="py-2 px-3 border-r border-[#E2DAE1] font-semibold text-[#40101A]">
+            <td className="py-1.5 px-2 border-r border-[#E2DAE1] font-semibold text-[#40101A]">
               <button
                 type="button"
                 onClick={() => setCustomerModalOrder(order)}
@@ -1644,28 +1648,26 @@
                     ? [order.customerPhone, order.customerEmail, order.customerAddress].filter(Boolean).join(" • ")
                     : "Κλικ για καταχώρηση τηλεφώνου, email ή διεύθυνσης"
                 }
-                className="group w-full text-left flex items-center justify-between gap-1.5 hover:text-[#8A2233] cursor-pointer"
+                className="group w-full text-left flex items-center justify-between gap-1 hover:text-[#8A2233] cursor-pointer"
               >
-                <span className="hover:underline decoration-[#C7BAC2] underline-offset-2 truncate">
+                <span className="hover:underline decoration-[#C7BAC2] underline-offset-2 leading-snug">
                   {order.customer}
                 </span>
                 {hasContact ? (
-                  <span
-                    className="inline-flex items-center gap-0.5 px-1.5 py-0.5 rounded-full text-[10px] font-bold bg-[#EFE4E8] text-[#6E1927] border border-[#D4BAC3] shrink-0"
-                  >
+                  <span className="inline-flex items-center px-1 py-0.5 rounded text-[9px] font-bold bg-[#EFE4E8] text-[#6E1927] border border-[#D4BAC3] shrink-0">
                     {order.customerPhone ? "☎" : ""}
                     {order.customerEmail ? "✉" : ""}
                     {order.customerAddress ? "📍" : ""}
                   </span>
                 ) : (
-                  <span className="opacity-0 group-hover:opacity-100 text-[10px] font-semibold text-[#6E5C68] shrink-0 transition-opacity">
-                    + στοιχεία
+                  <span className="opacity-0 group-hover:opacity-100 text-[10px] font-bold text-[#6E5C68] shrink-0 transition-opacity">
+                    +
                   </span>
                 )}
               </button>
             </td>
 
-            <td className="py-2 px-3 border-r border-[#E2DAE1]">
+            <td className="py-1.5 px-2 border-r border-[#E2DAE1]">
               <div className="flex flex-wrap gap-1">
                 {order.items.map((item, idx) => {
                   const cfg = config.products.find((p) => p.name === item.product);
@@ -1673,26 +1675,20 @@
                   return (
                     <span
                       key={idx}
-                      className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-md text-[11px] font-medium border ${tok.pill}`}
+                      className={`inline-flex items-center gap-1 px-1.5 py-0.5 rounded text-[10.5px] font-semibold border leading-tight ${tok.pill}`}
                     >
-                      <span className={`w-1.5 h-1.5 rounded-full ${tok.dot}`} />
+                      <span className={`w-1.5 h-1.5 rounded-full shrink-0 ${tok.dot}`} />
                       <span>{cfg?.shortName || item.product}</span>
-                      {item.qty > 1 && (
-                        <span className="ml-0.5 px-1 rounded bg-black/20 text-[10px] font-bold">
-                          ×{item.qty}
-                        </span>
-                      )}
+                      <span className="px-1 rounded bg-black/20 text-[10px] font-extrabold tabular-nums">
+                        ×{item.qty}
+                      </span>
                     </span>
                   );
                 })}
               </div>
             </td>
 
-            <td className="py-2 px-3 border-r border-[#E2DAE1] text-center font-bold text-[#40101A] tabular-nums">
-              {totalQty}
-            </td>
-
-            <td className="py-2 px-3 border-r border-[#E2DAE1] text-right tabular-nums">
+            <td className="py-1.5 px-1.5 border-r border-[#E2DAE1] text-right tabular-nums">
               {inlineEdit?.orderId === order.id && inlineEdit?.field === "totalAmount" ? (
                 <input
                   type="number"
@@ -1704,7 +1700,7 @@
                     if (e.key === "Enter") handleInlineSave(order.id, "totalAmount", inlineEdit.value);
                     if (e.key === "Escape") setInlineEdit(null);
                   }}
-                  className="w-20 px-1.5 py-0.5 text-right text-xs border border-[#6E1927] rounded bg-white text-[#40101A] focus:outline-none"
+                  className="w-14 px-1 py-0.5 text-right text-xs border border-[#6E1927] rounded bg-white text-[#40101A] focus:outline-none"
                   autoFocus
                 />
               ) : (
@@ -1717,12 +1713,12 @@
                     })
                   }
                   title="Κλικ για επεξεργασία ποσού"
-                  className={`w-full text-right px-1.5 py-0.5 rounded hover:bg-[#E4DCE1] ${
+                  className={`w-full text-right px-1 py-0.5 rounded hover:bg-[#E4DCE1] ${
                     order.totalAmount === null
                       ? "text-[#8A7A84] italic"
                       : order.totalAmount === 0
                       ? "text-[#6E5C68]"
-                      : "font-bold text-[#40101A]"
+                      : "font-extrabold text-[#40101A]"
                   }`}
                 >
                   {formatCurrency(order.totalAmount)}
@@ -1730,54 +1726,49 @@
               )}
             </td>
 
-            {/* PAYMENT STATUS CELL */}
-            <td className="py-2 px-3 border-r border-[#E2DAE1] text-center">
+            {/* COMBINED PAYMENT STATUS + METHOD CELL */}
+            <td className="py-1.5 px-1.5 border-r border-[#E2DAE1] text-center">
               {gift ? (
-                <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[11px] font-semibold bg-[#EFE8EC] text-[#6E5C68] border border-[#D4CAD3]">
+                <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10.5px] font-semibold bg-[#EFE8EC] text-[#6E5C68] border border-[#D4CAD3]">
                   🎁 Δώρο
                 </span>
               ) : (
-                <button
-                  type="button"
-                  onClick={() => handleTogglePaid(order.id, !order.isPaid)}
-                  title="Κλικ για εναλλαγή Πληρωμένο / Απλήρωτο"
-                  className={`inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[11px] font-extrabold border transition-all cursor-pointer ${
-                    order.isPaid
-                      ? "bg-emerald-100 text-emerald-950 border-emerald-300 hover:bg-emerald-200"
-                      : "bg-rose-100 text-rose-950 border-rose-300 hover:bg-rose-200"
-                  }`}
-                >
-                  <span
-                    className={`w-1.5 h-1.5 rounded-full ${
-                      order.isPaid ? "bg-emerald-600" : "bg-rose-600"
+                <div className="flex flex-col items-center gap-1">
+                  <button
+                    type="button"
+                    onClick={() => handleTogglePaid(order.id, !order.isPaid)}
+                    title="Κλικ για εναλλαγή Πληρωμένο / Απλήρωτο"
+                    className={`w-full inline-flex items-center justify-center gap-1 px-2 py-0.5 rounded-full text-[10.5px] font-extrabold border transition-all cursor-pointer leading-tight ${
+                      order.isPaid
+                        ? "bg-emerald-100 text-emerald-950 border-emerald-300 hover:bg-emerald-200"
+                        : "bg-rose-100 text-rose-950 border-rose-300 hover:bg-rose-200"
                     }`}
+                  >
+                    <span
+                      className={`w-1.5 h-1.5 rounded-full shrink-0 ${
+                        order.isPaid ? "bg-emerald-600" : "bg-rose-600"
+                      }`}
+                    />
+                    <span className="truncate">{order.isPaid ? "Πληρωμένο" : "Απλήρωτο"}</span>
+                  </button>
+
+                  <OptionSelect
+                    compact
+                    allowQuickAdd={false}
+                    value={order.paymentMethod || "Τρόπος..."}
+                    options={[{ name: "—", color: "stone" }, ...PAYMENT_METHODS]}
+                    onChange={(val) => handleInlineSave(order.id, "paymentMethod", val === "—" ? "" : val)}
+                    defaultColor="emerald"
                   />
-                  <span>{order.isPaid ? "Πληρωμένο" : "Απλήρωτο"}</span>
-                </button>
+                </div>
               )}
             </td>
 
-            {/* PAYMENT METHOD CELL */}
-            <td className="py-2 px-3 border-r border-[#E2DAE1]">
-              {gift ? (
-                <span className="text-[11px] text-[#8A7A84] italic px-2">—</span>
-              ) : (
-                <OptionSelect
-                  compact
-                  allowQuickAdd={false}
-                  value={order.paymentMethod || "—"}
-                  options={[{ name: "—", color: "stone" }, ...PAYMENT_METHODS]}
-                  onChange={(val) => handleInlineSave(order.id, "paymentMethod", val === "—" ? "" : val)}
-                  defaultColor="emerald"
-                />
-              )}
+            <td className="py-1.5 px-1.5 border-r border-[#E2DAE1] text-center text-[11px] text-[#5A4652] tabular-nums">
+              {formatDateShort(order.orderDate)}
             </td>
 
-            <td className="py-2 px-3 border-r border-[#E2DAE1] text-xs text-[#5A4652] tabular-nums">
-              {formatDateGR(order.orderDate)}
-            </td>
-
-            <td className="py-2 px-3 border-r border-[#E2DAE1]">
+            <td className="py-1.5 px-1.5 border-r border-[#E2DAE1]">
               <OptionSelect
                 compact
                 value={order.salesChannel}
@@ -1785,12 +1776,12 @@
                 onChange={(val) => handleInlineSave(order.id, "salesChannel", val)}
                 onQuickAdd={(name, color) => handleAddOption("channels", name, color)}
                 categoryLabel="καναλιού"
-                placeholder="π.χ. Discogs, e-shop..."
+                placeholder="π.χ. Discogs..."
                 defaultColor="indigo"
               />
             </td>
 
-            <td className="py-2 px-3 border-r border-[#E2DAE1]">
+            <td className="py-1.5 px-1.5 border-r border-[#E2DAE1]">
               <OptionSelect
                 compact
                 value={order.status}
@@ -1798,12 +1789,12 @@
                 onChange={(val) => handleStatusChange(order.id, val)}
                 onQuickAdd={(name, color) => handleAddOption("statuses", name, color)}
                 categoryLabel="κατάστασης"
-                placeholder="π.χ. Ready to Ship..."
+                placeholder="π.χ. Ready..."
                 defaultColor="amber"
               />
             </td>
 
-            <td className="py-2 px-3 border-r border-[#E2DAE1]">
+            <td className="py-1.5 px-1.5 border-r border-[#E2DAE1]">
               <OptionSelect
                 compact
                 value={order.courierName}
@@ -1811,12 +1802,12 @@
                 onChange={(val) => handleInlineSave(order.id, "courierName", val)}
                 onQuickAdd={(name, color) => handleAddOption("couriers", name, color)}
                 categoryLabel="μεταφορικής"
-                placeholder="π.χ. ACS, ΕΛΤΑ..."
+                placeholder="π.χ. ACS..."
                 defaultColor="lime"
               />
             </td>
 
-            <td className="py-2 px-3 border-r border-[#E2DAE1] font-mono text-xs">
+            <td className="py-1.5 px-1.5 border-r border-[#E2DAE1] font-mono text-[11px]">
               {inlineEdit?.orderId === order.id && inlineEdit?.field === "trackingNumber" ? (
                 <input
                   type="text"
@@ -1827,7 +1818,7 @@
                     if (e.key === "Enter") handleInlineSave(order.id, "trackingNumber", inlineEdit.value);
                     if (e.key === "Escape") setInlineEdit(null);
                   }}
-                  className="w-28 px-1.5 py-0.5 text-xs border border-[#6E1927] rounded bg-white text-[#40101A] focus:outline-none"
+                  className="w-full px-1 py-0.5 text-[11px] border border-[#6E1927] rounded bg-white text-[#40101A] focus:outline-none"
                   autoFocus
                 />
               ) : (
@@ -1839,18 +1830,18 @@
                       value: order.trackingNumber || ""
                     })
                   }
-                  className="w-full text-left px-1.5 py-0.5 rounded hover:bg-[#E4DCE1] text-[#40101A] min-h-[24px] flex items-center"
+                  className="w-full text-left px-1 py-0.5 rounded hover:bg-[#E4DCE1] text-[#40101A] min-h-[22px] flex items-center truncate"
                 >
                   {order.trackingNumber ? (
-                    <span className="font-semibold">{order.trackingNumber}</span>
+                    <span className="font-semibold truncate">{order.trackingNumber}</span>
                   ) : (
-                    <span className="text-[#9E8E98] text-[11px]">+ tracking</span>
+                    <span className="text-[#9E8E98] text-[10px]">+ tracking</span>
                   )}
                 </button>
               )}
             </td>
 
-            <td className="py-2 px-3 border-r border-[#E2DAE1] font-mono text-xs">
+            <td className="py-1.5 px-1.5 border-r border-[#E2DAE1] font-mono text-[11px]">
               {inlineEdit?.orderId === order.id && inlineEdit?.field === "invoiceNumber" ? (
                 <input
                   type="text"
@@ -1861,7 +1852,7 @@
                     if (e.key === "Enter") handleInlineSave(order.id, "invoiceNumber", inlineEdit.value);
                     if (e.key === "Escape") setInlineEdit(null);
                   }}
-                  className="w-24 px-1.5 py-0.5 text-xs border border-[#6E1927] rounded bg-white text-[#40101A] focus:outline-none"
+                  className="w-full px-1 py-0.5 text-[11px] border border-[#6E1927] rounded bg-white text-[#40101A] focus:outline-none"
                   autoFocus
                 />
               ) : (
@@ -1873,19 +1864,19 @@
                       value: order.invoiceNumber || ""
                     })
                   }
-                  className="w-full text-left px-1.5 py-0.5 rounded hover:bg-[#E4DCE1] text-[#40101A] min-h-[24px] flex items-center"
+                  className="w-full text-left px-1 py-0.5 rounded hover:bg-[#E4DCE1] text-[#40101A] min-h-[22px] flex items-center truncate"
                 >
                   {order.invoiceNumber ? (
-                    <span>{order.invoiceNumber}</span>
+                    <span className="truncate">{order.invoiceNumber}</span>
                   ) : (
-                    <span className="text-[#9E8E98] text-[11px]">+ ΑΠΥ/ΤΔΑ</span>
+                    <span className="text-[#9E8E98] text-[10px]">+ ΑΠΥ</span>
                   )}
                 </button>
               )}
             </td>
 
-            <td className="py-2 px-3 text-center">
-              <div className="inline-flex items-center gap-1">
+            <td className="py-1.5 px-1 text-center">
+              <div className="inline-flex items-center gap-0.5">
                 <button
                   onClick={() => {
                     setEditingOrder(order);
@@ -1893,14 +1884,14 @@
                     setIsOrderModalOpen(true);
                   }}
                   title="Επεξεργασία παραγγελίας"
-                  className="p-1 text-[#6E5C68] hover:text-[#40101A] hover:bg-[#E4DCE1] rounded"
+                  className="p-1 text-[#6E5C68] hover:text-[#40101A] hover:bg-[#E4DCE1] rounded text-xs"
                 >
                   ✎
                 </button>
                 <button
                   onClick={() => setOrderToDelete(order)}
                   title="Διαγραφή"
-                  className="p-1 text-[#6E5C68] hover:text-[#8A2233] hover:bg-rose-100 rounded"
+                  className="p-1 text-[#6E5C68] hover:text-[#8A2233] hover:bg-rose-100 rounded text-xs"
                 >
                   ✕
                 </button>
@@ -1924,7 +1915,7 @@
 
           {/* TOP BAR */}
           <header className="bg-[#F6F4F7]/92 backdrop-blur-md border-b border-[#C7BEC6] sticky top-0 z-30 shadow-2xs">
-            <div className="max-w-[1600px] mx-auto px-4 sm:px-6 min-h-16 py-2 flex flex-wrap items-center justify-between gap-2.5">
+            <div className="max-w-[1600px] mx-auto px-3 sm:px-5 min-h-16 py-2 flex flex-wrap items-center justify-between gap-2.5">
               <div className="flex items-center gap-3 min-w-0">
                 <NouvelleVilleLogoBadge size="md" />
                 <div className="min-w-0">
@@ -2076,7 +2067,7 @@
           </header>
 
           {/* MAIN WORKSPACE */}
-          <main className="flex-1 max-w-[1600px] w-full mx-auto px-4 sm:px-6 py-5 space-y-5">
+          <main className="flex-1 max-w-[1600px] w-full mx-auto px-3 sm:px-5 py-4 space-y-4">
             {syncState.errorMsg && (
               <div className="bg-rose-50 border border-rose-300 rounded-xl p-3.5 flex flex-wrap items-center justify-between gap-3 text-xs text-rose-900">
                 <div>
@@ -2092,7 +2083,7 @@
             )}
 
             {/* KPI & INVENTORY CARDS */}
-            <section className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-12 gap-4">
+            <section className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-12 gap-3.5">
               {config.products.map((prod) => {
                 const st = inventoryStats[prod.name] || {
                   initial: prod.initialStock,
@@ -2108,7 +2099,7 @@
                 return (
                   <div
                     key={prod.name}
-                    className="xl:col-span-4 bg-[#F6F4F7]/95 backdrop-blur-sm rounded-xl border border-[#C7BEC6] p-4 shadow-sm flex flex-col justify-between"
+                    className="xl:col-span-4 bg-[#F6F4F7]/95 backdrop-blur-sm rounded-xl border border-[#C7BEC6] p-3.5 shadow-sm flex flex-col justify-between"
                   >
                     <div className="flex items-start justify-between gap-2">
                       <div className="flex items-center gap-2.5 min-w-0">
@@ -2190,7 +2181,7 @@
                       </div>
                     </div>
 
-                    <div className="mt-3.5">
+                    <div className="mt-3">
                       <div className="w-full h-2.5 bg-[#DFD7DE] rounded-full overflow-hidden flex">
                         <div
                           className={`${tok.bar} h-full transition-all duration-500`}
@@ -2223,8 +2214,8 @@
               })}
 
               {/* Summary, Payments & Channel Filter Card */}
-              <div className="md:col-span-2 xl:col-span-4 bg-[#F6F4F7]/95 backdrop-blur-sm rounded-xl border border-[#C7BEC6] p-4 shadow-sm flex flex-col justify-between">
-                <div className="grid grid-cols-3 gap-2 pb-3 border-b border-[#DDD5DC] tabular-nums">
+              <div className="md:col-span-2 xl:col-span-4 bg-[#F6F4F7]/95 backdrop-blur-sm rounded-xl border border-[#C7BEC6] p-3.5 shadow-sm flex flex-col justify-between">
+                <div className="grid grid-cols-3 gap-2 pb-2.5 border-b border-[#DDD5DC] tabular-nums">
                   <div>
                     <EditableText
                       as="span"
@@ -2284,7 +2275,7 @@
                   </div>
                 </div>
 
-                <div className="pt-2.5">
+                <div className="pt-2">
                   <div className="flex items-center justify-between mb-1.5">
                     <EditableText
                       as="span"
@@ -2336,12 +2327,12 @@
             </section>
 
             {/* TOOLBAR */}
-            <section className="bg-[#F6F4F7]/95 backdrop-blur-sm rounded-xl border border-[#C7BEC6] p-3 shadow-sm space-y-3">
-              <div className="flex flex-wrap items-center justify-between gap-3">
+            <section className="bg-[#F6F4F7]/95 backdrop-blur-sm rounded-xl border border-[#C7BEC6] p-3 shadow-sm space-y-2.5">
+              <div className="flex flex-wrap items-center justify-between gap-2.5">
                 <div className="flex items-center gap-1 bg-[#E6DFE5] p-1 rounded-lg border border-[#D4CAD3]">
                   <button
                     onClick={() => setViewMode("table")}
-                    className={`px-3 py-1.5 rounded-md text-xs font-bold transition-all cursor-pointer ${
+                    className={`px-3 py-1 rounded-md text-xs font-bold transition-all cursor-pointer ${
                       viewMode === "table"
                         ? "bg-[#6E1927] text-[#F9F6F8] shadow-2xs"
                         : "text-[#40101A] hover:bg-white/60"
@@ -2351,7 +2342,7 @@
                   </button>
                   <button
                     onClick={() => setViewMode("kanban")}
-                    className={`px-3 py-1.5 rounded-md text-xs font-bold transition-all cursor-pointer ${
+                    className={`px-3 py-1 rounded-md text-xs font-bold transition-all cursor-pointer ${
                       viewMode === "kanban"
                         ? "bg-[#6E1927] text-[#F9F6F8] shadow-2xs"
                         : "text-[#40101A] hover:bg-white/60"
@@ -2416,13 +2407,13 @@
                   )}
                 </div>
 
-                <div className="relative flex-1 min-w-[210px] max-w-sm">
+                <div className="relative flex-1 min-w-[200px] max-w-sm">
                   <input
                     type="text"
                     value={searchQuery}
                     onChange={(e) => setSearchQuery(e.target.value)}
                     placeholder="Αναζήτηση πελάτη, τηλ., διεύθυνσης, Box Now..."
-                    className="w-full pl-3 pr-7 py-1.5 text-xs sm:text-sm bg-white/90 text-[#40101A] placeholder-[#8E7E88] border border-[#C7BEC6] rounded-lg focus:outline-none focus:bg-white focus:border-[#6E1927]"
+                    className="w-full pl-3 pr-7 py-1.5 text-xs bg-white/90 text-[#40101A] placeholder-[#8E7E88] border border-[#C7BEC6] rounded-lg focus:outline-none focus:bg-white focus:border-[#6E1927]"
                   />
                   {searchQuery && (
                     <button
@@ -2449,7 +2440,7 @@
                 <select
                   value={paymentFilter}
                   onChange={(e) => setPaymentFilter(e.target.value)}
-                  className={`px-2.5 py-1 rounded-md border text-xs font-semibold cursor-pointer focus:outline-none ${
+                  className={`px-2 py-1 rounded-md border text-xs font-semibold cursor-pointer focus:outline-none ${
                     paymentFilter !== "ALL"
                       ? "bg-[#6E1927] text-white border-[#6E1927]"
                       : "bg-white/85 text-[#40101A] border-[#C7BEC6]"
@@ -2463,7 +2454,7 @@
                 <select
                   value={paymentMethodFilter}
                   onChange={(e) => setPaymentMethodFilter(e.target.value)}
-                  className={`px-2.5 py-1 rounded-md border text-xs font-semibold cursor-pointer focus:outline-none ${
+                  className={`px-2 py-1 rounded-md border text-xs font-semibold cursor-pointer focus:outline-none ${
                     paymentMethodFilter !== "ALL"
                       ? "bg-[#6E1927] text-white border-[#6E1927]"
                       : "bg-white/85 text-[#40101A] border-[#C7BEC6]"
@@ -2480,7 +2471,7 @@
                 <select
                   value={productFilter}
                   onChange={(e) => setProductFilter(e.target.value)}
-                  className={`px-2.5 py-1 rounded-md border text-xs font-semibold cursor-pointer focus:outline-none ${
+                  className={`px-2 py-1 rounded-md border text-xs font-semibold cursor-pointer focus:outline-none ${
                     productFilter !== "ALL"
                       ? "bg-[#6E1927] text-white border-[#6E1927]"
                       : "bg-white/85 text-[#40101A] border-[#C7BEC6]"
@@ -2497,7 +2488,7 @@
                 <select
                   value={channelFilter}
                   onChange={(e) => setChannelFilter(e.target.value)}
-                  className={`px-2.5 py-1 rounded-md border text-xs font-semibold cursor-pointer focus:outline-none ${
+                  className={`px-2 py-1 rounded-md border text-xs font-semibold cursor-pointer focus:outline-none ${
                     channelFilter !== "ALL"
                       ? "bg-[#6E1927] text-white border-[#6E1927]"
                       : "bg-white/85 text-[#40101A] border-[#C7BEC6]"
@@ -2514,7 +2505,7 @@
                 <select
                   value={courierFilter}
                   onChange={(e) => setCourierFilter(e.target.value)}
-                  className={`px-2.5 py-1 rounded-md border text-xs font-semibold cursor-pointer focus:outline-none ${
+                  className={`px-2 py-1 rounded-md border text-xs font-semibold cursor-pointer focus:outline-none ${
                     courierFilter !== "ALL"
                       ? "bg-[#6E1927] text-white border-[#6E1927]"
                       : "bg-white/85 text-[#40101A] border-[#C7BEC6]"
@@ -2531,7 +2522,7 @@
                 {activeFiltersCount > 0 && (
                   <button
                     onClick={clearAllFilters}
-                    className="px-2.5 py-1 rounded-md text-xs font-bold text-[#6E1927] bg-rose-100 hover:bg-rose-200 border border-rose-300 cursor-pointer"
+                    className="px-2 py-1 rounded-md text-xs font-bold text-[#6E1927] bg-rose-100 hover:bg-rose-200 border border-rose-300 cursor-pointer"
                   >
                     ✕ Καθαρισμός ({activeFiltersCount})
                   </button>
@@ -2559,11 +2550,11 @@
                           className={`bg-[#F6F4F7]/95 backdrop-blur-sm rounded-xl border border-[#C7BEC6] border-l-4 ${tok.borderLeft} shadow-sm overflow-visible`}
                         >
                           <div
-                            className={`px-4 py-3 border-b ${
+                            className={`px-3.5 py-2.5 border-b ${
                               collapsed ? "border-transparent rounded-xl" : "border-[#CFC5CE] rounded-t-xl"
-                            } ${tok.groupHeaderBg} flex flex-wrap items-center justify-between gap-3`}
+                            } ${tok.groupHeaderBg} flex flex-wrap items-center justify-between gap-2.5`}
                           >
-                            <div className="flex items-center gap-3">
+                            <div className="flex items-center gap-2.5">
                               <button
                                 type="button"
                                 onClick={() =>
@@ -2574,12 +2565,12 @@
                                 {collapsed ? "▸" : "▾"}
                               </button>
 
-                              <span className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-extrabold border ${tok.pill}`}>
+                              <span className={`inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-xs font-extrabold border ${tok.pill}`}>
                                 <span className={`w-2 h-2 rounded-full ${tok.dot}`} />
                                 <span>{grp.statusName}</span>
                               </span>
 
-                              <span className="text-xs font-extrabold text-[#40101A] bg-white/90 px-2.5 py-0.5 rounded-full border border-[#C7BEC6] tabular-nums">
+                              <span className="text-xs font-extrabold text-[#40101A] bg-white/90 px-2 py-0.5 rounded-full border border-[#C7BEC6] tabular-nums">
                                 {grp.orders.length} {grp.orders.length === 1 ? "παραγγελία" : "παραγγελίες"}
                               </span>
 
@@ -2608,13 +2599,13 @@
 
                           {!collapsed && (
                             <>
-                              <div className="overflow-x-auto overflow-y-visible">
-                                <table className="w-full text-left border-collapse text-xs sm:text-sm">
+                              <div className="overflow-x-auto lg:overflow-x-visible overflow-y-visible">
+                                <table className="w-full text-left border-collapse">
                                   {renderTableHead()}
                                   <tbody className="divide-y divide-[#E2DAE1]">
                                     {grp.orders.length === 0 ? (
                                       <tr>
-                                        <td colSpan={14} className="py-6 text-center text-xs text-[#6E5C68] italic">
+                                        <td colSpan={12} className="py-5 text-center text-xs text-[#6E5C68] italic">
                                           Καμία παραγγελία σε κατάσταση «{grp.statusName}».
                                         </td>
                                       </tr>
@@ -2624,7 +2615,7 @@
                                   </tbody>
                                 </table>
                               </div>
-                              <div className="bg-[#EFECEF] border-t border-[#D8CFD7] px-4 py-2 flex items-center justify-between text-[11px] text-[#5A4652] rounded-b-xl tabular-nums">
+                              <div className="bg-[#EFECEF] border-t border-[#D8CFD7] px-3.5 py-1.5 flex items-center justify-between text-[11px] text-[#5A4652] rounded-b-xl tabular-nums">
                                 <button
                                   type="button"
                                   onClick={() => {
@@ -2653,13 +2644,13 @@
                   </section>
                 ) : (
                   <section className="bg-[#F6F4F7]/95 backdrop-blur-sm rounded-xl border border-[#C7BEC6] shadow-sm overflow-visible">
-                    <div className="overflow-x-auto overflow-y-visible">
-                      <table className="w-full text-left border-collapse text-xs sm:text-sm">
+                    <div className="overflow-x-auto lg:overflow-x-visible overflow-y-visible">
+                      <table className="w-full text-left border-collapse">
                         {renderTableHead()}
                         <tbody className="divide-y divide-[#E2DAE1]">
                           {filteredOrders.length === 0 ? (
                             <tr>
-                              <td colSpan={14} className="py-12 text-center text-[#6E5C68] text-sm font-semibold">
+                              <td colSpan={12} className="py-10 text-center text-[#6E5C68] text-sm font-semibold">
                                 Δεν βρέθηκαν παραγγελίες με αυτά τα φίλτρα.
                               </td>
                             </tr>
