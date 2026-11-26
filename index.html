@@ -3,909 +3,145 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Nouvelle Ville Records — «3,14» Διαχείριση Αποθέματος & Παραγγελιών</title>
+  <meta name="theme-color" content="#6E1927" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <meta name="apple-mobile-web-app-title" content="3,14 LP" />
+  <title>Nouvelle Ville Records — «3,14» Παραγγελίες & Απόθεμα</title>
   <script src="https://cdn.tailwindcss.com"></script>
-  <script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
-  <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet" />
+  <script src="https://unpkg.com/react@18.3.1/umd/react.production.min.js"></script>
+  <script src="https://unpkg.com/react-dom@18.3.1/umd/react-dom.production.min.js"></script>
   <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+  <script>
+    if (window.Babel && window.Babel.registerPreset) {
+      window.Babel.registerPreset("react-classic", {
+        presets: [
+          [
+            window.Babel.availablePresets["react"],
+            { runtime: "classic", pragma: "window.React.createElement", pragmaFrag: "window.React.Fragment" }
+          ]
+        ]
+      });
+    }
+  </script>
   <style>
-    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
     body {
       font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
-      background-color: #f8fafc;
-      color: #0f172a;
+      background:
+        radial-gradient(circle at 50% 18%, rgba(110, 25, 39, 0.12) 0%, transparent 55%),
+        linear-gradient(180deg, #ACAEB6 0%, #9E939C 52%, #998791 100%);
+      min-height: 100vh;
+      color: #40101A;
     }
-    .tabular-nums { font-variant-numeric: tabular-nums; }
+    .tabular-nums {
+      font-variant-numeric: tabular-nums;
+    }
+    .nvr-editable-active {
+      outline: 2px dashed #6E1927;
+      outline-offset: 2px;
+      border-radius: 6px;
+      background-color: rgba(255, 251, 235, 0.85);
+      cursor: text;
+      transition: background-color 0.15s ease, outline-color 0.15s ease;
+    }
+    .nvr-editable-active:hover {
+      background-color: rgba(254, 243, 199, 0.98);
+      outline-color: #8A2233;
+    }
+    ::-webkit-scrollbar {
+      width: 7px;
+      height: 7px;
+    }
+    ::-webkit-scrollbar-track {
+      background: #ECE6EB;
+    }
+    ::-webkit-scrollbar-thumb {
+      background: #B9ADB7;
+      border-radius: 9999px;
+    }
+    ::-webkit-scrollbar-thumb:hover {
+      background: #6E1927;
+    }
   </style>
 </head>
-<body>
+<body class="antialiased selection:bg-[#6E1927] selection:text-white">
   <div id="root"></div>
 
-  <script type="text/babel">
-    const { useState, useEffect, useMemo, useRef } = React;
+  <script type="text/babel" data-presets="react-classic">
+    const { useState, useEffect, useMemo, useRef } = window.React;
+    const { createRoot } = window.ReactDOM;
 
-    // ==========================================
-    // 1. SUPABASE CONFIGURATION (PRE-CONFIGURED)
-    // ==========================================
-    const DEFAULT_SUPABASE_URL = "https://fxkafhuvvzhkybaddflm.supabase.co";
-    const DEFAULT_SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZ4a2FmaHV2dnpoa3liYWRkZmxtIiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTU3MTEyMTIsImV4cCI6MjExMTI4NzIxMn0.P8SEdZf8kEp1GCByU7_cHj_dCfw84KoIEpy1i3I0sMI";
+    // =========================================================================
+    // SUPABASE CREDENTIALS (PROJECT: fxkafhuvvzhkybaddflm)
+    // =========================================================================
+    const SUPABASE_URL = "https://fxkafhuvvzhkybaddflm.supabase.co";
+    const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZ4a2FmaHV2dnpoa3liYWRkZmxtIiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTU3MTEyMTIsImV4cCI6MjExMTI4NzIxMn0.P8SEdZf8kEp1GCByU7_cHj_dCfw84KoIEpy1i3I0sMI";
 
-    const memoryStorage = {};
-    const safeStorage = {
-      getItem: (key) => {
-        try { return window.localStorage.getItem(key); } catch (e) { return memoryStorage[key] || null; }
-      },
-      setItem: (key, val) => {
-        try { window.localStorage.setItem(key, val); } catch (e) { memoryStorage[key] = val; }
-      },
-      removeItem: (key) => {
-        try { window.localStorage.removeItem(key); } catch (e) { delete memoryStorage[key]; }
-      }
-    };
-
-    function getSupabaseConfig() {
-      const savedUrl = safeStorage.getItem("nv_supabase_url") || "";
-      const savedKey = safeStorage.getItem("nv_supabase_anon_key") || "";
-      const url = (savedUrl || DEFAULT_SUPABASE_URL).trim().replace(/\/+$/, "");
-      const anonKey = (savedKey || DEFAULT_SUPABASE_ANON_KEY).trim();
-      return {
-        url,
-        anonKey,
-        configured: Boolean(url.startsWith("https://") && anonKey)
-      };
-    }
-
-    async function supabaseFetch(path, options = {}) {
-      const { url, anonKey, configured } = getSupabaseConfig();
-      if (!configured) throw new Error("Missing Supabase config");
-
-      const res = await fetch(`${url}/rest/v1/${path}`, {
+    async function sbFetch(path, options = {}) {
+      const res = await fetch(`${SUPABASE_URL}/rest/v1/${path}`, {
         ...options,
         headers: {
-          apikey: anonKey,
-          Authorization: `Bearer ${anonKey}`,
+          apikey: SUPABASE_ANON_KEY,
+          Authorization: `Bearer ${SUPABASE_ANON_KEY}`,
           "Content-Type": "application/json",
           Prefer: "return=representation",
           ...(options.headers || {})
         }
       });
-
       if (!res.ok) {
         const errText = await res.text();
-        throw new Error(`HTTP ${res.status}: ${errText}`);
+        throw new Error(`Supabase ${res.status}: ${errText}`);
       }
       if (res.status === 204) return null;
       return res.json();
     }
 
-    // ==========================================
-    // 2. DEFAULT DATA & COLOR PALETTES
-    // ==========================================
-    const DEFAULT_PRODUCTS = [
-      { name: "3,14 LP - Galaxy red-black", shortName: "Galaxy red-black", subtitle: "Limited Galaxy Edition", initialStock: 100, color: "crimsonVinyl" },
-      { name: "3,14 LP - Black", shortName: "Black", subtitle: "Standard Black Vinyl", initialStock: 100, color: "blackVinyl" }
-    ];
-
-    const DEFAULT_COURIERS = [
-      { name: "On hand", color: "stone" },
-      { name: "Box Now", color: "lime" }
-    ];
-
-    const DEFAULT_CHANNELS = [
-      { name: "Bandcamp", color: "cyan" },
-      { name: "Direct Message", color: "indigo" },
-      { name: "Live Concert", color: "fuchsia" },
-      { name: "Gift", color: "rose" }
-    ];
-
-    const DEFAULT_STATUSES = [
-      { name: "Pending", color: "amber" },
-      { name: "Shipped", color: "sky" },
-      { name: "Delivered", color: "emerald" }
-    ];
-
-    const COLOR_STYLES = {
-      crimsonVinyl: "bg-[#490517]/10 text-[#490517] border-[#490517]/25",
-      blackVinyl: "bg-slate-900 text-white border-slate-800",
-      stone: "bg-stone-100 text-stone-800 border-stone-300",
-      lime: "bg-lime-100 text-lime-800 border-lime-300",
-      cyan: "bg-cyan-100 text-cyan-800 border-cyan-300",
-      indigo: "bg-indigo-100 text-indigo-800 border-indigo-300",
-      fuchsia: "bg-fuchsia-100 text-fuchsia-800 border-fuchsia-300",
-      rose: "bg-rose-100 text-rose-800 border-rose-300",
-      amber: "bg-amber-100 text-amber-800 border-amber-300",
-      sky: "bg-sky-100 text-sky-800 border-sky-300",
-      emerald: "bg-emerald-100 text-emerald-800 border-emerald-300"
-    };
-
-    const getBadgeStyle = (colorKey) => COLOR_STYLES[colorKey] || "bg-slate-100 text-slate-800 border-slate-300";
-
-    // ==========================================
-    // 3. MAIN APPLICATION COMPONENT
-    // ==========================================
-    function App() {
-      const [orders, setOrders] = useState([]);
-      const [products, setProducts] = useState(DEFAULT_PRODUCTS);
-      const [couriers, setCouriers] = useState(DEFAULT_COURIERS);
-      const [channels, setChannels] = useState(DEFAULT_CHANNELS);
-      const [statuses, setStatuses] = useState(DEFAULT_STATUSES);
-
-      const [syncStatus, setSyncStatus] = useState("connecting"); // connecting | live | error
-      const [syncError, setSyncError] = useState("");
-      const [editMode, setEditMode] = useState(false);
-
-      // Filters
-      const [searchQuery, setSearchQuery] = useState("");
-      const [filterStatus, setFilterStatus] = useState("ALL");
-      const [filterChannel, setFilterChannel] = useState("ALL");
-
-      // Modal & Form State
-      const [isModalOpen, setIsModalOpen] = useState(false);
-      const [editingOrder, setEditingOrder] = useState(null);
-      const [formData, setFormData] = useState({
-        customer: "",
-        items: [{ product: DEFAULT_PRODUCTS[0].name, quantity: 1 }],
-        total_amount: "",
-        order_date: new Date().toISOString().split("T")[0],
-        sales_channel: DEFAULT_CHANNELS[0].name,
-        status: DEFAULT_STATUSES[0].name,
-        courier_name: DEFAULT_COURIERS[0].name,
-        tracking_number: "",
-        invoice_number: ""
-      });
-
-      // Cloud Sync Settings Modal
-      const [isSyncModalOpen, setIsSyncModalOpen] = useState(false);
-      const [customUrl, setCustomUrl] = useState(getSupabaseConfig().url);
-      const [customKey, setCustomKey] = useState(getSupabaseConfig().anonKey);
-
-      // Load initial data from Supabase
-      const loadFromSupabase = async () => {
-        setSyncStatus("connecting");
-        setSyncError("");
-        try {
-          const [ordersData, configData] = await Promise.all([
-            supabaseFetch("orders?select=*&order=id.desc"),
-            supabaseFetch("app_config?id=eq.1&select=*")
-          ]);
-
-          setOrders(Array.isArray(ordersData) ? ordersData : []);
-          if (Array.isArray(configData) && configData.length > 0) {
-            const cfg = configData[0];
-            if (cfg.products?.length) setProducts(cfg.products);
-            if (cfg.couriers?.length) setCouriers(cfg.couriers);
-            if (cfg.channels?.length) setChannels(cfg.channels);
-            if (cfg.statuses?.length) setStatuses(cfg.statuses);
-          }
-          setSyncStatus("live");
-        } catch (err) {
-          console.error("Supabase sync error:", err);
-          setSyncStatus("error");
-          setSyncError(err.message || "Αποτυχία σύνδεσης");
-        }
+    function normalizeOrderFromDb(row) {
+      return {
+        id: Number(row.id),
+        customer: row.customer || "",
+        items: Array.isArray(row.items) ? row.items : [],
+        totalAmount: row.total_amount === null || row.total_amount === undefined ? null : Number(row.total_amount),
+        orderDate: row.order_date || new Date().toISOString().slice(0, 10),
+        salesChannel: row.sales_channel || "Direct Message",
+        status: row.status || "Pending",
+        courierName: row.courier_name || "On hand",
+        trackingNumber: row.tracking_number || "",
+        invoiceNumber: row.invoice_number || ""
       };
-
-      useEffect(() => {
-        loadFromSupabase();
-      }, []);
-
-      // Stock Calculations
-      const stockStats = useMemo(() => {
-        return products.map((prod) => {
-          let sold = 0;
-          let gifted = 0;
-          orders.forEach((order) => {
-            const itemsList = Array.isArray(order.items) ? order.items : [];
-            itemsList.forEach((it) => {
-              if (it.product === prod.name) {
-                const qty = Number(it.quantity) || 0;
-                if (order.sales_channel === "Gift") gifted += qty;
-                else sold += qty;
-              }
-            });
-          });
-          const remaining = (Number(prod.initialStock) || 0) - sold - gifted;
-          return { ...prod, sold, gifted, remaining };
-        });
-      }, [orders, products]);
-
-      const totalRevenue = useMemo(() => {
-        return orders.reduce((sum, o) => sum + (Number(o.total_amount) || 0), 0);
-      }, [orders]);
-
-      // Filtered Orders
-      const filteredOrders = useMemo(() => {
-        return orders.filter((o) => {
-          if (filterStatus !== "ALL" && o.status !== filterStatus) return false;
-          if (filterChannel !== "ALL" && o.sales_channel !== filterChannel) return false;
-          if (searchQuery.trim()) {
-            const q = searchQuery.toLowerCase();
-            const matchCustomer = (o.customer || "").toLowerCase().includes(q);
-            const matchTracking = (o.tracking_number || "").toLowerCase().includes(q);
-            const matchInvoice = (o.invoice_number || "").toLowerCase().includes(q);
-            if (!matchCustomer && !matchTracking && !matchInvoice) return false;
-          }
-          return true;
-        });
-      }, [orders, filterStatus, filterChannel, searchQuery]);
-
-      // Save Order (Insert / Update)
-      const handleSaveOrder = async (e) => {
-        e.preventDefault();
-        if (!formData.customer.trim()) return;
-
-        const payload = {
-          customer: formData.customer.trim(),
-          items: formData.items.filter((i) => Number(i.quantity) > 0),
-          total_amount: formData.total_amount === "" ? 0 : Number(formData.total_amount),
-          order_date: formData.order_date,
-          sales_channel: formData.sales_channel,
-          status: formData.status,
-          courier_name: formData.courier_name,
-          tracking_number: formData.tracking_number.trim(),
-          invoice_number: formData.invoice_number.trim(),
-          updated_at: new Date().toISOString()
-        };
-
-        try {
-          setSyncStatus("connecting");
-          if (editingOrder) {
-            const updated = await supabaseFetch(`orders?id=eq.${editingOrder.id}`, {
-              method: "PATCH",
-              body: JSON.stringify(payload)
-            });
-            setOrders((prev) => prev.map((o) => (o.id === editingOrder.id ? updated[0] : o)));
-          } else {
-            const created = await supabaseFetch("orders", {
-              method: "POST",
-              body: JSON.stringify(payload)
-            });
-            setOrders((prev) => [created[0], ...prev]);
-          }
-          setSyncStatus("live");
-          setIsModalOpen(false);
-          setEditingOrder(null);
-        } catch (err) {
-          setSyncStatus("error");
-          setSyncError(err.message);
-          alert("Σφάλμα αποθήκευσης στο Supabase: " + err.message);
-        }
-      };
-
-      // Quick Status Update
-      const handleQuickStatusChange = async (orderId, newStatus) => {
-        try {
-          setSyncStatus("connecting");
-          const updated = await supabaseFetch(`orders?id=eq.${orderId}`, {
-            method: "PATCH",
-            body: JSON.stringify({ status: newStatus, updated_at: new Date().toISOString() })
-          });
-          setOrders((prev) => prev.map((o) => (o.id === orderId ? updated[0] : o)));
-          setSyncStatus("live");
-        } catch (err) {
-          setSyncStatus("error");
-          setSyncError(err.message);
-        }
-      };
-
-      // Delete Order
-      const handleDeleteOrder = async (orderId) => {
-        if (!window.confirm("Διαγραφή αυτής της παραγγελίας;")) return;
-        try {
-          setSyncStatus("connecting");
-          await supabaseFetch(`orders?id=eq.${orderId}`, { method: "DELETE" });
-          setOrders((prev) => prev.filter((o) => o.id !== orderId));
-          setSyncStatus("live");
-        } catch (err) {
-          setSyncStatus("error");
-          setSyncError(err.message);
-        }
-      };
-
-      // Save Stock Config (Edit Mode)
-      const handleSaveConfig = async (updatedProducts) => {
-        setProducts(updatedProducts);
-        try {
-          setSyncStatus("connecting");
-          await supabaseFetch("app_config?id=eq.1", {
-            method: "PATCH",
-            body: JSON.stringify({
-              products: updatedProducts,
-              updated_at: new Date().toISOString()
-            })
-          });
-          setSyncStatus("live");
-        } catch (err) {
-          setSyncStatus("error");
-          setSyncError(err.message);
-        }
-      };
-
-      const openNewOrderModal = () => {
-        setEditingOrder(null);
-        setFormData({
-          customer: "",
-          items: [{ product: products[0]?.name || "", quantity: 1 }],
-          total_amount: "",
-          order_date: new Date().toISOString().split("T")[0],
-          sales_channel: channels[0]?.name || "Bandcamp",
-          status: statuses[0]?.name || "Pending",
-          courier_name: couriers[0]?.name || "On hand",
-          tracking_number: "",
-          invoice_number: ""
-        });
-        setIsModalOpen(true);
-      };
-
-      const openEditOrderModal = (order) => {
-        setEditingOrder(order);
-        setFormData({
-          customer: order.customer || "",
-          items: Array.isArray(order.items) && order.items.length > 0
-            ? order.items
-            : [{ product: products[0]?.name || "", quantity: 1 }],
-          total_amount: order.total_amount ?? "",
-          order_date: order.order_date || new Date().toISOString().split("T")[0],
-          sales_channel: order.sales_channel || channels[0]?.name,
-          status: order.status || statuses[0]?.name,
-          courier_name: order.courier_name || couriers[0]?.name,
-          tracking_number: order.tracking_number || "",
-          invoice_number: order.invoice_number || ""
-        });
-        setIsModalOpen(true);
-      };
-
-      const handleUpdateSyncCredentials = (e) => {
-        e.preventDefault();
-        safeStorage.setItem("nv_supabase_url", customUrl.trim());
-        safeStorage.setItem("nv_supabase_anon_key", customKey.trim());
-        setIsSyncModalOpen(false);
-        loadFromSupabase();
-      };
-
-      return (
-        <div className="min-h-screen pb-16">
-          {/* HEADER */}
-          <header className="bg-white border-b border-slate-200 sticky top-0 z-30">
-            <div className="max-w-7xl mx-auto px-4 sm:px-6 py-4 flex flex-wrap items-center justify-between gap-4">
-              <div className="flex items-center gap-3.5">
-                {/* Geometric Burgundy Vinyl Emblem */}
-                <div className="w-11 h-11 rounded-xl bg-[#490517] flex items-center justify-center shadow-sm shrink-0">
-                  <svg viewBox="0 0 36 36" className="w-7 h-7 text-white" fill="none">
-                    <circle cx="18" cy="18" r="14" stroke="currentColor" strokeWidth="2" />
-                    <circle cx="18" cy="18" r="9" stroke="currentColor" strokeWidth="1.2" strokeDasharray="3 2" />
-                    <circle cx="18" cy="18" r="3" fill="currentColor" />
-                  </svg>
-                </div>
-                <div>
-                  <div className="flex items-center gap-2">
-                    <h1 className="text-lg sm:text-xl font-extrabold tracking-tight text-slate-900">
-                      Nouvelle Ville Records
-                    </h1>
-                    <span className="px-2 py-0.5 text-xs font-bold rounded-full bg-[#490517]/10 text-[#490517]">
-                      «3,14» LP
-                    </span>
-                  </div>
-                  <p className="text-xs text-slate-500">Διαχείριση Αποθέματος Βινυλίων & Παραγγελιών</p>
-                </div>
-              </div>
-
-              <div className="flex items-center gap-2.5 flex-wrap">
-                {/* Sync Status Badge */}
-                <button
-                  onClick={() => setIsSyncModalOpen(true)}
-                  title={syncError || "Ρυθμίσεις Cloud Sync"}
-                  className={`inline-flex items-center gap-2 px-3 py-1.5 rounded-lg text-xs font-semibold border transition ${
-                    syncStatus === "live"
-                      ? "bg-emerald-50 text-emerald-700 border-emerald-200 hover:bg-emerald-100"
-                      : syncStatus === "connecting"
-                      ? "bg-amber-50 text-amber-700 border-amber-200"
-                      : "bg-rose-50 text-rose-700 border-rose-200 hover:bg-rose-100"
-                  }`}
-                >
-                  <span className={`w-2 h-2 rounded-full ${
-                    syncStatus === "live" ? "bg-emerald-500" : syncStatus === "connecting" ? "bg-amber-500 animate-pulse" : "bg-rose-500"
-                  }`} />
-                  {syncStatus === "live" ? "Supabase Live" : syncStatus === "connecting" ? "Συγχρονισμός..." : "Offline / Σφάλμα"}
-                </button>
-
-                {/* Edit Mode Toggle */}
-                <button
-                  onClick={() => setEditMode(!editMode)}
-                  className={`px-3 py-1.5 rounded-lg text-xs font-semibold border transition ${
-                    editMode
-                      ? "bg-slate-900 text-white border-slate-900"
-                      : "bg-white text-slate-700 border-slate-300 hover:bg-slate-50"
-                  }`}
-                >
-                  {editMode ? "✓ Τέλος Επεξεργασίας" : "⚙ Επεξεργασία Αποθέματος"}
-                </button>
-
-                {/* New Order CTA */}
-                <button
-                  onClick={openNewOrderModal}
-                  className="px-4 py-2 rounded-lg text-xs sm:text-sm font-semibold bg-[#490517] text-white hover:bg-[#5e081f] shadow-sm transition"
-                >
-                  + Νέα Παραγγελία
-                </button>
-              </div>
-            </div>
-          </header>
-
-          <main className="max-w-7xl mx-auto px-4 sm:px-6 pt-6 space-y-6">
-            {/* Error Banner if Supabase fails */}
-            {syncStatus === "error" && (
-              <div className="bg-rose-50 border border-rose-200 rounded-xl p-4 flex flex-wrap items-center justify-between gap-3">
-                <div className="text-xs sm:text-sm text-rose-800">
-                  <strong>Πρόβλημα συγχρονισμού:</strong> {syncError}. Βεβαιώσου ότι έτρεξες το SQL script στο νέο Supabase project (`fxkafhuvvzhkybaddflm`).
-                </div>
-                <button
-                  onClick={loadFromSupabase}
-                  className="px-3 py-1.5 bg-rose-600 text-white text-xs font-semibold rounded-lg hover:bg-rose-700"
-                >
-                  Επανάληψη Σύνδεσης
-                </button>
-              </div>
-            )}
-
-            {/* STOCK & REVENUE KPI CARDS */}
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-              {stockStats.map((item, idx) => (
-                <div key={item.name} className="bg-white rounded-2xl border border-slate-200 p-5 shadow-sm">
-                  <div className="flex items-start justify-between gap-2">
-                    <div>
-                      <span className={`inline-block px-2.5 py-0.5 rounded-md text-xs font-bold border mb-2 ${getBadgeStyle(item.color)}`}>
-                        {item.shortName}
-                      </span>
-                      <h2 className="text-base font-bold text-slate-900">{item.name}</h2>
-                      <p className="text-xs text-slate-500">{item.subtitle}</p>
-                    </div>
-                    <div className="text-right">
-                      <div className="text-2xl font-extrabold tabular-nums text-slate-900">{item.remaining}</div>
-                      <div className="text-[11px] font-medium text-slate-500 uppercase tracking-wider">Διαθέσιμα</div>
-                    </div>
-                  </div>
-
-                  {/* Progress bar */}
-                  <div className="mt-4">
-                    <div className="w-full h-2 bg-slate-100 rounded-full overflow-hidden">
-                      <div
-                        className="h-full bg-[#490517] transition-all duration-300"
-                        style={{ width: `${Math.max(0, Math.min(100, (item.remaining / (item.initialStock || 1)) * 100))}%` }}
-                      />
-                    </div>
-                    <div className="mt-2.5 flex items-center justify-between text-xs text-slate-600 tabular-nums">
-                      <span>Αρχικό: <strong>{item.initialStock}</strong></span>
-                      <span>Πωλήσεις: <strong>{item.sold}</strong></span>
-                      <span>Δώρα: <strong>{item.gifted}</strong></span>
-                    </div>
-                  </div>
-
-                  {/* Edit Mode Initial Stock Input */}
-                  {editMode && (
-                    <div className="mt-4 pt-3 border-t border-slate-100 flex items-center justify-between gap-2">
-                      <label className="text-xs font-semibold text-slate-700">Αρχικό Απόθεμα:</label>
-                      <input
-                        type="number"
-                        value={item.initialStock}
-                        onChange={(e) => {
-                          const val = Number(e.target.value) || 0;
-                          const next = products.map((p, i) => (i === idx ? { ...p, initialStock: val } : p));
-                          handleSaveConfig(next);
-                        }}
-                        className="w-24 px-2.5 py-1 text-xs font-bold border border-slate-300 rounded-lg text-right"
-                      />
-                    </div>
-                  )}
-                </div>
-              ))}
-
-              {/* Total Summary Card */}
-              <div className="bg-slate-900 text-white rounded-2xl p-5 shadow-sm flex flex-col justify-between">
-                <div>
-                  <span className="inline-block px-2.5 py-0.5 rounded-md text-xs font-semibold bg-white/10 text-slate-200 mb-2">
-                    Συνολική Εικόνα
-                  </span>
-                  <h2 className="text-base font-bold text-white">Έσοδα & Διακίνηση</h2>
-                  <p className="text-xs text-slate-400">Σύνολο καταχωρημένων παραγγελιών</p>
-                </div>
-
-                <div className="mt-4 grid grid-cols-2 gap-3 pt-3 border-t border-white/10">
-                  <div>
-                    <div className="text-2xl font-extrabold tabular-nums">{totalRevenue.toFixed(2)} €</div>
-                    <div className="text-[11px] text-slate-400 uppercase tracking-wider">Συνολικά Έσοδα</div>
-                  </div>
-                  <div className="text-right">
-                    <div className="text-2xl font-extrabold tabular-nums">{orders.length}</div>
-                    <div className="text-[11px] text-slate-400 uppercase tracking-wider">Παραγγελίες</div>
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            {/* FILTERS BAR */}
-            <div className="bg-white rounded-2xl border border-slate-200 p-4 shadow-sm flex flex-wrap items-center justify-between gap-3">
-              <input
-                type="text"
-                placeholder="Αναζήτηση πελάτη, tracking ή τιμολογίου..."
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                className="w-full sm:w-72 px-3.5 py-2 text-xs sm:text-sm border border-slate-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#490517]/20 focus:border-[#490517]"
-              />
-
-              <div className="flex items-center gap-2 flex-wrap">
-                <select
-                  value={filterStatus}
-                  onChange={(e) => setFilterStatus(e.target.value)}
-                  className="px-3 py-2 text-xs font-semibold border border-slate-300 rounded-xl bg-white"
-                >
-                  <option value="ALL">Όλες οι καταστάσεις</option>
-                  {statuses.map((s) => (
-                    <option key={s.name} value={s.name}>{s.name}</option>
-                  ))}
-                </select>
-
-                <select
-                  value={filterChannel}
-                  onChange={(e) => setFilterChannel(e.target.value)}
-                  className="px-3 py-2 text-xs font-semibold border border-slate-300 rounded-xl bg-white"
-                >
-                  <option value="ALL">Όλα τα κανάλια</option>
-                  {channels.map((c) => (
-                    <option key={c.name} value={c.name}>{c.name}</option>
-                  ))}
-                </select>
-              </div>
-            </div>
-
-            {/* ORDERS TABLE */}
-            <div className="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
-              <div className="overflow-x-auto">
-                <table className="w-full text-left border-collapse">
-                  <thead>
-                    <tr className="bg-slate-50 border-b border-slate-200 text-[11px] font-bold uppercase tracking-wider text-slate-500">
-                      <th className="py-3.5 px-4">Ημ/νία</th>
-                      <th className="py-3.5 px-4">Πελάτης / Παραλήπτης</th>
-                      <th className="py-3.5 px-4">Βινύλια</th>
-                      <th className="py-3.5 px-4">Κανάλι</th>
-                      <th className="py-3.5 px-4">Αποστολή / Tracking</th>
-                      <th className="py-3.5 px-4 text-right">Ποσό</th>
-                      <th className="py-3.5 px-4">Κατάσταση</th>
-                      <th className="py-3.5 px-4 text-right">Ενέργειες</th>
-                    </tr>
-                  </thead>
-                  <tbody className="divide-y divide-slate-100 text-xs sm:text-sm">
-                    {filteredOrders.length === 0 ? (
-                      <tr>
-                        <td colSpan="8" className="py-10 text-center text-slate-400">
-                          Δεν βρέθηκαν παραγγελίες. Πάτησε «+ Νέα Παραγγελία» για να προσθέσεις την πρώτη.
-                        </td>
-                      </tr>
-                    ) : (
-                      filteredOrders.map((order) => {
-                        const channelObj = channels.find((c) => c.name === order.sales_channel);
-                        const courierObj = couriers.find((c) => c.name === order.courier_name);
-                        const statusObj = statuses.find((s) => s.name === order.status);
-
-                        return (
-                          <tr key={order.id} className="hover:bg-slate-50/80 transition">
-                            <td className="py-3.5 px-4 whitespace-nowrap text-slate-600 tabular-nums">
-                              {order.order_date || "—"}
-                            </td>
-                            <td className="py-3.5 px-4">
-                              <div className="font-semibold text-slate-900">{order.customer}</div>
-                              {order.invoice_number && (
-                                <div className="text-[11px] text-slate-500">Παραστ.: {order.invoice_number}</div>
-                              )}
-                            </td>
-                            <td className="py-3.5 px-4">
-                              <div className="space-y-1">
-                                {(Array.isArray(order.items) ? order.items : []).map((it, idx) => {
-                                  const prodObj = products.find((p) => p.name === it.product);
-                                  return (
-                                    <div key={idx} className="flex items-center gap-1.5">
-                                      <span className="font-bold text-slate-800 tabular-nums">{it.quantity}×</span>
-                                      <span className={`px-2 py-0.5 rounded text-[11px] font-semibold border ${getBadgeStyle(prodObj?.color)}`}>
-                                        {prodObj?.shortName || it.product}
-                                      </span>
-                                    </div>
-                                  );
-                                })}
-                              </div>
-                            </td>
-                            <td className="py-3.5 px-4 whitespace-nowrap">
-                              <span className={`px-2.5 py-1 rounded-full text-xs font-semibold border ${getBadgeStyle(channelObj?.color)}`}>
-                                {order.sales_channel}
-                              </span>
-                            </td>
-                            <td className="py-3.5 px-4">
-                              <span className={`inline-block px-2 py-0.5 rounded text-xs font-semibold border ${getBadgeStyle(courierObj?.color)}`}>
-                                {order.courier_name}
-                              </span>
-                              {order.tracking_number && (
-                                <div className="text-[11px] font-mono text-slate-600 mt-1">{order.tracking_number}</div>
-                              )}
-                            </td>
-                            <td className="py-3.5 px-4 text-right font-bold tabular-nums whitespace-nowrap text-slate-900">
-                              {Number(order.total_amount || 0).toFixed(2)} €
-                            </td>
-                            <td className="py-3.5 px-4 whitespace-nowrap">
-                              <select
-                                value={order.status}
-                                onChange={(e) => handleQuickStatusChange(order.id, e.target.value)}
-                                className={`px-2.5 py-1 rounded-full text-xs font-bold border cursor-pointer focus:outline-none ${getBadgeStyle(statusObj?.color)}`}
-                              >
-                                {statuses.map((st) => (
-                                  <option key={st.name} value={st.name} className="bg-white text-slate-900">
-                                    {st.name}
-                                  </option>
-                                ))}
-                              </select>
-                            </td>
-                            <td className="py-3.5 px-4 text-right whitespace-nowrap space-x-2">
-                              <button
-                                onClick={() => openEditOrderModal(order)}
-                                className="px-2.5 py-1 text-xs font-semibold text-slate-700 bg-slate-100 hover:bg-slate-200 rounded-lg"
-                              >
-                                Επεξ.
-                              </button>
-                              <button
-                                onClick={() => handleDeleteOrder(order.id)}
-                                className="px-2.5 py-1 text-xs font-semibold text-rose-700 bg-rose-50 hover:bg-rose-100 rounded-lg"
-                              >
-                                Διαγρ.
-                              </button>
-                            </td>
-                          </tr>
-                        );
-                      })
-                    )}
-                  </tbody>
-                </table>
-              </div>
-            </div>
-          </main>
-
-          {/* ADD / EDIT ORDER MODAL */}
-          {isModalOpen && (
-            <div className="fixed inset-0 z-50 bg-slate-900/50 backdrop-blur-xs flex items-center justify-center p-4">
-              <div className="bg-white rounded-2xl max-w-lg w-full p-6 shadow-xl border border-slate-200 max-h-[90vh] overflow-y-auto">
-                <div className="flex items-center justify-between pb-3 border-b border-slate-100">
-                  <h3 className="text-lg font-extrabold text-slate-900">
-                    {editingOrder ? "Επεξεργασία Παραγγελίας" : "Νέα Παραγγελία"}
-                  </h3>
-                  <button onClick={() => setIsModalOpen(false)} className="text-slate-400 hover:text-slate-700 text-lg font-bold">✕</button>
-                </div>
-
-                <form onSubmit={handleSaveOrder} className="mt-4 space-y-4 text-xs sm:text-sm">
-                  <div>
-                    <label className="block font-semibold text-slate-700 mb-1">Ονοματεπώνυμο Πελάτη *</label>
-                    <input
-                      type="text"
-                      required
-                      value={formData.customer}
-                      onChange={(e) => setFormData({ ...formData, customer: e.target.value })}
-                      className="w-full px-3 py-2 border border-slate-300 rounded-xl"
-                      placeholder="π.χ. Γιώργος Παπαδόπουλος"
-                    />
-                  </div>
-
-                  {/* Items list */}
-                  <div>
-                    <div className="flex items-center justify-between mb-1">
-                      <label className="font-semibold text-slate-700">Αντίτυπα Βινυλίου</label>
-                      <button
-                        type="button"
-                        onClick={() => setFormData({
-                          ...formData,
-                          items: [...formData.items, { product: products[1]?.name || products[0]?.name, quantity: 1 }]
-                        })}
-                        className="text-xs font-bold text-[#490517] hover:underline"
-                      >
-                        + Προσθήκη έκδοσης
-                      </button>
-                    </div>
-                    <div className="space-y-2">
-                      {formData.items.map((it, idx) => (
-                        <div key={idx} className="flex items-center gap-2">
-                          <select
-                            value={it.product}
-                            onChange={(e) => {
-                              const next = [...formData.items];
-                              next[idx].product = e.target.value;
-                              setFormData({ ...formData, items: next });
-                            }}
-                            className="flex-1 px-3 py-2 border border-slate-300 rounded-xl bg-white"
-                          >
-                            {products.map((p) => (
-                              <option key={p.name} value={p.name}>{p.name}</option>
-                            ))}
-                          </select>
-                          <input
-                            type="number"
-                            min="1"
-                            value={it.quantity}
-                            onChange={(e) => {
-                              const next = [...formData.items];
-                              next[idx].quantity = Number(e.target.value) || 1;
-                              setFormData({ ...formData, items: next });
-                            }}
-                            className="w-20 px-3 py-2 border border-slate-300 rounded-xl text-center font-bold"
-                          />
-                          {formData.items.length > 1 && (
-                            <button
-                              type="button"
-                              onClick={() => setFormData({
-                                ...formData,
-                                items: formData.items.filter((_, i) => i !== idx)
-                              })}
-                              className="px-2.5 py-2 text-rose-600 hover:bg-rose-50 rounded-lg font-bold"
-                            >
-                              ✕
-                            </button>
-                          )}
-                        </div>
-                      ))}
-                    </div>
-                  </div>
-
-                  <div className="grid grid-cols-2 gap-3">
-                    <div>
-                      <label className="block font-semibold text-slate-700 mb-1">Ποσό (€)</label>
-                      <input
-                        type="number"
-                        step="0.01"
-                        value={formData.total_amount}
-                        onChange={(e) => setFormData({ ...formData, total_amount: e.target.value })}
-                        className="w-full px-3 py-2 border border-slate-300 rounded-xl"
-                        placeholder="25.00"
-                      />
-                    </div>
-                    <div>
-                      <label className="block font-semibold text-slate-700 mb-1">Ημερομηνία</label>
-                      <input
-                        type="date"
-                        value={formData.order_date}
-                        onChange={(e) => setFormData({ ...formData, order_date: e.target.value })}
-                        className="w-full px-3 py-2 border border-slate-300 rounded-xl"
-                      />
-                    </div>
-                  </div>
-
-                  <div className="grid grid-cols-2 gap-3">
-                    <div>
-                      <label className="block font-semibold text-slate-700 mb-1">Κανάλι Πώλησης</label>
-                      <select
-                        value={formData.sales_channel}
-                        onChange={(e) => setFormData({ ...formData, sales_channel: e.target.value })}
-                        className="w-full px-3 py-2 border border-slate-300 rounded-xl bg-white"
-                      >
-                        {channels.map((c) => <option key={c.name} value={c.name}>{c.name}</option>)}
-                      </select>
-                    </div>
-                    <div>
-                      <label className="block font-semibold text-slate-700 mb-1">Κατάσταση</label>
-                      <select
-                        value={formData.status}
-                        onChange={(e) => setFormData({ ...formData, status: e.target.value })}
-                        className="w-full px-3 py-2 border border-slate-300 rounded-xl bg-white"
-                      >
-                        {statuses.map((s) => <option key={s.name} value={s.name}>{s.name}</option>)}
-                      </select>
-                    </div>
-                  </div>
-
-                  <div className="grid grid-cols-2 gap-3">
-                    <div>
-                      <label className="block font-semibold text-slate-700 mb-1">Τρόπος Αποστολής</label>
-                      <select
-                        value={formData.courier_name}
-                        onChange={(e) => setFormData({ ...formData, courier_name: e.target.value })}
-                        className="w-full px-3 py-2 border border-slate-300 rounded-xl bg-white"
-                      >
-                        {couriers.map((c) => <option key={c.name} value={c.name}>{c.name}</option>)}
-                      </select>
-                    </div>
-                    <div>
-                      <label className="block font-semibold text-slate-700 mb-1">Tracking Number</label>
-                      <input
-                        type="text"
-                        value={formData.tracking_number}
-                        onChange={(e) => setFormData({ ...formData, tracking_number: e.target.value })}
-                        className="w-full px-3 py-2 border border-slate-300 rounded-xl"
-                        placeholder="π.χ. Box Now ID"
-                      />
-                    </div>
-                  </div>
-
-                  <div>
-                    <label className="block font-semibold text-slate-700 mb-1">Αρ. Παραστατικού (e-timologio)</label>
-                    <input
-                      type="text"
-                      value={formData.invoice_number}
-                      onChange={(e) => setFormData({ ...formData, invoice_number: e.target.value })}
-                      className="w-full px-3 py-2 border border-slate-300 rounded-xl"
-                      placeholder="π.χ. ΑΠΛ-12"
-                    />
-                  </div>
-
-                  <div className="pt-3 border-t border-slate-100 flex justify-end gap-2">
-                    <button
-                      type="button"
-                      onClick={() => setIsModalOpen(false)}
-                      className="px-4 py-2 rounded-xl text-xs font-semibold text-slate-600 hover:bg-slate-100"
-                    >
-                      Ακύρωση
-                    </button>
-                    <button
-                      type="submit"
-                      className="px-5 py-2 rounded-xl text-xs font-bold bg-[#490517] text-white hover:bg-[#5e081f]"
-                    >
-                      Αποθήκευση
-                    </button>
-                  </div>
-                </form>
-              </div>
-            </div>
-          )}
-
-          {/* CLOUD SYNC CONFIG MODAL */}
-          {isSyncModalOpen && (
-            <div className="fixed inset-0 z-50 bg-slate-900/50 backdrop-blur-xs flex items-center justify-center p-4">
-              <div className="bg-white rounded-2xl max-w-md w-full p-6 shadow-xl border border-slate-200">
-                <div className="flex items-center justify-between pb-3 border-b border-slate-100">
-                  <h3 className="text-base font-extrabold text-slate-900">Ρυθμίσεις Supabase Cloud Sync</h3>
-                  <button onClick={() => setIsSyncModalOpen(false)} className="text-slate-400 hover:text-slate-700 font-bold">✕</button>
-                </div>
-                <form onSubmit={handleUpdateSyncCredentials} className="mt-4 space-y-3 text-xs">
-                  <div>
-                    <label className="block font-semibold text-slate-700 mb-1">Project URL</label>
-                    <input
-                      type="text"
-                      value={customUrl}
-                      onChange={(e) => setCustomUrl(e.target.value)}
-                      className="w-full px-3 py-2 border border-slate-300 rounded-xl font-mono"
-                    />
-                  </div>
-                  <div>
-                    <label className="block font-semibold text-slate-700 mb-1">Anon Public Key</label>
-                    <textarea
-                      rows="3"
-                      value={customKey}
-                      onChange={(e) => setCustomKey(e.target.value)}
-                      className="w-full px-3 py-2 border border-slate-300 rounded-xl font-mono"
-                    />
-                  </div>
-                  <div className="pt-2 flex justify-end gap-2">
-                    <button
-                      type="button"
-                      onClick={() => {
-                        safeStorage.removeItem("nv_supabase_url");
-                        safeStorage.removeItem("nv_supabase_anon_key");
-                        setCustomUrl(DEFAULT_SUPABASE_URL);
-                        setCustomKey(DEFAULT_SUPABASE_ANON_KEY);
-                      }}
-                      className="px-3 py-2 text-slate-600 hover:bg-slate-100 rounded-xl font-semibold"
-                    >
-                      Επαναφορά Προεπιλογών
-                    </button>
-                    <button
-                      type="submit"
-                      className="px-4 py-2 bg-[#490517] text-white rounded-xl font-bold"
-                    >
-                      Αποθήκευση & Σύνδεση
-                    </button>
-                  </div>
-                </form>
-              </div>
-            </div>
-          )}
-        </div>
-      );
     }
 
-    const root = ReactDOM.createRoot(document.getElementById("root"));
-    root.render(<App />);
-  </script>
-</body>
-</html>
+    function serializeOrderForDb(order, includeId = false) {
+      const payload = {
+        customer: order.customer,
+        items: order.items,
+        total_amount: order.totalAmount === null || order.totalAmount === undefined ? null : Number(order.totalAmount),
+        order_date: order.orderDate,
+        sales_channel: order.salesChannel,
+        status: order.status,
+        courier_name: order.courierName,
+        tracking_number: order.trackingNumber || "",
+        invoice_number: order.invoiceNumber || "",
+        updated_at: new Date().toISOString()
+      };
+      if (includeId && order.id !== undefined) {
+        payload.id = Number(order.id);
+      }
+      return payload;
+    }
+
+    // =========================================================================
+    // CONSTANTS & INITIAL DATA
+    // =========================================================================
+    const PRODUCT_GALAXY = "3,14 LP - Galaxy red-black";
+    const PRODUCT_BLACK = "3,14 LP - Black";
+
+    const INITIAL_ORDERS = [
+      { id: 1, customer: "Salvatore Bezzi", items: [{ product: PRODUCT_GALAXY, qty: 2 }], totalAmount: null, orderDate: "2026-11-12", salesChannel: "Direct Message", status: "Pending", courierName: "On hand", trackingNumber: "", invoiceNumber: "" },
+      { id: 2, customer: "Χρονία Δαϊμανώλη", items: [{ product: PRODUCT_GALAXY, qty: 1 }], totalAmount: null, orderDate: "2026-11-12", salesChannel: "Direct Message", status: "Pending", courierName: "On hand", trackingNumber: "", invoiceNumber: "" },
+      { id: 3, customer: "Νίκος Μπίλης", items: [{ product: PRODUCT_GALAXY, qty: 1 }], totalAmount: null, orderDate: "2026-11-12", salesChannel: "Direct Message", status: "Pending", courierName: "On hand", trackingNumber: "", invoiceNumber: "" },
+      { id: 4, customer: "Νίκος Γιαννούλης", items: [{ product: PRODUCT_GALAXY, qty: 1 }], totalAmount: 25, orderDate: "2026-11-13", salesChannel: "Direct Message", status: "Delivered", courierName: "On hand", trackingNumber: "", invoiceNumber: "" },
+      { id: 5, customer: "Παναγιώτης Τσίρος", items: [{ product: PRODUCT_GALAXY, qty: 2 }], totalAmount: null, orderDate: "2026-11-13", salesChannel: "Direct Message", status:
