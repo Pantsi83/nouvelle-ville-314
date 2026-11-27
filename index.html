@@ -386,6 +386,20 @@
       });
       if (!res.ok) {
         const errText = await res.text();
+        if (errText.includes("notes") && options.body && path.startsWith("orders")) {
+          try {
+            const parsed = JSON.parse(options.body);
+            const stripNotes = (obj) => {
+              const copy = { ...obj };
+              delete copy.notes;
+              return copy;
+            };
+            const cleanBody = Array.isArray(parsed)
+              ? JSON.stringify(parsed.map(stripNotes))
+              : JSON.stringify(stripNotes(parsed));
+            return sbFetch(path, { ...options, body: cleanBody });
+          } catch {}
+        }
         throw new Error(`Supabase ${res.status}: ${errText}`);
       }
       if (res.status === 204) return null;
@@ -408,7 +422,8 @@
         status: row.status || "Pending",
         courierName: row.courier_name || "On hand",
         trackingNumber: row.tracking_number || "",
-        invoiceNumber: row.invoice_number || ""
+        invoiceNumber: row.invoice_number || "",
+        notes: row.notes || ""
       };
     }
 
@@ -428,6 +443,7 @@
         courier_name: order.courierName,
         tracking_number: order.trackingNumber || "",
         invoice_number: order.invoiceNumber || "",
+        notes: order.notes || "",
         updated_at: new Date().toISOString()
       };
       if (includeId && order.id !== undefined) {
@@ -1640,6 +1656,7 @@
             const matchCourier = (order.courierName || "").toLowerCase().includes(q);
             const matchChannel = (order.salesChannel || "").toLowerCase().includes(q);
             const matchPaymentMethod = (order.paymentMethod || "").toLowerCase().includes(q);
+            const matchNotes = (order.notes || "").toLowerCase().includes(q);
             if (
               !matchCustomer &&
               !matchPhone &&
@@ -1650,7 +1667,8 @@
               !matchInvoice &&
               !matchCourier &&
               !matchChannel &&
-              !matchPaymentMethod
+              !matchPaymentMethod &&
+              !matchNotes
             ) {
               return false;
             }
@@ -1731,7 +1749,7 @@
         setSyncState((s) => ({ ...s, status: "syncing", errorMsg: "" }));
         try {
           if (editingOrder) {
-            const updatedObj = { ...data, id: editingOrder.id };
+            const updatedObj = { ...data, id: editingOrder.id, notes: data.notes !== undefined ? data.notes : (editingOrder.notes || "") };
             await sbFetch(`orders?id=eq.${editingOrder.id}`, {
               method: "PATCH",
               body: JSON.stringify(serializeOrderForDb(updatedObj))
@@ -2278,6 +2296,25 @@
                       className="px-1 py-0.5 rounded text-[9px] font-extrabold bg-amber-100 text-amber-950 border border-amber-400"
                     >
                       !TRK
+                    </span>
+                  )}
+                  {order.notes && order.notes.trim() && (
+                    <span
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        setEditingOrder(order);
+                        setDefaultModalStatus(null);
+                        setIsOrderModalOpen(true);
+                      }}
+                      title={`Σχόλιο: ${order.notes.trim()}`}
+                      className="inline-flex items-center justify-center w-4 h-4 rounded-full bg-[#EFE4E8] text-[#6E1927] border border-[#D4BAC3] hover:bg-[#6E1927] hover:text-white transition-colors cursor-pointer"
+                    >
+                      <svg viewBox="0 0 16 16" className="w-2.5 h-2.5" fill="none" stroke="currentColor" strokeWidth="1.5" aria-hidden="true">
+                        <path d="M2.5 4.2A1.7 1.7 0 0 1 4.2 2.5h7.6a1.7 1.7 0 0 1 1.7 1.7v5.2a1.7 1.7 0 0 1-1.7 1.7H6.6l-2.9 2.2v-2.2H4.2a1.7 1.7 0 0 1-1.7-1.7V4.2z" />
+                        <circle cx="5.7" cy="6.8" r="0.7" fill="currentColor" stroke="none" />
+                        <circle cx="8" cy="6.8" r="0.7" fill="currentColor" stroke="none" />
+                        <circle cx="10.3" cy="6.8" r="0.7" fill="currentColor" stroke="none" />
+                      </svg>
                     </span>
                   )}
                   {hasContact ? (
@@ -3745,6 +3782,21 @@
                                   </div>
                                 )}
 
+                                {order.notes && order.notes.trim() && (
+                                  <div
+                                    title={order.notes.trim()}
+                                    className="mt-2 px-2 py-1 bg-[#EFE4E8]/85 rounded border border-[#D4BAC3] text-[11px] text-[#40101A] flex items-start gap-1.5"
+                                  >
+                                    <svg viewBox="0 0 16 16" className="w-3.5 h-3.5 text-[#6E1927] shrink-0 mt-0.5" fill="none" stroke="currentColor" strokeWidth="1.5" aria-hidden="true">
+                                      <path d="M2.5 4.2A1.7 1.7 0 0 1 4.2 2.5h7.6a1.7 1.7 0 0 1 1.7 1.7v5.2a1.7 1.7 0 0 1-1.7 1.7H6.6l-2.9 2.2v-2.2H4.2a1.7 1.7 0 0 1-1.7-1.7V4.2z" />
+                                      <circle cx="5.7" cy="6.8" r="0.7" fill="currentColor" stroke="none" />
+                                      <circle cx="8" cy="6.8" r="0.7" fill="currentColor" stroke="none" />
+                                      <circle cx="10.3" cy="6.8" r="0.7" fill="currentColor" stroke="none" />
+                                    </svg>
+                                    <span className="line-clamp-2 leading-snug">{order.notes.trim()}</span>
+                                  </div>
+                                )}
+
                                 <div className="mt-2.5 pt-2 border-t border-[#EAE2E8] flex items-center justify-between gap-1">
                                   {prevSt ? (
                                     <button
@@ -4261,6 +4313,7 @@
       );
       const [trackingNumber, setTrackingNumber] = useState(initialData?.trackingNumber || "");
       const [invoiceNumber, setInvoiceNumber] = useState(initialData?.invoiceNumber || "");
+      const [notes, setNotes] = useState(initialData?.notes || "");
       const [error, setError] = useState("");
 
       const [addingProd, setAddingProd] = useState(false);
@@ -4303,7 +4356,8 @@
           status,
           courierName,
           trackingNumber: trackingNumber.trim(),
-          invoiceNumber: invoiceNumber.trim()
+          invoiceNumber: invoiceNumber.trim(),
+          notes: notes.trim()
         });
       };
 
@@ -4608,6 +4662,17 @@
                     onChange={(e) => setInvoiceNumber(e.target.value)}
                     placeholder="Προαιρετικό"
                     className="w-full px-3 py-2 rounded-lg border border-[#C7BEC6] bg-white text-[#40101A] focus:outline-none focus:border-[#6E1927] text-xs font-mono"
+                  />
+                </div>
+
+                <div className="sm:col-span-2">
+                  <label className="block text-xs font-bold text-[#40101A] mb-1">Σχόλια (προαιρετικό)</label>
+                  <textarea
+                    rows={2}
+                    value={notes}
+                    onChange={(e) => setNotes(e.target.value)}
+                    placeholder="Σημειώσεις για την παραγγελία, παράδοση, συσκευασία..."
+                    className="w-full px-3 py-2 rounded-lg border border-[#C7BEC6] bg-white text-[#40101A] focus:outline-none focus:border-[#6E1927] text-xs resize-none"
                   />
                 </div>
               </div>
