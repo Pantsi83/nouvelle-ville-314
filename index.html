@@ -1076,6 +1076,18 @@
         return DEFAULT_CONFIG;
       });
 
+      const readLayoutPref = (key) => {
+        try {
+          const fromLs = window.localStorage.getItem(key);
+          if (fromLs) return JSON.parse(fromLs);
+        } catch {}
+        try {
+          const wn = window.name ? JSON.parse(window.name) : null;
+          if (wn && wn[key] !== undefined) return wn[key];
+        } catch {}
+        return null;
+      };
+
       const [textOverrides, setTextOverrides] = useState(() => {
         const saved = readLayoutPref(LS_TEXT_OVERRIDES);
         return saved && typeof saved === "object" ? saved : {};
@@ -1166,18 +1178,6 @@
             window.name = JSON.stringify(wn);
           }
         } catch {}
-      };
-
-      const readLayoutPref = (key) => {
-        try {
-          const fromLs = window.localStorage.getItem(key);
-          if (fromLs) return JSON.parse(fromLs);
-        } catch {}
-        try {
-          const wn = window.name ? JSON.parse(window.name) : null;
-          if (wn && wn[key] !== undefined) return wn[key];
-        } catch {}
-        return null;
       };
 
       useEffect(() => {
