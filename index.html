@@ -273,9 +273,33 @@
       animation-duration: 3.2s;
     }
 
+    @keyframes nvrSheenSweep {
+      0% {
+        transform: translateX(-140%) skewX(-18deg);
+      }
+      55%, 100% {
+        transform: translateX(260%) skewX(-18deg);
+      }
+    }
+
     .nvr-progress-fill {
       position: relative;
       overflow: hidden;
+    }
+
+    .nvr-progress-fill::after {
+      content: "";
+      position: absolute;
+      inset: 0;
+      width: 45%;
+      background: linear-gradient(
+        90deg,
+        transparent 0%,
+        rgba(255, 255, 255, 0.38) 50%,
+        transparent 100%
+      );
+      animation: nvrSheenSweep 4.2s cubic-bezier(0.22, 1, 0.36, 1) infinite;
+      pointer-events: none;
     }
 
     /* Entrance & Tactile Animations */
@@ -2626,6 +2650,48 @@
                       : "Supabase Offline"}
                   </span>
                 </button>
+
+                {/* Artist Platform Quick Links */}
+                <div className="inline-flex items-center gap-1 bg-white/75 border border-[#C7BEC6] rounded-lg p-0.5 shadow-2xs">
+                  <a
+                    href="https://panostsiros.bandcamp.com/dashboard"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    title="Bandcamp for Artists"
+                    aria-label="Bandcamp for Artists"
+                    className="nvr-btn-press w-7 h-7 rounded-md flex items-center justify-center text-[#1DA0C3] hover:bg-[#1DA0C3]/12 transition-colors"
+                  >
+                    <svg viewBox="0 0 24 24" className="w-4 h-4 fill-current" aria-hidden="true">
+                      <path d="M1.5 18.5L7.8 5.5h14.7l-6.3 13H1.5z" />
+                    </svg>
+                  </a>
+
+                  <a
+                    href="https://artists.spotify.com/c/artist/2cJNXdWR8sf0DmIf6s7UGu/home"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    title="Spotify for Artists"
+                    aria-label="Spotify for Artists"
+                    className="nvr-btn-press w-7 h-7 rounded-md flex items-center justify-center text-[#1DB954] hover:bg-[#1DB954]/12 transition-colors"
+                  >
+                    <svg viewBox="0 0 24 24" className="w-4 h-4 fill-current" aria-hidden="true">
+                      <path d="M12 1.8C6.37 1.8 1.8 6.37 1.8 12S6.37 22.2 12 22.2 22.2 17.63 22.2 12 17.63 1.8 12 1.8zm4.68 14.72c-.18.3-.57.4-.87.22-2.39-1.46-5.4-1.79-8.94-.98-.34.08-.68-.13-.76-.47-.08-.34.13-.68.47-.76 3.87-.88 7.2-.5 9.88 1.14.3.18.4.57.22.85zm1.25-2.78c-.23.37-.71.49-1.08.26-2.73-1.68-6.9-2.17-10.13-1.19-.42.13-.86-.11-.99-.53-.13-.42.11-.86.53-.99 3.69-1.12 8.28-.58 11.41 1.35.37.23.49.71.26 1.08zm.11-2.89C14.77 9.69 9.25 9.51 6.04 10.48c-.48.15-.99-.12-1.14-.6-.15-.48.12-.99.6-1.14 3.69-1.12 9.78-.9 13.62 1.38.44.26.58.83.32 1.27-.26.44-.83.58-1.27.32z" />
+                    </svg>
+                  </a>
+
+                  <a
+                    href="https://distrokid.com/mymusic/"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    title="DistroKid — My Music"
+                    aria-label="DistroKid"
+                    className="nvr-btn-press w-7 h-7 rounded-md flex items-center justify-center text-[#6E1927] hover:bg-[#6E1927]/12 transition-colors"
+                  >
+                    <svg viewBox="0 0 24 24" className="w-4 h-4 fill-current" aria-hidden="true">
+                      <path d="M12 3a9 9 0 1 0 9 9h-2.3a6.7 6.7 0 1 1-6.7-6.7V3zm1 2.2v13.6l5.4-3.4-5.4-3.4V5.2z" />
+                    </svg>
+                  </a>
+                </div>
 
                 <button
                   onClick={() => setIsStatsModalOpen(true)}
