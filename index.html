@@ -1403,7 +1403,7 @@
       };
 
       const handleInlineSave = async (orderId, field, rawVal) => {
-        if (!inlineEditRef.current || isSavingInlineRef.current) return;
+        if (isSavingInlineRef.current) return;
         inlineEditRef.current = null;
         setInlineEdit(null);
         isSavingInlineRef.current = true;
@@ -1442,6 +1442,8 @@
               ? `Tracking (${cleanStr || "—"})`
               : field === "invoiceNumber"
               ? `ΑΠΥ/ΤΔΑ (${cleanStr || "—"})`
+              : field === "paymentMethod"
+              ? `Τρόπος πληρωμής (${cleanStr || "—"})`
               : cleanStr || "—";
         }
 
