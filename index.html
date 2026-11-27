@@ -386,20 +386,6 @@
       });
       if (!res.ok) {
         const errText = await res.text();
-        if (errText.includes("notes") && options.body && path.startsWith("orders")) {
-          try {
-            const parsed = JSON.parse(options.body);
-            const stripNotes = (obj) => {
-              const copy = { ...obj };
-              delete copy.notes;
-              return copy;
-            };
-            const cleanBody = Array.isArray(parsed)
-              ? JSON.stringify(parsed.map(stripNotes))
-              : JSON.stringify(stripNotes(parsed));
-            return sbFetch(path, { ...options, body: cleanBody });
-          } catch {}
-        }
         throw new Error(`Supabase ${res.status}: ${errText}`);
       }
       if (res.status === 204) return null;
@@ -422,8 +408,7 @@
         status: row.status || "Pending",
         courierName: row.courier_name || "On hand",
         trackingNumber: row.tracking_number || "",
-        invoiceNumber: row.invoice_number || "",
-        notes: row.notes || ""
+        invoiceNumber: row.invoice_number || ""
       };
     }
 
@@ -443,7 +428,6 @@
         courier_name: order.courierName,
         tracking_number: order.trackingNumber || "",
         invoice_number: order.invoiceNumber || "",
-        notes: order.notes || "",
         updated_at: new Date().toISOString()
       };
       if (includeId && order.id !== undefined) {
@@ -1656,7 +1640,6 @@
             const matchCourier = (order.courierName || "").toLowerCase().includes(q);
             const matchChannel = (order.salesChannel || "").toLowerCase().includes(q);
             const matchPaymentMethod = (order.paymentMethod || "").toLowerCase().includes(q);
-            const matchNotes = (order.notes || "").toLowerCase().includes(q);
             if (
               !matchCustomer &&
               !matchPhone &&
@@ -1667,8 +1650,7 @@
               !matchInvoice &&
               !matchCourier &&
               !matchChannel &&
-              !matchPaymentMethod &&
-              !matchNotes
+              !matchPaymentMethod
             ) {
               return false;
             }
@@ -1981,8 +1963,7 @@
           "Status",
           "Courier Name",
           "Tracking Number",
-          "Invoice/Receipt Number",
-          "Notes"
+          "Invoice/Receipt Number"
         ];
 
         const rows = orders.map((o) => {
@@ -2010,8 +1991,7 @@
             `"${o.status}"`,
             `"${o.courierName}"`,
             `"${o.trackingNumber || ""}"`,
-            `"${o.invoiceNumber || ""}"`,
-            `"${(o.notes || "").replace(/"/g, '""')}"`
+            `"${o.invoiceNumber || ""}"`
           ].join(",");
         });
 
@@ -2125,8 +2105,7 @@
                 status: getCol(["status", "κατάσταση"]) || "Pending",
                 courierName: getCol(["courier"]) || "On hand",
                 trackingNumber: getCol(["tracking"]),
-                invoiceNumber: getCol(["invoice", "receipt"]),
-                notes: getCol(["notes", "σχόλια", "σχολια"])
+                invoiceNumber: getCol(["invoice", "receipt"])
               });
             }
 
@@ -2269,43 +2248,20 @@
             </td>
 
             <td className="py-1.5 px-2 border-r border-[#E7E0E6]/75 font-semibold text-[#40101A]">
-              <div className="group w-full flex items-center justify-between gap-1">
-                <button
-                  type="button"
-                  onClick={() => setCustomerModalOrder(order)}
-                  title={
-                    hasContact
-                      ? [order.customerPhone, order.customerEmail, order.customerAddress].filter(Boolean).join(" • ")
-                      : "Κλικ για καταχώρηση τηλεφώνου, email ή διεύθυνσης"
-                  }
-                  className="min-w-0 flex-1 text-left hover:text-[#8A2233] cursor-pointer"
-                >
-                  <span className="hover:underline decoration-[#C7BAC2] underline-offset-2 leading-snug truncate block">
-                    {order.customer}
-                  </span>
-                </button>
+              <button
+                type="button"
+                onClick={() => setCustomerModalOrder(order)}
+                title={
+                  hasContact
+                    ? [order.customerPhone, order.customerEmail, order.customerAddress].filter(Boolean).join(" • ")
+                    : "Κλικ για καταχώρηση τηλεφώνου, email ή διεύθυνσης"
+                }
+                className="group w-full text-left flex items-center justify-between gap-1 hover:text-[#8A2233] cursor-pointer"
+              >
+                <span className="hover:underline decoration-[#C7BAC2] underline-offset-2 leading-snug truncate">
+                  {order.customer}
+                </span>
                 <span className="inline-flex items-center gap-1 shrink-0">
-                  {order.notes && order.notes.trim() && (
-                    <button
-                      type="button"
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        setEditingOrder(order);
-                        setDefaultModalStatus(null);
-                        setIsOrderModalOpen(true);
-                      }}
-                      title={`Σχόλια: ${order.notes}`}
-                      aria-label="Σχόλια παραγγελίας"
-                      className="inline-flex items-center justify-center px-1.5 py-0.5 rounded-full bg-[#EFE4E8] text-[#6E1927] border border-[#D4BAC3] hover:bg-[#E4D3DA] transition-colors cursor-pointer"
-                    >
-                      <svg viewBox="0 0 16 16" className="w-2.5 h-2.5" fill="none" stroke="currentColor" strokeWidth="1.65" aria-hidden="true">
-                        <path d="M2.5 3.5h11a1 1 0 0 1 1 1v6.2a1 1 0 0 1-1 1H6.2L3 14v-2.3h-.5a1 1 0 0 1-1-1V4.5a1 1 0 0 1 1-1z" />
-                        <circle cx="5.5" cy="7.6" r="0.7" fill="currentColor" stroke="none" />
-                        <circle cx="8" cy="7.6" r="0.7" fill="currentColor" stroke="none" />
-                        <circle cx="10.5" cy="7.6" r="0.7" fill="currentColor" stroke="none" />
-                      </svg>
-                    </button>
-                  )}
                   {attention.paidReadyToShip && (
                     <span
                       title="Πληρωμένη παραγγελία σε Pending — έτοιμη για αποστολή"
@@ -2345,17 +2301,12 @@
                       )}
                     </span>
                   ) : (
-                    <button
-                      type="button"
-                      onClick={() => setCustomerModalOrder(order)}
-                      title="Στοιχεία επικοινωνίας"
-                      className="opacity-0 group-hover:opacity-100 text-[10px] font-bold text-[#6E5C68] hover:text-[#40101A] transition-opacity cursor-pointer"
-                    >
+                    <span className="opacity-0 group-hover:opacity-100 text-[10px] font-bold text-[#6E5C68] transition-opacity">
                       +
-                    </button>
+                    </span>
                   )}
                 </span>
-              </div>
+              </button>
             </td>
 
             <td className="py-1.5 px-2 border-r border-[#E7E0E6]/75">
@@ -3734,26 +3685,6 @@
                                   >
                                     {order.customer}
                                   </h3>
-                                  <div className="inline-flex items-center gap-1 shrink-0">
-                                  {order.notes && order.notes.trim() && (
-                                    <button
-                                      type="button"
-                                      onClick={() => {
-                                        setEditingOrder(order);
-                                        setDefaultModalStatus(null);
-                                        setIsOrderModalOpen(true);
-                                      }}
-                                      title={`Σχόλια: ${order.notes}`}
-                                      className="inline-flex items-center justify-center px-1.5 py-0.5 rounded-full bg-[#EFE4E8] text-[#6E1927] border border-[#D4BAC3] cursor-pointer"
-                                    >
-                                      <svg viewBox="0 0 16 16" className="w-2.5 h-2.5" fill="none" stroke="currentColor" strokeWidth="1.65" aria-hidden="true">
-                                        <path d="M2.5 3.5h11a1 1 0 0 1 1 1v6.2a1 1 0 0 1-1 1H6.2L3 14v-2.3h-.5a1 1 0 0 1-1-1V4.5a1 1 0 0 1 1-1z" />
-                                        <circle cx="5.5" cy="7.6" r="0.7" fill="currentColor" stroke="none" />
-                                        <circle cx="8" cy="7.6" r="0.7" fill="currentColor" stroke="none" />
-                                        <circle cx="10.5" cy="7.6" r="0.7" fill="currentColor" stroke="none" />
-                                      </svg>
-                                    </button>
-                                  )}
                                   {hasContact && (
                                     <button
                                       type="button"
@@ -3780,7 +3711,6 @@
                                       )}
                                     </button>
                                   )}
-                                  </div>
                                 </div>
 
                                 <div className="flex flex-wrap gap-1 mb-2.5">
@@ -4331,7 +4261,6 @@
       );
       const [trackingNumber, setTrackingNumber] = useState(initialData?.trackingNumber || "");
       const [invoiceNumber, setInvoiceNumber] = useState(initialData?.invoiceNumber || "");
-      const [notes, setNotes] = useState(initialData?.notes || "");
       const [error, setError] = useState("");
 
       const [addingProd, setAddingProd] = useState(false);
@@ -4374,8 +4303,7 @@
           status,
           courierName,
           trackingNumber: trackingNumber.trim(),
-          invoiceNumber: invoiceNumber.trim(),
-          notes: notes.trim()
+          invoiceNumber: invoiceNumber.trim()
         });
       };
 
@@ -4680,17 +4608,6 @@
                     onChange={(e) => setInvoiceNumber(e.target.value)}
                     placeholder="Προαιρετικό"
                     className="w-full px-3 py-2 rounded-lg border border-[#C7BEC6] bg-white text-[#40101A] focus:outline-none focus:border-[#6E1927] text-xs font-mono"
-                  />
-                </div>
-
-                <div className="sm:col-span-2">
-                  <label className="block text-xs font-bold text-[#40101A] mb-1">Σχόλια</label>
-                  <textarea
-                    rows={2}
-                    value={notes}
-                    onChange={(e) => setNotes(e.target.value)}
-                    placeholder="Προαιρετικές σημειώσεις για την παραγγελία (π.χ. αφιέρωση, συνάντηση, εκκρεμότητα)..."
-                    className="w-full px-3 py-2 rounded-lg border border-[#C7BEC6] bg-white text-[#40101A] focus:outline-none focus:border-[#6E1927] text-xs resize-none"
                   />
                 </div>
               </div>
@@ -5293,3 +5210,127 @@
                       metricMode === "revenue"
                         ? "bg-[#6E1927] text-white shadow-2xs"
                         : "text-[#40101A] hover:bg-white/60"
+                    }`}
+                  >
+                    Έσοδα (€)
+                  </button>
+                </div>
+
+                <button
+                  onClick={onClose}
+                  className="p-1.5 text-[#6E5C68] hover:text-[#40101A] hover:bg-black/5 rounded-lg cursor-pointer"
+                >
+                  ✕
+                </button>
+              </div>
+            </div>
+
+            {/* Scrollable Body */}
+            <div className="p-4 sm:p-5 overflow-y-auto space-y-4">
+              {/* Top Quick Insights Strip */}
+              <div className="grid grid-cols-2 sm:grid-cols-4 gap-2.5 tabular-nums">
+                <div className="bg-white/80 rounded-xl border border-white p-3">
+                  <span className="text-[10px] font-bold uppercase text-[#6E5C68] block">
+                    Συνολική Διάθεση
+                  </span>
+                  <span className="text-lg font-black text-[#40101A]">
+                    {summaryStats.totalUnits} <span className="text-xs font-semibold text-[#6E5C68]">/ 200 LP</span>
+                  </span>
+                </div>
+                <div className="bg-white/80 rounded-xl border border-white p-3">
+                  <span className="text-[10px] font-bold uppercase text-emerald-800 block">
+                    Εισπραχθέντα
+                  </span>
+                  <span className="text-lg font-black text-emerald-900">
+                    €{summaryStats.paidRevenue.toFixed(2)}
+                  </span>
+                </div>
+                <div className="bg-white/80 rounded-xl border border-white p-3">
+                  <span className="text-[10px] font-bold uppercase text-[#6E1927] block">
+                    Μέση Αξία Πώλησης
+                  </span>
+                  <span className="text-lg font-black text-[#40101A]">
+                    €{avgOrderValue.toFixed(2)}
+                  </span>
+                </div>
+                <div className="bg-white/80 rounded-xl border border-white p-3">
+                  <span className="text-[10px] font-bold uppercase text-rose-800 block">
+                    Εκκρεμείς Πληρωμές
+                  </span>
+                  <span className="text-lg font-black text-rose-700">
+                    {summaryStats.unpaidCount} <span className="text-xs font-semibold">παραγγελίες</span>
+                  </span>
+                </div>
+              </div>
+
+              {/* 6 Pie Charts Grid */}
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-3.5">
+                <VinylPieCard
+                  title="1. Ανά Κανάλι Πώλησης"
+                  subtitle="Bandcamp, Direct Message, Live Concert, Gift"
+                  slices={channelSlices}
+                  valueFormatter={formatter}
+                />
+
+                <VinylPieCard
+                  title="2. Ανά Τρόπο Πληρωμής"
+                  subtitle="Iris, Revolut, Μετρητά, Web banking (εξαιρ. Δώρα)"
+                  slices={paymentMethodSlices}
+                  valueFormatter={formatter}
+                />
+
+                <VinylPieCard
+                  title="3. Ανά Έκδοση Βινυλίου"
+                  subtitle="Galaxy red-black vs Black"
+                  slices={editionSlices}
+                  valueFormatter={formatter}
+                />
+
+                <VinylPieCard
+                  title="4. Οικονομική Εικόνα"
+                  subtitle="Πληρωμένες, Απλήρωτες & Δώρα (Promo)"
+                  slices={financialMixSlices}
+                  valueFormatter={formatter}
+                />
+
+                <VinylPieCard
+                  title="5. Ανά Κατάσταση (Status)"
+                  subtitle="Pending, Shipped, Delivered"
+                  slices={statusSlices}
+                  valueFormatter={formatter}
+                />
+
+                <VinylPieCard
+                  title="6. Ανά Τρόπο Αποστολής"
+                  subtitle="Box Now vs On hand (χέρι με χέρι)"
+                  slices={courierSlices}
+                  valueFormatter={formatter}
+                />
+              </div>
+            </div>
+
+            {/* Footer */}
+            <div className="px-5 py-3 bg-[#EFECEF]/90 border-t border-[#D8CFD7] flex items-center justify-between shrink-0">
+              <span className="text-[11px] text-[#6E5C68]">
+                Υπολογίζεται αυτόματα από τις <strong>{orders.length}</strong> καταχωρημένες παραγγελίες.
+              </span>
+              <button
+                type="button"
+                onClick={onClose}
+                className="nvr-btn-press px-4 py-1.5 text-xs font-bold text-white bg-[#6E1927] hover:bg-[#8A2233] rounded-lg cursor-pointer"
+              >
+                Κλείσιμο
+              </button>
+            </div>
+          </div>
+        </div>
+      );
+    }
+
+    const rootElement = document.getElementById("root");
+    if (rootElement && window.React && window.ReactDOM) {
+      createRoot(rootElement).render(<App />);
+    }
+  </script>
+</body>
+</html>
