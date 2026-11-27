@@ -7,6 +7,8 @@
   <meta name="apple-mobile-web-app-capable" content="yes" />
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
   <meta name="apple-mobile-web-app-title" content="3,14 LP" />
+  <link rel="icon" type="image/png" sizes="32x32" href="https://raw.githubusercontent.com/Pantsi83/nouvelle-ville-314/refs/heads/main/logo.png" />
+  <link rel="apple-touch-icon" href="https://raw.githubusercontent.com/Pantsi83/nouvelle-ville-314/refs/heads/main/logo.png" />
   <title>Nouvelle Ville Records — «3,14» Παραγγελίες & Απόθεμα</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <link rel="preconnect" href="https://fonts.googleapis.com" />
@@ -346,7 +348,6 @@
     const LS_TEXT_OVERRIDES = "nvr_314_text_overrides_v1";
     const LS_CELL_SIZES = "nvr_314_cell_sizes_v1";
 
-    // Μικρότερα τα κελιά 2 (customer) και 3 (product)
     const DEFAULT_CELL_SIZES = {
       rowMinHeight: 40,
       colWidths: {
@@ -553,6 +554,7 @@
     }
 
     try {
+      const iconUrl = "https://raw.githubusercontent.com/Pantsi83/nouvelle-ville-314/refs/heads/main/logo.png";
       const manifest = {
         name: "Nouvelle Ville Records — 3,14 LP",
         short_name: "3,14 LP",
@@ -560,7 +562,19 @@
         display: "standalone",
         background_color: "#9E939C",
         theme_color: "#6E1927",
-        description: "Διαχείριση παραγγελιών και αποθέματος βινυλίου «3,14»"
+        description: "Διαχείριση παραγγελιών και αποθέματος βινυλίου «3,14»",
+        icons: [
+          {
+            src: iconUrl,
+            sizes: "192x192",
+            type: "image/png"
+          },
+          {
+            src: iconUrl,
+            sizes: "512x512",
+            type: "image/png"
+          }
+        ]
       };
       const blob = new Blob([JSON.stringify(manifest)], { type: "application/manifest+json" });
       const manifestUrl = URL.createObjectURL(blob);
@@ -1834,7 +1848,6 @@
               </div>
             </td>
 
-            {/* AMOUNT CELL (totalAmount) */}
             <td className="py-1.5 px-1.5 border-r border-[#E2DAE1] text-right tabular-nums">
               {inlineEdit?.orderId === order.id && inlineEdit?.field === "totalAmount" ? (
                 <input
@@ -1882,7 +1895,6 @@
               )}
             </td>
 
-            {/* COMBINED PAYMENT STATUS + METHOD CELL */}
             <td className="py-1.5 px-1.5 border-r border-[#E2DAE1] text-center">
               {gift ? (
                 <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10.5px] font-semibold bg-[#EFE8EC] text-[#6E5C68] border border-[#D4CAD3]">
@@ -1963,7 +1975,6 @@
               />
             </td>
 
-            {/* TRACKING NUMBER CELL */}
             <td className="py-1.5 px-1.5 border-r border-[#E2DAE1] font-mono text-[11px]">
               {inlineEdit?.orderId === order.id && inlineEdit?.field === "trackingNumber" ? (
                 <input
@@ -2007,7 +2018,6 @@
               )}
             </td>
 
-            {/* INVOICE / RECEIPT CELL (ΑΠΥ/ΤΔΑ) */}
             <td className="py-1.5 px-1.5 border-r border-[#E2DAE1] font-mono text-[11px]">
               {inlineEdit?.orderId === order.id && inlineEdit?.field === "invoiceNumber" ? (
                 <input
