@@ -151,7 +151,7 @@
     const PRODUCT_GALAXY = "3,14 LP - Galaxy red-black";
     const PRODUCT_BLACK = "3,14 LP - Black";
 
-    const PAYMENT_METHODS = [
+    const DEFAULT_PAYMENT_METHODS = [
       { name: "Iris", color: "emerald" },
       { name: "Revolut", color: "sky" },
       { name: "Μετρητά", color: "amber" },
@@ -325,6 +325,7 @@
         { name: "On hand", color: "stone" },
         { name: "Box Now", color: "lime" }
       ],
+      paymentMethods: DEFAULT_PAYMENT_METHODS,
       products: [
         {
           name: PRODUCT_GALAXY,
@@ -755,6 +756,7 @@
               statuses: p.statuses?.length ? p.statuses : DEFAULT_CONFIG.statuses,
               channels: p.channels?.length ? p.channels : DEFAULT_CONFIG.channels,
               couriers: p.couriers?.length ? p.couriers : DEFAULT_CONFIG.couriers,
+              paymentMethods: p.paymentMethods?.length ? p.paymentMethods : DEFAULT_CONFIG.paymentMethods,
               products: p.products?.length ? p.products : DEFAULT_CONFIG.products
             };
           }
@@ -895,19 +897,37 @@
       // =======================================================================
       const saveConfigToSupabase = async (nextConfig) => {
         setSyncState((s) => ({ ...s, status: "syncing", errorMsg: "" }));
+        const basePayload = {
+          products: nextConfig.products,
+          couriers: nextConfig.couriers,
+          channels: nextConfig.channels,
+          statuses: nextConfig.statuses,
+          updated_at: new Date().toISOString()
+        };
         try {
           await sbFetch("app_config?id=eq.1", {
             method: "PATCH",
             body: JSON.stringify({
-              products: nextConfig.products,
-              couriers: nextConfig.couriers,
-              channels: nextConfig.channels,
-              statuses: nextConfig.statuses,
-              updated_at: new Date().toISOString()
+              ...basePayload,
+              payment_methods: nextConfig.paymentMethods
             })
           });
           setSyncState({ status: "synced", lastSync: new Date(), errorMsg: "" });
         } catch (err) {
+          if (String(err.message).includes("payment_methods")) {
+            try {
+              await sbFetch("app_config?id=eq.1", {
+                method: "PATCH",
+                body: JSON.stringify(basePayload)
+              });
+              setSyncState({ status: "synced", lastSync: new Date(), errorMsg: "" });
+              return;
+            } catch (e2) {
+              setSyncState({ status: "offline", lastSync: syncState.lastSync, errorMsg: e2.message });
+              showToast(`Σφάλμα Supabase: ${e2.message}`, "error");
+              return;
+            }
+          }
           setSyncState({ status: "offline", lastSync: syncState.lastSync, errorMsg: err.message });
           showToast(`Σφάλμα Supabase: ${err.message}`, "error");
         }
@@ -942,6 +962,7 @@
               statuses: row.statuses?.length ? row.statuses : DEFAULT_CONFIG.statuses,
               channels: row.channels?.length ? row.channels : DEFAULT_CONFIG.channels,
               couriers: row.couriers?.length ? row.couriers : DEFAULT_CONFIG.couriers,
+              paymentMethods: row.payment_methods?.length ? row.payment_methods : DEFAULT_CONFIG.paymentMethods,
               products: row.products?.length ? row.products : DEFAULT_CONFIG.products
             });
           }
@@ -1039,6 +1060,7 @@
             prevOrders.map((order) => {
               let updated = order;
               if (category === "couriers" && order.courierName === oldName) updated = { ...order, courierName: newName };
+              if (category === "paymentMethods" && order.paymentMethod === oldName) updated = { ...order, paymentMethod: newName };
               if (category === "channels" && order.salesChannel === oldName) updated = { ...order, salesChannel: newName };
               if (category === "statuses" && order.status === oldName) updated = { ...order, status: newName };
               if (category === "products") {
@@ -1057,6 +1079,7 @@
             })
           );
           if (category === "couriers" && courierFilter === oldName) setCourierFilter(newName);
+          if (category === "paymentMethods" && paymentMethodFilter === oldName) setPaymentMethodFilter(newName);
           if (category === "channels" && channelFilter === oldName) setChannelFilter(newName);
           if (category === "statuses" && statusFilter === oldName) setStatusFilter(newName);
           if (category === "products" && productFilter === oldName) setProductFilter(newName);
@@ -1071,6 +1094,7 @@
         }
         const inUse = orders.filter((o) => {
           if (category === "couriers") return o.courierName === optionName;
+          if (category === "paymentMethods") return o.paymentMethod === optionName;
           if (category === "channels") return o.salesChannel === optionName;
           if (category === "statuses") return o.status === optionName;
           if (category === "products") return o.items.some((i) => i.product === optionName && i.qty > 0);
@@ -1087,6 +1111,7 @@
           [category]: prev[category].filter((i) => i.name !== optionName)
         }));
         if (category === "couriers" && courierFilter === optionName) setCourierFilter("ALL");
+        if (category === "paymentMethods" && paymentMethodFilter === optionName) setPaymentMethodFilter("ALL");
         if (category === "channels" && channelFilter === optionName) setChannelFilter("ALL");
         if (category === "statuses" && statusFilter === optionName) setStatusFilter("ALL");
         if (category === "products" && productFilter === optionName) setProductFilter("ALL");
@@ -1682,16 +1707,7 @@
             method: "POST",
             body: JSON.stringify(INITIAL_ORDERS.map((o) => serializeOrderForDb(o, true)))
           });
-          await sbFetch("app_config?id=eq.1", {
-            method: "PATCH",
-            body: JSON.stringify({
-              products: DEFAULT_CONFIG.products,
-              couriers: DEFAULT_CONFIG.couriers,
-              channels: DEFAULT_CONFIG.channels,
-              statuses: DEFAULT_CONFIG.statuses,
-              updated_at: new Date().toISOString()
-            })
-          });
+          await saveConfigToSupabase(DEFAULT_CONFIG);
           setOrders(INITIAL_ORDERS);
           setConfig(DEFAULT_CONFIG);
           setTextOverrides({});
@@ -1924,10 +1940,12 @@
 
                   <OptionSelect
                     compact
-                    allowQuickAdd={false}
                     value={order.paymentMethod || "Τρόπος..."}
-                    options={[{ name: "—", color: "stone" }, ...PAYMENT_METHODS]}
+                    options={[{ name: "—", color: "stone" }, ...(config.paymentMethods || DEFAULT_PAYMENT_METHODS)]}
                     onChange={(val) => handleInlineSave(order.id, "paymentMethod", val === "—" ? "" : val)}
+                    onQuickAdd={(name, color) => handleAddOption("paymentMethods", name, color)}
+                    categoryLabel="τρόπου πληρωμής"
+                    placeholder="π.χ. PayPal, Κάρτα..."
                     defaultColor="emerald"
                   />
                 </div>
@@ -2679,7 +2697,7 @@
                   }`}
                 >
                   <option value="ALL">Τρόπος Πληρωμής: Όλοι</option>
-                  {PAYMENT_METHODS.map((pm) => (
+                  {(config.paymentMethods || DEFAULT_PAYMENT_METHODS).map((pm) => (
                     <option key={pm.name} value={pm.name}>
                       {pm.name}
                     </option>
@@ -2948,7 +2966,7 @@
                               "stone"
                             );
                             const pmTok = getColorTokens(
-                              PAYMENT_METHODS.find((m) => m.name === order.paymentMethod)?.color,
+                              (config.paymentMethods || DEFAULT_PAYMENT_METHODS).find((m) => m.name === order.paymentMethod)?.color,
                               "emerald"
                             );
                             const gift = isOrderGift(order);
@@ -3774,10 +3792,12 @@
                 <div>
                   <label className="block text-xs font-bold text-[#40101A] mb-1">Τρόπος Πληρωμής</label>
                   <OptionSelect
-                    allowQuickAdd={false}
                     value={paymentMethod || "—"}
-                    options={[{ name: "—", color: "stone" }, ...PAYMENT_METHODS]}
+                    options={[{ name: "—", color: "stone" }, ...(config.paymentMethods || DEFAULT_PAYMENT_METHODS)]}
                     onChange={(val) => setPaymentMethod(val === "—" ? "" : val)}
+                    onQuickAdd={(n, c) => onQuickAdd("paymentMethods", n, c)}
+                    categoryLabel="τρόπου πληρωμής"
+                    placeholder="π.χ. PayPal, Κάρτα..."
                     defaultColor="emerald"
                   />
                 </div>
@@ -3890,6 +3910,7 @@
       const tabs = [
         { id: "couriers", label: "Μεταφορικές", defColor: "lime" },
         { id: "channels", label: "Κανάλια", defColor: "indigo" },
+        { id: "paymentMethods", label: "Πληρωμές", defColor: "emerald" },
         { id: "statuses", label: "Status", defColor: "amber" },
         { id: "products", label: "Προϊόντα", defColor: "crimsonVinyl" }
       ];
