@@ -344,6 +344,26 @@
     const LS_ORDERS = "nvr_314_orders_v3";
     const LS_CONFIG = "nvr_314_config_v3";
     const LS_TEXT_OVERRIDES = "nvr_314_text_overrides_v1";
+    const LS_CELL_SIZES = "nvr_314_cell_sizes_v1";
+
+    // Μικρότερα τα κελιά 2 (customer) και 3 (product)
+    const DEFAULT_CELL_SIZES = {
+      rowMinHeight: 40,
+      colWidths: {
+        id: 38,
+        customer: 122,
+        product: 132,
+        total: 68,
+        paid: 112,
+        date: 68,
+        channel: 116,
+        status: 104,
+        courier: 100,
+        tracking: 98,
+        invoice: 78,
+        actions: 48
+      }
+    };
 
     const DEFAULT_UI_TEXT = {
       appTitle: "Nouvelle Ville Records — «3,14»",
@@ -512,6 +532,7 @@
     const formatCurrency = (amount) => {
       if (amount === null || amount === undefined || amount === "") return "—";
       const num = Number(amount);
+      if (Number.isNaN(num)) return "—";
       return Number.isInteger(num) ? `€${num}` : `€${num.toFixed(2)}`;
     };
 
@@ -735,6 +756,21 @@
           return {};
         }
       });
+
+      const [cellSizes, setCellSizes] = useState(() => {
+        try {
+          const saved = localStorage.getItem(LS_CELL_SIZES);
+          if (saved) {
+            const p = JSON.parse(saved);
+            return {
+              rowMinHeight: Number(p.rowMinHeight) || DEFAULT_CELL_SIZES.rowMinHeight,
+              colWidths: { ...DEFAULT_CELL_SIZES.colWidths, ...(p.colWidths || {}) }
+            };
+          }
+        } catch {}
+        return DEFAULT_CELL_SIZES;
+      });
+
       const [editMode, setEditMode] = useState(false);
 
       const [syncState, setSyncState] = useState({
@@ -745,6 +781,8 @@
 
       const ordersRef = useRef(orders);
       const configRef = useRef(config);
+      const inlineEditRef = useRef(null);
+      const isSavingInlineRef = useRef(false);
       ordersRef.current = orders;
       configRef.current = config;
 
@@ -773,6 +811,8 @@
       const [editingStockKey, setEditingStockKey] = useState(null);
       const [tempStockValue, setTempStockValue] = useState("");
       const [inlineEdit, setInlineEdit] = useState(null);
+      inlineEditRef.current = inlineEdit;
+
       const [draggedOrderId, setDraggedOrderId] = useState(null);
       const [dragOverColumn, setDragOverColumn] = useState(null);
       const [toast, setToast] = useState(null);
@@ -795,6 +835,46 @@
       useEffect(() => {
         try { localStorage.setItem(LS_TEXT_OVERRIDES, JSON.stringify(textOverrides)); } catch {}
       }, [textOverrides]);
+
+      useEffect(() => {
+        try { localStorage.setItem(LS_CELL_SIZES, JSON.stringify(cellSizes)); } catch {}
+      }, [cellSizes]);
+
+      const startColResize = (e, colKey) => {
+        e.preventDefault();
+        e.stopPropagation();
+        const startX = e.clientX;
+        const startWidth = cellSizes.colWidths[colKey] || DEFAULT_CELL_SIZES.colWidths[colKey] || 80;
+
+        const onMouseMove = (moveEvent) => {
+          const delta = moveEvent.clientX - startX;
+          const nextWidth = Math.max(34, Math.min(420, Math.round(startWidth + delta)));
+          setCellSizes((prev) => ({
+            ...prev,
+            colWidths: { ...prev.colWidths, [colKey]: nextWidth }
+          }));
+        };
+
+        const onMouseUp = () => {
+          window.removeEventListener("mousemove", onMouseMove);
+          window.removeEventListener("mouseup", onMouseUp);
+        };
+
+        window.addEventListener("mousemove", onMouseMove);
+        window.addEventListener("mouseup", onMouseUp);
+      };
+
+      const handleRowHeightChange = (delta) => {
+        setCellSizes((prev) => ({
+          ...prev,
+          rowMinHeight: Math.max(32, Math.min(140, (Number(prev.rowMinHeight) || 40) + delta))
+        }));
+      };
+
+      const handleResetCellSizes = () => {
+        setCellSizes(DEFAULT_CELL_SIZES);
+        showToast("Επανήλθαν τα αρχικά μεγέθη κελιών.");
+      };
 
       // =======================================================================
       // SUPABASE SYNC ENGINE (orders & app_config tables)
@@ -820,13 +900,15 @@
       };
 
       const pullFromSupabase = async (seedIfEmpty = false) => {
-        if (inlineEdit || isOrderModalOpen || customerModalOrder) return;
+        if (inlineEditRef.current || isSavingInlineRef.current || isOrderModalOpen || customerModalOrder) return;
         setSyncState((s) => ({ ...s, status: "syncing", errorMsg: "" }));
         try {
           const [dbOrders, dbConfig] = await Promise.all([
             sbFetch("orders?select=*&order=id.asc"),
             sbFetch("app_config?id=eq.1&select=*")
           ]);
+
+          if (inlineEditRef.current || isSavingInlineRef.current) return;
 
           if (Array.isArray(dbOrders) && dbOrders.length > 0) {
             const normalized = dbOrders.map(normalizeOrderFromDb);
@@ -858,14 +940,14 @@
 
       useEffect(() => {
         pullFromSupabase(true);
-        const interval = setInterval(() => pullFromSupabase(false), 12000);
+        const interval = setInterval(() => pullFromSupabase(false), 15000);
         const onFocus = () => pullFromSupabase(false);
         window.addEventListener("focus", onFocus);
         return () => {
           clearInterval(interval);
           window.removeEventListener("focus", onFocus);
         };
-      }, [inlineEdit, isOrderModalOpen, customerModalOrder]);
+      }, [isOrderModalOpen, customerModalOrder]);
 
       const updateConfigState = (updater) => {
         setConfig((prev) => {
@@ -1188,7 +1270,7 @@
       };
 
       // =======================================================================
-      // ORDER CRUD & INLINE EDITS (PERSISTED TO SUPABASE)
+      // ORDER CRUD & INLINE EDITS (PERSISTED TO SUPABASE & LOCALSTORAGE)
       // =======================================================================
       const nextOrderId = useMemo(() => {
         if (!orders.length) return 1;
@@ -1307,41 +1389,65 @@
       };
 
       const handleInlineSave = async (orderId, field, rawVal) => {
-        let dbPatch = null;
-        setOrders((prev) =>
-          prev.map((o) => {
-            if (o.id !== orderId) return o;
-            if (field === "totalAmount") {
-              const num = rawVal === "" ? null : parseFloat(rawVal);
-              const cleanVal = isNaN(num) ? null : num;
-              dbPatch = { total_amount: cleanVal, updated_at: new Date().toISOString() };
-              return { ...o, totalAmount: cleanVal };
-            }
-            const fieldMap = {
-              paymentMethod: "payment_method",
-              salesChannel: "sales_channel",
-              courierName: "courier_name",
-              trackingNumber: "tracking_number",
-              invoiceNumber: "invoice_number"
-            };
-            dbPatch = { [fieldMap[field] || field]: rawVal, updated_at: new Date().toISOString() };
-            return { ...o, [field]: rawVal };
-          })
-        );
+        if (!inlineEditRef.current || isSavingInlineRef.current) return;
+        inlineEditRef.current = null;
         setInlineEdit(null);
+        isSavingInlineRef.current = true;
 
-        if (dbPatch) {
-          setSyncState((s) => ({ ...s, status: "syncing", errorMsg: "" }));
-          try {
-            await sbFetch(`orders?id=eq.${orderId}`, {
-              method: "PATCH",
-              body: JSON.stringify(dbPatch)
-            });
-            setSyncState({ status: "synced", lastSync: new Date(), errorMsg: "" });
-          } catch (err) {
-            setSyncState({ status: "offline", lastSync: syncState.lastSync, errorMsg: err.message });
-            showToast(`Δεν αποθηκεύτηκε στη βάση: ${err.message}`, "error");
-          }
+        const targetOrder = ordersRef.current.find((o) => Number(o.id) === Number(orderId));
+        if (!targetOrder) {
+          isSavingInlineRef.current = false;
+          return;
+        }
+
+        let nextOrder = null;
+        let dbPatch = null;
+        let labelText = "";
+
+        if (field === "totalAmount") {
+          const trimmed = String(rawVal ?? "").trim().replace(",", ".");
+          const num = trimmed === "" ? null : parseFloat(trimmed);
+          const cleanVal = num === null || isNaN(num) ? null : num;
+          nextOrder = { ...targetOrder, totalAmount: cleanVal };
+          dbPatch = { total_amount: cleanVal, updated_at: new Date().toISOString() };
+          labelText = `Ποσό (${formatCurrency(cleanVal)})`;
+        } else {
+          const cleanStr = String(rawVal ?? "").trim();
+          const fieldMap = {
+            paymentMethod: "payment_method",
+            salesChannel: "sales_channel",
+            courierName: "courier_name",
+            trackingNumber: "tracking_number",
+            invoiceNumber: "invoice_number"
+          };
+          const dbCol = fieldMap[field] || field;
+          nextOrder = { ...targetOrder, [field]: cleanStr };
+          dbPatch = { [dbCol]: cleanStr, updated_at: new Date().toISOString() };
+          labelText =
+            field === "trackingNumber"
+              ? `Tracking (${cleanStr || "—"})`
+              : field === "invoiceNumber"
+              ? `ΑΠΥ/ΤΔΑ (${cleanStr || "—"})`
+              : cleanStr || "—";
+        }
+
+        setOrders((prev) =>
+          prev.map((o) => (Number(o.id) === Number(orderId) ? nextOrder : o))
+        );
+        setSyncState((s) => ({ ...s, status: "syncing", errorMsg: "" }));
+
+        try {
+          await sbFetch(`orders?id=eq.${Number(orderId)}`, {
+            method: "PATCH",
+            body: JSON.stringify(dbPatch)
+          });
+          setSyncState({ status: "synced", lastSync: new Date(), errorMsg: "" });
+          showToast(`#${orderId}: αποθηκεύτηκε ${labelText}`);
+        } catch (err) {
+          setSyncState({ status: "offline", lastSync: syncState.lastSync, errorMsg: err.message });
+          showToast(`Δεν αποθηκεύτηκε στη βάση: ${err.message}`, "error");
+        } finally {
+          isSavingInlineRef.current = false;
         }
       };
 
@@ -1573,6 +1679,7 @@
           setOrders(INITIAL_ORDERS);
           setConfig(DEFAULT_CONFIG);
           setTextOverrides({});
+          setCellSizes(DEFAULT_CELL_SIZES);
           clearAllFilters();
           setIsResetOpen(false);
           setSyncState({ status: "synced", lastSync: new Date(), errorMsg: "" });
@@ -1584,47 +1691,79 @@
       };
 
       // =======================================================================
-      // COMPACT FULL-WIDTH TABLE RENDERERS (NO HORIZONTAL SCROLLBAR)
+      // RESIZABLE TABLE RENDERERS (EDIT MODE CELL/COLUMN/ROW RESIZING)
       // =======================================================================
+      const renderColGroup = () => {
+        const w = cellSizes.colWidths;
+        return (
+          <colgroup>
+            <col style={{ width: `${w.id}px` }} />
+            <col style={{ width: `${w.customer}px` }} />
+            <col style={{ width: `${w.product}px` }} />
+            <col style={{ width: `${w.total}px` }} />
+            <col style={{ width: `${w.paid}px` }} />
+            <col style={{ width: `${w.date}px` }} />
+            <col style={{ width: `${w.channel}px` }} />
+            <col style={{ width: `${w.status}px` }} />
+            <col style={{ width: `${w.courier}px` }} />
+            <col style={{ width: `${w.tracking}px` }} />
+            <col style={{ width: `${w.invoice}px` }} />
+            <col style={{ width: `${w.actions}px` }} />
+          </colgroup>
+        );
+      };
+
+      const renderResizableTh = (colKey, textKey, fallback, alignClass = "") => {
+        return (
+          <th
+            className={`relative py-2 px-1.5 border-r border-[#D8CFD7] select-none overflow-hidden ${alignClass} ${
+              editMode ? "bg-[#E6DCE3]" : ""
+            }`}
+          >
+            <div className="flex items-center justify-between gap-1 pr-1">
+              <EditableText
+                textKey={textKey}
+                fallback={fallback}
+                overrides={textOverrides}
+                editMode={editMode}
+                onChangeText={handleEditTextOverride}
+                className="truncate"
+              />
+              {editMode && (
+                <span className="text-[9px] font-mono text-[#6E1927] opacity-80 shrink-0">
+                  {cellSizes.colWidths[colKey]}px
+                </span>
+              )}
+            </div>
+            {editMode && (
+              <div
+                onMouseDown={(e) => startColResize(e, colKey)}
+                onClick={(e) => e.stopPropagation()}
+                title="Σύρε δεξιά/αριστερά για αλλαγή πλάτους στήλης"
+                className="absolute top-0 right-0 w-2.5 h-full cursor-col-resize bg-[#6E1927]/20 hover:bg-[#6E1927] transition-colors flex items-center justify-center"
+              >
+                <span className="w-[2px] h-4 bg-[#6E1927] rounded-full" />
+              </div>
+            )}
+          </th>
+        );
+      };
+
       const renderTableHead = () => (
         <thead>
           <tr className="bg-[#ECE6EB] border-b border-[#CFC5CE] text-[10px] font-extrabold uppercase tracking-wide text-[#5A2D38] select-none">
-            <th className="py-2 px-1.5 border-r border-[#D8CFD7] w-9 text-center">
-              <EditableText textKey="thId" fallback={DEFAULT_UI_TEXT.thId} overrides={textOverrides} editMode={editMode} onChangeText={handleEditTextOverride} />
-            </th>
-            <th className="py-2 px-2 border-r border-[#D8CFD7]">
-              <EditableText textKey="thCustomer" fallback={DEFAULT_UI_TEXT.thCustomer} overrides={textOverrides} editMode={editMode} onChangeText={handleEditTextOverride} />
-            </th>
-            <th className="py-2 px-2 border-r border-[#D8CFD7]">
-              <EditableText textKey="thProduct" fallback={DEFAULT_UI_TEXT.thProduct} overrides={textOverrides} editMode={editMode} onChangeText={handleEditTextOverride} />
-            </th>
-            <th className="py-2 px-1.5 border-r border-[#D8CFD7] w-16 text-right">
-              <EditableText textKey="thTotal" fallback={DEFAULT_UI_TEXT.thTotal} overrides={textOverrides} editMode={editMode} onChangeText={handleEditTextOverride} />
-            </th>
-            <th className="py-2 px-1.5 border-r border-[#D8CFD7] w-[112px] text-center">
-              <EditableText textKey="thPaid" fallback={DEFAULT_UI_TEXT.thPaid} overrides={textOverrides} editMode={editMode} onChangeText={handleEditTextOverride} />
-            </th>
-            <th className="py-2 px-1.5 border-r border-[#D8CFD7] w-[68px] text-center">
-              <EditableText textKey="thDate" fallback={DEFAULT_UI_TEXT.thDate} overrides={textOverrides} editMode={editMode} onChangeText={handleEditTextOverride} />
-            </th>
-            <th className="py-2 px-1.5 border-r border-[#D8CFD7] w-[116px]">
-              <EditableText textKey="thChannel" fallback={DEFAULT_UI_TEXT.thChannel} overrides={textOverrides} editMode={editMode} onChangeText={handleEditTextOverride} />
-            </th>
-            <th className="py-2 px-1.5 border-r border-[#D8CFD7] w-[104px]">
-              <EditableText textKey="thStatus" fallback={DEFAULT_UI_TEXT.thStatus} overrides={textOverrides} editMode={editMode} onChangeText={handleEditTextOverride} />
-            </th>
-            <th className="py-2 px-1.5 border-r border-[#D8CFD7] w-[100px]">
-              <EditableText textKey="thCourier" fallback={DEFAULT_UI_TEXT.thCourier} overrides={textOverrides} editMode={editMode} onChangeText={handleEditTextOverride} />
-            </th>
-            <th className="py-2 px-1.5 border-r border-[#D8CFD7] w-[96px]">
-              <EditableText textKey="thTracking" fallback={DEFAULT_UI_TEXT.thTracking} overrides={textOverrides} editMode={editMode} onChangeText={handleEditTextOverride} />
-            </th>
-            <th className="py-2 px-1.5 border-r border-[#D8CFD7] w-[74px]">
-              <EditableText textKey="thInvoice" fallback={DEFAULT_UI_TEXT.thInvoice} overrides={textOverrides} editMode={editMode} onChangeText={handleEditTextOverride} />
-            </th>
-            <th className="py-2 px-1 text-center w-12">
-              <EditableText textKey="thActions" fallback={DEFAULT_UI_TEXT.thActions} overrides={textOverrides} editMode={editMode} onChangeText={handleEditTextOverride} />
-            </th>
+            {renderResizableTh("id", "thId", DEFAULT_UI_TEXT.thId, "text-center")}
+            {renderResizableTh("customer", "thCustomer", DEFAULT_UI_TEXT.thCustomer)}
+            {renderResizableTh("product", "thProduct", DEFAULT_UI_TEXT.thProduct)}
+            {renderResizableTh("total", "thTotal", DEFAULT_UI_TEXT.thTotal, "text-right")}
+            {renderResizableTh("paid", "thPaid", DEFAULT_UI_TEXT.thPaid, "text-center")}
+            {renderResizableTh("date", "thDate", DEFAULT_UI_TEXT.thDate, "text-center")}
+            {renderResizableTh("channel", "thChannel", DEFAULT_UI_TEXT.thChannel)}
+            {renderResizableTh("status", "thStatus", DEFAULT_UI_TEXT.thStatus)}
+            {renderResizableTh("courier", "thCourier", DEFAULT_UI_TEXT.thCourier)}
+            {renderResizableTh("tracking", "thTracking", DEFAULT_UI_TEXT.thTracking)}
+            {renderResizableTh("invoice", "thInvoice", DEFAULT_UI_TEXT.thInvoice)}
+            {renderResizableTh("actions", "thActions", DEFAULT_UI_TEXT.thActions, "text-center")}
           </tr>
         </thead>
       );
@@ -1632,9 +1771,16 @@
       const renderRow = (order) => {
         const gift = isOrderGift(order);
         const hasContact = hasCustomerDetails(order);
+        const rowStyle = { minHeight: `${cellSizes.rowMinHeight}px` };
 
         return (
-          <tr key={order.id} className="hover:bg-[#ECE4EA]/75 transition-colors text-xs">
+          <tr
+            key={order.id}
+            style={rowStyle}
+            className={`hover:bg-[#ECE4EA]/75 transition-colors text-xs ${
+              editMode ? "outline outline-1 outline-dashed outline-[#6E1927]/35" : ""
+            }`}
+          >
             <td className="py-1.5 px-1.5 border-r border-[#E2DAE1] text-center font-mono text-[11px] text-[#6E5C68] font-bold">
               {order.id}
             </td>
@@ -1650,7 +1796,7 @@
                 }
                 className="group w-full text-left flex items-center justify-between gap-1 hover:text-[#8A2233] cursor-pointer"
               >
-                <span className="hover:underline decoration-[#C7BAC2] underline-offset-2 leading-snug">
+                <span className="hover:underline decoration-[#C7BAC2] underline-offset-2 leading-snug truncate">
                   {order.customer}
                 </span>
                 {hasContact ? (
@@ -1678,8 +1824,8 @@
                       className={`inline-flex items-center gap-1 px-1.5 py-0.5 rounded text-[10.5px] font-semibold border leading-tight ${tok.pill}`}
                     >
                       <span className={`w-1.5 h-1.5 rounded-full shrink-0 ${tok.dot}`} />
-                      <span>{cfg?.shortName || item.product}</span>
-                      <span className="px-1 rounded bg-black/20 text-[10px] font-extrabold tabular-nums">
+                      <span className="truncate">{cfg?.shortName || item.product}</span>
+                      <span className="px-1 rounded bg-black/20 text-[10px] font-extrabold tabular-nums shrink-0">
                         ×{item.qty}
                       </span>
                     </span>
@@ -1688,33 +1834,43 @@
               </div>
             </td>
 
+            {/* AMOUNT CELL (totalAmount) */}
             <td className="py-1.5 px-1.5 border-r border-[#E2DAE1] text-right tabular-nums">
               {inlineEdit?.orderId === order.id && inlineEdit?.field === "totalAmount" ? (
                 <input
-                  type="number"
-                  step="0.01"
+                  type="text"
+                  inputMode="decimal"
                   value={inlineEdit.value}
                   onChange={(e) => setInlineEdit({ ...inlineEdit, value: e.target.value })}
-                  onBlur={() => handleInlineSave(order.id, "totalAmount", inlineEdit.value)}
+                  onBlur={(e) => handleInlineSave(order.id, "totalAmount", e.target.value)}
                   onKeyDown={(e) => {
-                    if (e.key === "Enter") handleInlineSave(order.id, "totalAmount", inlineEdit.value);
-                    if (e.key === "Escape") setInlineEdit(null);
+                    if (e.key === "Enter") {
+                      e.preventDefault();
+                      handleInlineSave(order.id, "totalAmount", e.currentTarget.value);
+                    }
+                    if (e.key === "Escape") {
+                      inlineEditRef.current = null;
+                      setInlineEdit(null);
+                    }
                   }}
-                  className="w-14 px-1 py-0.5 text-right text-xs border border-[#6E1927] rounded bg-white text-[#40101A] focus:outline-none"
+                  className="w-full px-1.5 py-0.5 text-right text-xs font-bold border border-[#6E1927] rounded bg-white text-[#40101A] focus:outline-none"
                   autoFocus
                 />
               ) : (
                 <button
-                  onClick={() =>
-                    setInlineEdit({
-                      orderId: order.id,
-                      field: "totalAmount",
-                      value: order.totalAmount ?? ""
-                    })
-                  }
+                  type="button"
+                  onClick={() => {
+                    const initialVal =
+                      order.totalAmount !== null && order.totalAmount !== undefined
+                        ? String(order.totalAmount)
+                        : "";
+                    const nextEd = { orderId: order.id, field: "totalAmount", value: initialVal };
+                    inlineEditRef.current = nextEd;
+                    setInlineEdit(nextEd);
+                  }}
                   title="Κλικ για επεξεργασία ποσού"
-                  className={`w-full text-right px-1 py-0.5 rounded hover:bg-[#E4DCE1] ${
-                    order.totalAmount === null
+                  className={`w-full text-right px-1 py-0.5 rounded hover:bg-[#E4DCE1] cursor-pointer ${
+                    order.totalAmount === null || order.totalAmount === undefined
                       ? "text-[#8A7A84] italic"
                       : order.totalAmount === 0
                       ? "text-[#6E5C68]"
@@ -1807,30 +1963,40 @@
               />
             </td>
 
+            {/* TRACKING NUMBER CELL */}
             <td className="py-1.5 px-1.5 border-r border-[#E2DAE1] font-mono text-[11px]">
               {inlineEdit?.orderId === order.id && inlineEdit?.field === "trackingNumber" ? (
                 <input
                   type="text"
                   value={inlineEdit.value}
                   onChange={(e) => setInlineEdit({ ...inlineEdit, value: e.target.value })}
-                  onBlur={() => handleInlineSave(order.id, "trackingNumber", inlineEdit.value)}
+                  onBlur={(e) => handleInlineSave(order.id, "trackingNumber", e.target.value)}
                   onKeyDown={(e) => {
-                    if (e.key === "Enter") handleInlineSave(order.id, "trackingNumber", inlineEdit.value);
-                    if (e.key === "Escape") setInlineEdit(null);
+                    if (e.key === "Enter") {
+                      e.preventDefault();
+                      handleInlineSave(order.id, "trackingNumber", e.currentTarget.value);
+                    }
+                    if (e.key === "Escape") {
+                      inlineEditRef.current = null;
+                      setInlineEdit(null);
+                    }
                   }}
-                  className="w-full px-1 py-0.5 text-[11px] border border-[#6E1927] rounded bg-white text-[#40101A] focus:outline-none"
+                  className="w-full px-1.5 py-0.5 text-[11px] border border-[#6E1927] rounded bg-white text-[#40101A] focus:outline-none"
                   autoFocus
                 />
               ) : (
                 <button
-                  onClick={() =>
-                    setInlineEdit({
+                  type="button"
+                  onClick={() => {
+                    const nextEd = {
                       orderId: order.id,
                       field: "trackingNumber",
                       value: order.trackingNumber || ""
-                    })
-                  }
-                  className="w-full text-left px-1 py-0.5 rounded hover:bg-[#E4DCE1] text-[#40101A] min-h-[22px] flex items-center truncate"
+                    };
+                    inlineEditRef.current = nextEd;
+                    setInlineEdit(nextEd);
+                  }}
+                  className="w-full text-left px-1 py-0.5 rounded hover:bg-[#E4DCE1] text-[#40101A] min-h-[22px] flex items-center truncate cursor-pointer"
                 >
                   {order.trackingNumber ? (
                     <span className="font-semibold truncate">{order.trackingNumber}</span>
@@ -1841,30 +2007,40 @@
               )}
             </td>
 
+            {/* INVOICE / RECEIPT CELL (ΑΠΥ/ΤΔΑ) */}
             <td className="py-1.5 px-1.5 border-r border-[#E2DAE1] font-mono text-[11px]">
               {inlineEdit?.orderId === order.id && inlineEdit?.field === "invoiceNumber" ? (
                 <input
                   type="text"
                   value={inlineEdit.value}
                   onChange={(e) => setInlineEdit({ ...inlineEdit, value: e.target.value })}
-                  onBlur={() => handleInlineSave(order.id, "invoiceNumber", inlineEdit.value)}
+                  onBlur={(e) => handleInlineSave(order.id, "invoiceNumber", e.target.value)}
                   onKeyDown={(e) => {
-                    if (e.key === "Enter") handleInlineSave(order.id, "invoiceNumber", inlineEdit.value);
-                    if (e.key === "Escape") setInlineEdit(null);
+                    if (e.key === "Enter") {
+                      e.preventDefault();
+                      handleInlineSave(order.id, "invoiceNumber", e.currentTarget.value);
+                    }
+                    if (e.key === "Escape") {
+                      inlineEditRef.current = null;
+                      setInlineEdit(null);
+                    }
                   }}
-                  className="w-full px-1 py-0.5 text-[11px] border border-[#6E1927] rounded bg-white text-[#40101A] focus:outline-none"
+                  className="w-full px-1.5 py-0.5 text-[11px] border border-[#6E1927] rounded bg-white text-[#40101A] focus:outline-none"
                   autoFocus
                 />
               ) : (
                 <button
-                  onClick={() =>
-                    setInlineEdit({
+                  type="button"
+                  onClick={() => {
+                    const nextEd = {
                       orderId: order.id,
                       field: "invoiceNumber",
                       value: order.invoiceNumber || ""
-                    })
-                  }
-                  className="w-full text-left px-1 py-0.5 rounded hover:bg-[#E4DCE1] text-[#40101A] min-h-[22px] flex items-center truncate"
+                    };
+                    inlineEditRef.current = nextEd;
+                    setInlineEdit(nextEd);
+                  }}
+                  className="w-full text-left px-1 py-0.5 rounded hover:bg-[#E4DCE1] text-[#40101A] min-h-[22px] flex items-center truncate cursor-pointer"
                 >
                   {order.invoiceNumber ? (
                     <span className="truncate">{order.invoiceNumber}</span>
@@ -1959,12 +2135,12 @@
                     setEditMode(next);
                     showToast(
                       next
-                        ? "Edit Mode ενεργό: πάτησε σε οποιοδήποτε κείμενο για διόρθωση."
+                        ? "Edit Mode ενεργό: σύρε τις γραμμές στηλών για πλάτος ή ρύθμισε ύψος γραμμής."
                         : "Edit Mode ανενεργό.",
                       "info"
                     );
                   }}
-                  title="Ενεργοποίηση/απενεργοποίηση επεξεργασίας κειμένων στη σελίδα"
+                  title="Ενεργοποίηση/απενεργοποίηση αλλαγής μεγέθους κελιών και κειμένων"
                   className={`inline-flex items-center gap-1.5 px-2.5 py-1.5 text-xs font-bold rounded-lg border transition-all cursor-pointer ${
                     editMode
                       ? "bg-amber-300 text-[#40101A] border-[#6E1927] ring-2 ring-[#6E1927]/40"
@@ -1974,6 +2150,36 @@
                   <span>✎</span>
                   <span>{editMode ? "Edit Mode: ON" : "Edit Mode"}</span>
                 </button>
+
+                {editMode && (
+                  <div className="inline-flex items-center gap-1 bg-amber-100/95 border border-amber-400 rounded-lg px-2 py-1 text-[11px] font-bold text-[#40101A]">
+                    <span>Ύψος: {cellSizes.rowMinHeight}px</span>
+                    <button
+                      type="button"
+                      onClick={() => handleRowHeightChange(-6)}
+                      title="Μείωση ύψους γραμμής"
+                      className="px-1.5 py-0.5 bg-white hover:bg-amber-200 rounded border border-amber-300 cursor-pointer"
+                    >
+                      −
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => handleRowHeightChange(6)}
+                      title="Αύξηση ύψους γραμμής"
+                      className="px-1.5 py-0.5 bg-white hover:bg-amber-200 rounded border border-amber-300 cursor-pointer"
+                    >
+                      +
+                    </button>
+                    <button
+                      type="button"
+                      onClick={handleResetCellSizes}
+                      title="Επαναφορά μεγεθών κελιών"
+                      className="px-1.5 py-0.5 text-[#6E1927] hover:underline cursor-pointer"
+                    >
+                      Reset
+                    </button>
+                  </div>
+                )}
 
                 {editMode && Object.keys(textOverrides).length > 0 && (
                   <button
@@ -2599,8 +2805,9 @@
 
                           {!collapsed && (
                             <>
-                              <div className="overflow-x-auto lg:overflow-x-visible overflow-y-visible">
-                                <table className="w-full text-left border-collapse">
+                              <div className="overflow-x-auto overflow-y-visible">
+                                <table className="w-full table-fixed text-left border-collapse">
+                                  {renderColGroup()}
                                   {renderTableHead()}
                                   <tbody className="divide-y divide-[#E2DAE1]">
                                     {grp.orders.length === 0 ? (
@@ -2644,8 +2851,9 @@
                   </section>
                 ) : (
                   <section className="bg-[#F6F4F7]/95 backdrop-blur-sm rounded-xl border border-[#C7BEC6] shadow-sm overflow-visible">
-                    <div className="overflow-x-auto lg:overflow-x-visible overflow-y-visible">
-                      <table className="w-full text-left border-collapse">
+                    <div className="overflow-x-auto overflow-y-visible">
+                      <table className="w-full table-fixed text-left border-collapse">
+                        {renderColGroup()}
                         {renderTableHead()}
                         <tbody className="divide-y divide-[#E2DAE1]">
                           {filteredOrders.length === 0 ? (
