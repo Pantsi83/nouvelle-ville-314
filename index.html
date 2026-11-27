@@ -112,41 +112,34 @@
       }
     }
 
+    html {
+      scroll-behavior: smooth;
+    }
+
     body {
       font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
-      background:
-        radial-gradient(ellipse 80% 55% at 15% 10%, rgba(110, 25, 39, 0.24) 0%, transparent 60%),
-        radial-gradient(ellipse 70% 50% at 85% 20%, rgba(73, 5, 23, 0.20) 0%, transparent 58%),
-        radial-gradient(ellipse 90% 60% at 50% 95%, rgba(64, 16, 26, 0.22) 0%, transparent 65%),
-        linear-gradient(160deg, #B4B5BE 0%, #9F939D 48%, #8F7D89 100%);
-      background-attachment: fixed;
+      background-color: #9F939D;
       min-height: 100vh;
       color: #40101A;
       overflow-x: hidden;
     }
 
-    /* Ambient floating studio glow */
+    /* GPU-composited fixed ambient studio backdrop (eliminates scroll repaint jank) */
     body::before {
-      content: "";
-      position: fixed;
-      inset: -15%;
-      pointer-events: none;
-      z-index: 0;
-      background:
-        radial-gradient(circle at 28% 24%, rgba(244, 166, 179, 0.22), transparent 36%),
-        radial-gradient(circle at 74% 68%, rgba(110, 25, 39, 0.16), transparent 42%);
-      animation: nvrAuroraDrift 18s ease-in-out infinite;
-    }
-
-    /* Subtle analog sleeve / paper film grain */
-    body::after {
       content: "";
       position: fixed;
       inset: 0;
       pointer-events: none;
-      z-index: 2;
-      opacity: 0.032;
-      background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='nvrNoise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23nvrNoise)'/%3E%3C/svg%3E");
+      z-index: 0;
+      transform: translateZ(0);
+      will-change: transform;
+      background:
+        radial-gradient(ellipse 80% 55% at 15% 10%, rgba(110, 25, 39, 0.24) 0%, transparent 60%),
+        radial-gradient(ellipse 70% 50% at 85% 20%, rgba(73, 5, 23, 0.20) 0%, transparent 58%),
+        radial-gradient(ellipse 90% 60% at 50% 95%, rgba(64, 16, 26, 0.22) 0%, transparent 65%),
+        radial-gradient(circle at 28% 24%, rgba(244, 166, 179, 0.20), transparent 36%),
+        radial-gradient(circle at 74% 68%, rgba(110, 25, 39, 0.15), transparent 42%),
+        linear-gradient(160deg, #B4B5BE 0%, #9F939D 48%, #8F7D89 100%);
     }
 
     .nvr-display-font {
@@ -159,29 +152,28 @@
       z-index: 1;
     }
 
-    /* Glassmorphism Surfaces */
+    /* Glassmorphism Surfaces (optimized for 60/120fps scrolling) */
     .nvr-glass-header {
-      background: linear-gradient(180deg, rgba(248, 245, 248, 0.80) 0%, rgba(242, 236, 241, 0.72) 100%);
-      backdrop-filter: blur(20px) saturate(165%);
-      -webkit-backdrop-filter: blur(20px) saturate(165%);
+      background: linear-gradient(180deg, rgba(248, 245, 248, 0.90) 0%, rgba(242, 236, 241, 0.84) 100%);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      transform: translateZ(0);
       border-bottom: 1px solid rgba(255, 255, 255, 0.65);
       box-shadow:
-        0 8px 30px -10px rgba(45, 11, 18, 0.18),
+        0 8px 24px -10px rgba(45, 11, 18, 0.16),
         inset 0 1px 0 rgba(255, 255, 255, 0.85);
     }
 
     .nvr-glass-card {
-      background: linear-gradient(145deg, rgba(250, 247, 250, 0.82) 0%, rgba(241, 234, 240, 0.68) 100%);
-      backdrop-filter: blur(18px) saturate(155%);
-      -webkit-backdrop-filter: blur(18px) saturate(155%);
-      border: 1px solid rgba(255, 255, 255, 0.68);
+      background: linear-gradient(145deg, rgba(250, 247, 250, 0.91) 0%, rgba(241, 234, 240, 0.84) 100%);
+      border: 1px solid rgba(255, 255, 255, 0.72);
       box-shadow:
-        0 12px 32px -12px rgba(45, 11, 18, 0.20),
-        0 2px 6px -1px rgba(45, 11, 18, 0.06),
+        0 10px 26px -12px rgba(45, 11, 18, 0.18),
+        0 2px 6px -1px rgba(45, 11, 18, 0.05),
         inset 0 1px 0 rgba(255, 255, 255, 0.85);
-      transition: transform 0.28s cubic-bezier(0.22, 1, 0.36, 1),
-                  box-shadow 0.28s cubic-bezier(0.22, 1, 0.36, 1),
-                  border-color 0.28s ease;
+      transition: transform 0.24s cubic-bezier(0.22, 1, 0.36, 1),
+                  box-shadow 0.24s cubic-bezier(0.22, 1, 0.36, 1),
+                  border-color 0.24s ease;
     }
 
     .nvr-glass-card-hover:hover {
@@ -264,13 +256,12 @@
           rgba(255, 255, 255, 0.20) 212deg,
           transparent 252deg
         );
-      animation: nvrVinylSpin 9s linear infinite;
       pointer-events: none;
     }
 
     .group:hover .nvr-vinyl-disc::before,
     .nvr-vinyl-disc:hover::before {
-      animation-duration: 3.2s;
+      animation: nvrVinylSpin 3.6s linear infinite;
     }
 
     @keyframes nvrSheenSweep {
@@ -298,8 +289,13 @@
         rgba(255, 255, 255, 0.38) 50%,
         transparent 100%
       );
-      animation: nvrSheenSweep 4.2s cubic-bezier(0.22, 1, 0.36, 1) infinite;
+      opacity: 0;
       pointer-events: none;
+    }
+
+    .group:hover .nvr-progress-fill::after {
+      opacity: 1;
+      animation: nvrSheenSweep 2.4s cubic-bezier(0.22, 1, 0.36, 1) infinite;
     }
 
     /* Entrance & Tactile Animations */
@@ -322,8 +318,7 @@
     }
 
     .nvr-table-row {
-      animation: nvrRowReveal 0.22s ease-out both;
-      transition: background-color 0.18s ease, box-shadow 0.18s ease;
+      transition: background-color 0.14s ease;
     }
     .nvr-table-row:hover {
       background-color: rgba(255, 255, 255, 0.72);
@@ -3529,7 +3524,7 @@
 
                           {!collapsed && (
                             <>
-                              <div className="overflow-x-auto overflow-y-visible">
+                              <div style={{ WebkitOverflowScrolling: "touch" }} className="overflow-x-auto overflow-y-visible">
                                 <table className="w-full table-fixed text-left border-collapse">
                                   {renderColGroup()}
                                   {renderTableHead()}
@@ -3575,7 +3570,7 @@
                   </section>
                 ) : (
                   <section style={{ animationDelay: "220ms" }} className="nvr-glass-card nvr-animate-in rounded-2xl overflow-visible">
-                    <div className="overflow-x-auto overflow-y-visible">
+                    <div style={{ WebkitOverflowScrolling: "touch" }} className="overflow-x-auto overflow-y-visible">
                       <table className="w-full table-fixed text-left border-collapse">
                         {renderColGroup()}
                         {renderTableHead()}
