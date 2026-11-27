@@ -48,6 +48,24 @@
       }
     }
 
+    @keyframes nvrDiscShine {
+      0% {
+        left: -65%;
+        opacity: 0;
+      }
+      20% {
+        opacity: 1;
+      }
+      55% {
+        left: 125%;
+        opacity: 1;
+      }
+      56%, 100% {
+        left: 125%;
+        opacity: 0;
+      }
+    }
+
     @keyframes nvrFadeSlideUp {
       from {
         opacity: 0;
@@ -205,50 +223,60 @@
       animation: nvrBackdropFade 0.2s ease-out both;
     }
 
-    /* Realistic Vinyl Disc with Grooves & Light Sheen */
+    /* Realistic Vinyl Disc with Grooves & Continuous Light Sheen */
     .nvr-vinyl-disc {
       position: relative;
       border-radius: 9999px;
-      animation: nvrVinylSpin 14s linear infinite;
-      animation-play-state: paused;
+      overflow: hidden;
       transition: transform 0.35s cubic-bezier(0.22, 1, 0.36, 1), box-shadow 0.35s ease;
     }
 
     .group:hover .nvr-vinyl-disc,
     .nvr-vinyl-disc:hover {
-      animation-play-state: running;
       transform: scale(1.07);
     }
 
     .nvr-vinyl-disc::before {
       content: "";
       position: absolute;
-      inset: 3px;
+      inset: 2px;
       border-radius: 9999px;
-      background: repeating-radial-gradient(
-        circle at center,
-        rgba(255, 255, 255, 0.08) 0px,
-        rgba(255, 255, 255, 0.08) 1px,
-        transparent 1px,
-        transparent 3px
-      );
+      background:
+        repeating-radial-gradient(
+          circle at center,
+          rgba(255, 255, 255, 0.10) 0px,
+          rgba(255, 255, 255, 0.10) 1px,
+          transparent 1px,
+          transparent 3px
+        ),
+        conic-gradient(
+          from 35deg,
+          transparent 0deg,
+          rgba(255, 255, 255, 0.32) 35deg,
+          transparent 75deg,
+          transparent 180deg,
+          rgba(255, 255, 255, 0.24) 215deg,
+          transparent 255deg
+        );
+      animation: nvrVinylSpin 10s linear infinite;
       pointer-events: none;
     }
 
     .nvr-vinyl-disc::after {
       content: "";
       position: absolute;
-      inset: 0;
-      border-radius: 9999px;
-      background: conic-gradient(
-        from 35deg,
-        transparent 0deg,
-        rgba(255, 255, 255, 0.26) 35deg,
-        transparent 75deg,
-        transparent 180deg,
-        rgba(255, 255, 255, 0.18) 215deg,
-        transparent 255deg
+      top: -20%;
+      bottom: -20%;
+      left: -60%;
+      width: 55%;
+      background: linear-gradient(
+        105deg,
+        transparent 0%,
+        rgba(255, 255, 255, 0.48) 50%,
+        transparent 100%
       );
+      transform: skewX(-20deg);
+      animation: nvrDiscShine 3.6s ease-in-out infinite;
       pointer-events: none;
     }
 
@@ -2776,9 +2804,9 @@
                     </div>
 
                     <div className="mt-3">
-                      <div className="w-full h-2.5 bg-[#DFD7DE] rounded-full overflow-hidden flex">
+                      <div className="nvr-progress-fill w-full h-2.5 bg-[#DFD7DE] rounded-full overflow-hidden flex">
                         <div
-                          className={`nvr-progress-fill ${tok.bar} h-full transition-all duration-700 ease-out`}
+                          className={`${tok.bar} h-full transition-all duration-700 ease-out`}
                           style={{ width: `${Math.min(100, (st.shippedOrDelivered / Math.max(1, st.initial)) * 100)}%` }}
                         />
                         <div
