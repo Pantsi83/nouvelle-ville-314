@@ -1135,6 +1135,7 @@
       const [optionsTab, setOptionsTab] = useState("couriers");
       const [isSyncModalOpen, setIsSyncModalOpen] = useState(false);
       const [isShortcutModalOpen, setIsShortcutModalOpen] = useState(false);
+      const [isStatsModalOpen, setIsStatsModalOpen] = useState(false);
 
       const [editingStockKey, setEditingStockKey] = useState(null);
       const [tempStockValue, setTempStockValue] = useState("");
@@ -2563,6 +2564,15 @@
                 </button>
 
                 <button
+                  onClick={() => setIsStatsModalOpen(true)}
+                  title="Αναλυτικά γραφήματα πίτας & στατιστικά πωλήσεων"
+                  className="nvr-btn-press inline-flex items-center gap-1.5 px-2.5 py-1.5 text-xs font-bold text-[#40101A] bg-white/85 hover:bg-white border border-[#C7BEC6] rounded-lg shadow-2xs cursor-pointer"
+                >
+                  <span>◔</span>
+                  <span className="hidden sm:inline">Στατιστικά</span>
+                </button>
+
+                <button
                   onClick={() => setIsShortcutModalOpen(true)}
                   className="inline-flex items-center gap-1 px-2.5 py-1.5 text-xs font-bold text-[#40101A] bg-white/85 hover:bg-white border border-[#C7BEC6] rounded-lg transition-colors cursor-pointer"
                 >
@@ -3526,6 +3536,17 @@
             </div>
           )}
 
+          {/* MODAL 3B: STATISTICS & PIE CHARTS */}
+          {isStatsModalOpen && (
+            <StatsPiesModal
+              orders={orders}
+              config={config}
+              inventoryStats={inventoryStats}
+              summaryStats={summaryStats}
+              onClose={() => setIsStatsModalOpen(false)}
+            />
+          )}
+
           {/* MODAL 4: SHORTCUT GUIDE */}
           {isShortcutModalOpen && (
             <div className="nvr-backdrop fixed inset-0 z-50 flex items-center justify-center p-4">
@@ -4434,6 +4455,468 @@
               <button
                 onClick={onClose}
                 className="px-4 py-1.5 text-xs font-bold text-white bg-[#6E1927] hover:bg-[#8A2233] rounded-lg cursor-pointer"
+              >
+                Κλείσιμο
+              </button>
+            </div>
+          </div>
+        </div>
+      );
+    }
+
+    // =========================================================================
+    // INTERACTIVE SVG DONUT / PIE CHART & ANALYTICS MODAL
+    // =========================================================================
+    const PIE_HEX_PALETTE = {
+      crimsonVinyl: "#6E1927",
+      blackVinyl: "#2C1820",
+      amber: "#D97706",
+      sky: "#0284C7",
+      emerald: "#059669",
+      cyan: "#0E7490",
+      indigo: "#4F46E5",
+      fuchsia: "#A21CAF",
+      rose: "#BE123C",
+      lime: "#4D7C0F",
+      purple: "#7E22CE",
+      stone: "#6E5C68"
+    };
+
+    function VinylPieCard({ title, subtitle, slices, valueFormatter = (v) => v, centerLabel = "ΣΥΝΟΛΟ", centerValue }) {
+      const [hoveredIdx, setHoveredIdx] = useState(null);
+      const validSlices = slices.filter((s) => s.value > 0);
+      const total = validSlices.reduce((sum, s) => sum + s.value, 0);
+
+      const radius = 56;
+      const strokeWidth = 22;
+      const circumference = 2 * Math.PI * radius;
+
+      let cumulativePercent = 0;
+      const segments = validSlices.map((s, idx) => {
+        const pct = total > 0 ? s.value / total : 0;
+        const dashArray = `${pct * circumference} ${circumference}`;
+        const dashOffset = -cumulativePercent * circumference;
+        cumulativePercent += pct;
+        return {
+          ...s,
+          idx,
+          pct,
+          dashArray,
+          dashOffset,
+          hex: s.hex || PIE_HEX_PALETTE[s.color] || "#6E1927"
+        };
+      });
+
+      const activeSeg = hoveredIdx !== null ? segments.find((s) => s.idx === hoveredIdx) : null;
+
+      return (
+        <div className="bg-white/85 backdrop-blur-md rounded-2xl border border-white/90 p-4 shadow-sm flex flex-col justify-between transition-all hover:shadow-md">
+          <div className="mb-3">
+            <h3 className="text-sm font-extrabold text-[#40101A]">{title}</h3>
+            {subtitle && <p className="text-[11px] text-[#6E5C68]">{subtitle}</p>}
+          </div>
+
+          {total === 0 ? (
+            <div className="py-10 text-center text-xs text-[#6E5C68] italic">
+              Δεν υπάρχουν διαθέσιμα δεδομένα.
+            </div>
+          ) : (
+            <div className="flex flex-col sm:flex-row items-center gap-4">
+              {/* SVG Vinyl Donut */}
+              <div className="relative w-36 h-36 shrink-0 flex items-center justify-center">
+                <svg viewBox="0 0 150 150" className="w-full h-full -rotate-90 overflow-visible">
+                  <circle
+                    cx="75"
+                    cy="75"
+                    r={radius}
+                    fill="transparent"
+                    stroke="#E7DFE6"
+                    strokeWidth={strokeWidth}
+                  />
+                  {segments.map((seg) => {
+                    const isHovered = hoveredIdx === seg.idx;
+                    return (
+                      <circle
+                        key={seg.label}
+                        cx="75"
+                        cy="75"
+                        r={radius}
+                        fill="transparent"
+                        stroke={seg.hex}
+                        strokeWidth={isHovered ? strokeWidth + 5 : strokeWidth}
+                        strokeDasharray={seg.dashArray}
+                        strokeDashoffset={seg.dashOffset}
+                        onMouseEnter={() => setHoveredIdx(seg.idx)}
+                        onMouseLeave={() => setHoveredIdx(null)}
+                        style={{
+                          transition: "stroke-width 0.22s ease, opacity 0.22s ease",
+                          opacity: hoveredIdx !== null && !isHovered ? 0.55 : 1,
+                          cursor: "pointer"
+                        }}
+                      />
+                    );
+                  })}
+                </svg>
+
+                {/* Center Vinyl Label */}
+                <div className="absolute inset-0 flex flex-col items-center justify-center text-center pointer-events-none px-4">
+                  <span className="text-[9px] font-extrabold uppercase tracking-wider text-[#6E5C68] truncate max-w-[74px]">
+                    {activeSeg ? activeSeg.label : centerLabel}
+                  </span>
+                  <span className="text-sm font-black text-[#40101A] tabular-nums leading-tight mt-0.5">
+                    {activeSeg
+                      ? valueFormatter(activeSeg.value)
+                      : centerValue !== undefined
+                      ? centerValue
+                      : valueFormatter(total)}
+                  </span>
+                  {activeSeg && (
+                    <span className="text-[10px] font-bold text-[#6E1927] tabular-nums">
+                      {(activeSeg.pct * 100).toFixed(1)}%
+                    </span>
+                  )}
+                </div>
+              </div>
+
+              {/* Legend */}
+              <div className="flex-1 w-full space-y-1.5 max-h-40 overflow-y-auto pr-1">
+                {segments.map((seg) => {
+                  const isHovered = hoveredIdx === seg.idx;
+                  return (
+                    <div
+                      key={seg.label}
+                      onMouseEnter={() => setHoveredIdx(seg.idx)}
+                      onMouseLeave={() => setHoveredIdx(null)}
+                      className={`flex items-center justify-between gap-2 px-2 py-1 rounded-lg text-xs transition-colors cursor-pointer ${
+                        isHovered ? "bg-[#EFE4E8] font-bold" : "hover:bg-[#F4EEF3]"
+                      }`}
+                    >
+                      <div className="flex items-center gap-2 min-w-0">
+                        <span
+                          className="w-2.5 h-2.5 rounded-full shrink-0"
+                          style={{ backgroundColor: seg.hex }}
+                        />
+                        <span className="truncate text-[#40101A]">{seg.label}</span>
+                      </div>
+                      <div className="flex items-center gap-2 shrink-0 tabular-nums">
+                        <span className="font-extrabold text-[#40101A]">
+                          {valueFormatter(seg.value)}
+                        </span>
+                        <span className="text-[10.5px] font-semibold text-[#6E5C68] w-11 text-right">
+                          {(seg.pct * 100).toFixed(0)}%
+                        </span>
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+            </div>
+          )}
+        </div>
+      );
+    }
+
+    function StatsPiesModal({ orders, config, inventoryStats, summaryStats, onClose }) {
+      const [metricMode, setMetricMode] = useState("units"); // 'units' | 'orders' | 'revenue'
+
+      // 1. By Sales Channel
+      const channelSlices = useMemo(() => {
+        const map = {};
+        config.channels.forEach((c) => {
+          map[c.name] = { label: c.name, color: c.color, value: 0 };
+        });
+        orders.forEach((o) => {
+          if (!map[o.salesChannel]) {
+            map[o.salesChannel] = { label: o.salesChannel, color: "stone", value: 0 };
+          }
+          const units = o.items.reduce((s, i) => s + (Number(i.qty) || 0), 0);
+          const rev = Number(o.totalAmount) || 0;
+          map[o.salesChannel].value +=
+            metricMode === "revenue" ? rev : metricMode === "orders" ? 1 : units;
+        });
+        return Object.values(map);
+      }, [orders, config.channels, metricMode]);
+
+      // 2. By Payment Method (excluding Gifts)
+      const paymentMethodSlices = useMemo(() => {
+        const methods = config.paymentMethods || DEFAULT_PAYMENT_METHODS;
+        const map = {};
+        methods.forEach((m) => {
+          map[m.name] = { label: m.name, color: m.color, value: 0 };
+        });
+        map["Χωρίς καταχώρηση"] = { label: "Χωρίς καταχώρηση", color: "stone", value: 0 };
+
+        orders.forEach((o) => {
+          if (isOrderGift(o)) return;
+          const key = o.paymentMethod && o.paymentMethod.trim() ? o.paymentMethod : "Χωρίς καταχώρηση";
+          if (!map[key]) {
+            map[key] = { label: key, color: "indigo", value: 0 };
+          }
+          const units = o.items.reduce((s, i) => s + (Number(i.qty) || 0), 0);
+          const rev = Number(o.totalAmount) || 0;
+          map[key].value +=
+            metricMode === "revenue" ? rev : metricMode === "orders" ? 1 : units;
+        });
+        return Object.values(map);
+      }, [orders, config.paymentMethods, metricMode]);
+
+      // 3. By Vinyl Edition (Galaxy vs Black etc.)
+      const editionSlices = useMemo(() => {
+        return config.products.map((p) => {
+          let units = 0;
+          let ordCount = 0;
+          let rev = 0;
+          orders.forEach((o) => {
+            const matching = o.items.filter((i) => i.product === p.name && i.qty > 0);
+            if (matching.length > 0) {
+              const u = matching.reduce((s, i) => s + Number(i.qty), 0);
+              const totalOrdUnits = o.items.reduce((s, i) => s + (Number(i.qty) || 0), 0) || 1;
+              units += u;
+              ordCount += 1;
+              rev += ((Number(o.totalAmount) || 0) * u) / totalOrdUnits;
+            }
+          });
+          return {
+            label: p.shortName || p.name,
+            color: p.color,
+            value: metricMode === "revenue" ? Math.round(rev * 100) / 100 : metricMode === "orders" ? ordCount : units
+          };
+        });
+      }, [orders, config.products, metricMode]);
+
+      // 4. By Fulfillment Status (Pending / Shipped / Delivered)
+      const statusSlices = useMemo(() => {
+        const map = {};
+        config.statuses.forEach((s) => {
+          map[s.name] = { label: s.name, color: s.color, value: 0 };
+        });
+        orders.forEach((o) => {
+          if (!map[o.status]) {
+            map[o.status] = { label: o.status, color: "stone", value: 0 };
+          }
+          const units = o.items.reduce((s, i) => s + (Number(i.qty) || 0), 0);
+          const rev = Number(o.totalAmount) || 0;
+          map[o.status].value +=
+            metricMode === "revenue" ? rev : metricMode === "orders" ? 1 : units;
+        });
+        return Object.values(map);
+      }, [orders, config.statuses, metricMode]);
+
+      // 5. By Courier / Delivery Method (Box Now vs On hand)
+      const courierSlices = useMemo(() => {
+        const map = {};
+        config.couriers.forEach((c) => {
+          map[c.name] = { label: c.name, color: c.color, value: 0 };
+        });
+        orders.forEach((o) => {
+          if (!map[o.courierName]) {
+            map[o.courierName] = { label: o.courierName, color: "stone", value: 0 };
+          }
+          const units = o.items.reduce((s, i) => s + (Number(i.qty) || 0), 0);
+          const rev = Number(o.totalAmount) || 0;
+          map[o.courierName].value +=
+            metricMode === "revenue" ? rev : metricMode === "orders" ? 1 : units;
+        });
+        return Object.values(map);
+      }, [orders, config.couriers, metricMode]);
+
+      // 6. Paid vs Unpaid vs Gift Breakdown
+      const financialMixSlices = useMemo(() => {
+        let paidVal = 0;
+        let unpaidVal = 0;
+        let giftVal = 0;
+        orders.forEach((o) => {
+          const units = o.items.reduce((s, i) => s + (Number(i.qty) || 0), 0);
+          const rev = Number(o.totalAmount) || 0;
+          const v = metricMode === "revenue" ? rev : metricMode === "orders" ? 1 : units;
+          if (isOrderGift(o)) {
+            giftVal += v;
+          } else if (o.isPaid) {
+            paidVal += v;
+          } else {
+            unpaidVal += v;
+          }
+        });
+        return [
+          { label: "Πληρωμένες", color: "emerald", value: paidVal },
+          { label: "Απλήρωτες", color: "rose", value: unpaidVal },
+          { label: "Δώρα (Promo / Gift)", color: "fuchsia", value: giftVal }
+        ];
+      }, [orders, metricMode]);
+
+      const formatter =
+        metricMode === "revenue"
+          ? (v) => `€${Number(v).toFixed(0)}`
+          : metricMode === "orders"
+          ? (v) => `${v} παρ.`
+          : (v) => `${v} τεμ.`;
+
+      const avgOrderValue = useMemo(() => {
+        const paidOrPriced = orders.filter((o) => !isOrderGift(o) && Number(o.totalAmount) > 0);
+        if (!paidOrPriced.length) return 0;
+        const sum = paidOrPriced.reduce((s, o) => s + Number(o.totalAmount), 0);
+        return sum / paidOrPriced.length;
+      }, [orders]);
+
+      return (
+        <div className="nvr-backdrop fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-5 overflow-y-auto">
+          <div className="nvr-glass-modal rounded-2xl max-w-5xl w-full overflow-hidden my-auto flex flex-col max-h-[92vh]">
+            {/* Modal Header */}
+            <div className="px-5 py-4 border-b border-[#D8CFD7] flex flex-wrap items-center justify-between gap-3 bg-[#EFECEF]/90 shrink-0">
+              <div className="flex items-center gap-2.5">
+                <span className="w-8 h-8 rounded-xl bg-[#6E1927] text-white flex items-center justify-center text-base shadow-xs">
+                  ◔
+                </span>
+                <div>
+                  <h2 className="text-base font-extrabold text-[#40101A]">
+                    Στατιστικά & Αναλύσεις «3,14»
+                  </h2>
+                  <p className="text-[11px] text-[#6E5C68]">
+                    Πέρνα τον κέρσορα πάνω από κάθε κομμάτι πίτας για αναλυτικά ποσοστά
+                  </p>
+                </div>
+              </div>
+
+              <div className="flex items-center gap-2 flex-wrap">
+                {/* Metric Switcher */}
+                <div className="flex items-center gap-1 bg-[#E2DAE1] p-1 rounded-xl border border-[#CFC5CE]">
+                  <button
+                    type="button"
+                    onClick={() => setMetricMode("units")}
+                    className={`px-2.5 py-1 rounded-lg text-xs font-bold transition-all cursor-pointer ${
+                      metricMode === "units"
+                        ? "bg-[#6E1927] text-white shadow-2xs"
+                        : "text-[#40101A] hover:bg-white/60"
+                    }`}
+                  >
+                    Τεμάχια LP
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setMetricMode("orders")}
+                    className={`px-2.5 py-1 rounded-lg text-xs font-bold transition-all cursor-pointer ${
+                      metricMode === "orders"
+                        ? "bg-[#6E1927] text-white shadow-2xs"
+                        : "text-[#40101A] hover:bg-white/60"
+                    }`}
+                  >
+                    Παραγγελίες
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setMetricMode("revenue")}
+                    className={`px-2.5 py-1 rounded-lg text-xs font-bold transition-all cursor-pointer ${
+                      metricMode === "revenue"
+                        ? "bg-[#6E1927] text-white shadow-2xs"
+                        : "text-[#40101A] hover:bg-white/60"
+                    }`}
+                  >
+                    Έσοδα (€)
+                  </button>
+                </div>
+
+                <button
+                  onClick={onClose}
+                  className="p-1.5 text-[#6E5C68] hover:text-[#40101A] hover:bg-black/5 rounded-lg cursor-pointer"
+                >
+                  ✕
+                </button>
+              </div>
+            </div>
+
+            {/* Scrollable Body */}
+            <div className="p-4 sm:p-5 overflow-y-auto space-y-4">
+              {/* Top Quick Insights Strip */}
+              <div className="grid grid-cols-2 sm:grid-cols-4 gap-2.5 tabular-nums">
+                <div className="bg-white/80 rounded-xl border border-white p-3">
+                  <span className="text-[10px] font-bold uppercase text-[#6E5C68] block">
+                    Συνολική Διάθεση
+                  </span>
+                  <span className="text-lg font-black text-[#40101A]">
+                    {summaryStats.totalUnits} <span className="text-xs font-semibold text-[#6E5C68]">/ 200 LP</span>
+                  </span>
+                </div>
+                <div className="bg-white/80 rounded-xl border border-white p-3">
+                  <span className="text-[10px] font-bold uppercase text-emerald-800 block">
+                    Εισπραχθέντα
+                  </span>
+                  <span className="text-lg font-black text-emerald-900">
+                    €{summaryStats.paidRevenue.toFixed(2)}
+                  </span>
+                </div>
+                <div className="bg-white/80 rounded-xl border border-white p-3">
+                  <span className="text-[10px] font-bold uppercase text-[#6E1927] block">
+                    Μέση Αξία Πώλησης
+                  </span>
+                  <span className="text-lg font-black text-[#40101A]">
+                    €{avgOrderValue.toFixed(2)}
+                  </span>
+                </div>
+                <div className="bg-white/80 rounded-xl border border-white p-3">
+                  <span className="text-[10px] font-bold uppercase text-rose-800 block">
+                    Εκκρεμείς Πληρωμές
+                  </span>
+                  <span className="text-lg font-black text-rose-700">
+                    {summaryStats.unpaidCount} <span className="text-xs font-semibold">παραγγελίες</span>
+                  </span>
+                </div>
+              </div>
+
+              {/* 6 Pie Charts Grid */}
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-3.5">
+                <VinylPieCard
+                  title="1. Ανά Κανάλι Πώλησης"
+                  subtitle="Bandcamp, Direct Message, Live Concert, Gift"
+                  slices={channelSlices}
+                  valueFormatter={formatter}
+                />
+
+                <VinylPieCard
+                  title="2. Ανά Τρόπο Πληρωμής"
+                  subtitle="Iris, Revolut, Μετρητά, Web banking (εξαιρ. Δώρα)"
+                  slices={paymentMethodSlices}
+                  valueFormatter={formatter}
+                />
+
+                <VinylPieCard
+                  title="3. Ανά Έκδοση Βινυλίου"
+                  subtitle="Galaxy red-black vs Black"
+                  slices={editionSlices}
+                  valueFormatter={formatter}
+                />
+
+                <VinylPieCard
+                  title="4. Οικονομική Εικόνα"
+                  subtitle="Πληρωμένες, Απλήρωτες & Δώρα (Promo)"
+                  slices={financialMixSlices}
+                  valueFormatter={formatter}
+                />
+
+                <VinylPieCard
+                  title="5. Ανά Κατάσταση (Status)"
+                  subtitle="Pending, Shipped, Delivered"
+                  slices={statusSlices}
+                  valueFormatter={formatter}
+                />
+
+                <VinylPieCard
+                  title="6. Ανά Τρόπο Αποστολής"
+                  subtitle="Box Now vs On hand (χέρι με χέρι)"
+                  slices={courierSlices}
+                  valueFormatter={formatter}
+                />
+              </div>
+            </div>
+
+            {/* Footer */}
+            <div className="px-5 py-3 bg-[#EFECEF]/90 border-t border-[#D8CFD7] flex items-center justify-between shrink-0">
+              <span className="text-[11px] text-[#6E5C68]">
+                Υπολογίζεται αυτόματα από τις <strong>{orders.length}</strong> καταχωρημένες παραγγελίες.
+              </span>
+              <button
+                type="button"
+                onClick={onClose}
+                className="nvr-btn-press px-4 py-1.5 text-xs font-bold text-white bg-[#6E1927] hover:bg-[#8A2233] rounded-lg cursor-pointer"
               >
                 Κλείσιμο
               </button>
