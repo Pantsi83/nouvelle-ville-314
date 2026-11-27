@@ -645,7 +645,7 @@
       thStatus: "Status",
       thCourier: "Αποστολή",
       thTracking: "Tracking",
-      thInvoice: "ΑΠΥ/ΤΔΑ",
+      thInvoice: "INV #",
       thActions: ""
     };
 
@@ -1077,25 +1077,18 @@
       });
 
       const [textOverrides, setTextOverrides] = useState(() => {
-        try {
-          const saved = localStorage.getItem(LS_TEXT_OVERRIDES);
-          return saved ? JSON.parse(saved) : {};
-        } catch {
-          return {};
-        }
+        const saved = readLayoutPref(LS_TEXT_OVERRIDES);
+        return saved && typeof saved === "object" ? saved : {};
       });
 
       const [cellSizes, setCellSizes] = useState(() => {
-        try {
-          const saved = localStorage.getItem(LS_CELL_SIZES);
-          if (saved) {
-            const p = JSON.parse(saved);
-            return {
-              rowMinHeight: Number(p.rowMinHeight) || DEFAULT_CELL_SIZES.rowMinHeight,
-              colWidths: { ...DEFAULT_CELL_SIZES.colWidths, ...(p.colWidths || {}) }
-            };
-          }
-        } catch {}
+        const p = readLayoutPref(LS_CELL_SIZES);
+        if (p && typeof p === "object") {
+          return {
+            rowMinHeight: Number(p.rowMinHeight) || DEFAULT_CELL_SIZES.rowMinHeight,
+            colWidths: { ...DEFAULT_CELL_SIZES.colWidths, ...(p.colWidths || {}) }
+          };
+        }
         return DEFAULT_CELL_SIZES;
       });
 
@@ -1161,22 +1154,49 @@
         try { localStorage.setItem(LS_CONFIG, JSON.stringify(config)); } catch {}
       }, [config]);
 
+      const writeLayoutPref = (key, value) => {
+        const serialized = JSON.stringify(value);
+        try {
+          window.localStorage.setItem(key, serialized);
+        } catch {}
+        try {
+          const wn = window.name ? JSON.parse(window.name) : {};
+          if (wn && typeof wn === "object") {
+            wn[key] = value;
+            window.name = JSON.stringify(wn);
+          }
+        } catch {}
+      };
+
+      const readLayoutPref = (key) => {
+        try {
+          const fromLs = window.localStorage.getItem(key);
+          if (fromLs) return JSON.parse(fromLs);
+        } catch {}
+        try {
+          const wn = window.name ? JSON.parse(window.name) : null;
+          if (wn && wn[key] !== undefined) return wn[key];
+        } catch {}
+        return null;
+      };
+
       useEffect(() => {
-        try { localStorage.setItem(LS_TEXT_OVERRIDES, JSON.stringify(textOverrides)); } catch {}
+        writeLayoutPref(LS_TEXT_OVERRIDES, textOverrides);
       }, [textOverrides]);
 
       useEffect(() => {
-        try { localStorage.setItem(LS_CELL_SIZES, JSON.stringify(cellSizes)); } catch {}
+        writeLayoutPref(LS_CELL_SIZES, cellSizes);
       }, [cellSizes]);
 
       const startColResize = (e, colKey) => {
         e.preventDefault();
         e.stopPropagation();
-        const startX = e.clientX;
+        const isTouch = e.type === "touchstart" || (e.touches && e.touches.length > 0);
+        const startX = isTouch ? e.touches[0].clientX : e.clientX;
         const startWidth = cellSizes.colWidths[colKey] || DEFAULT_CELL_SIZES.colWidths[colKey] || 80;
 
-        const onMouseMove = (moveEvent) => {
-          const delta = moveEvent.clientX - startX;
+        const applyDelta = (clientX) => {
+          const delta = clientX - startX;
           const nextWidth = Math.max(34, Math.min(420, Math.round(startWidth + delta)));
           setCellSizes((prev) => ({
             ...prev,
@@ -1184,13 +1204,27 @@
           }));
         };
 
-        const onMouseUp = () => {
+        const onMouseMove = (moveEvent) => applyDelta(moveEvent.clientX);
+        const onTouchMove = (touchEvent) => {
+          if (touchEvent.touches && touchEvent.touches.length > 0) {
+            touchEvent.preventDefault();
+            applyDelta(touchEvent.touches[0].clientX);
+          }
+        };
+
+        const cleanup = () => {
           window.removeEventListener("mousemove", onMouseMove);
-          window.removeEventListener("mouseup", onMouseUp);
+          window.removeEventListener("mouseup", cleanup);
+          window.removeEventListener("touchmove", onTouchMove);
+          window.removeEventListener("touchend", cleanup);
+          window.removeEventListener("touchcancel", cleanup);
         };
 
         window.addEventListener("mousemove", onMouseMove);
-        window.addEventListener("mouseup", onMouseUp);
+        window.addEventListener("mouseup", cleanup);
+        window.addEventListener("touchmove", onTouchMove, { passive: false });
+        window.addEventListener("touchend", cleanup);
+        window.addEventListener("touchcancel", cleanup);
       };
 
       const handleRowHeightChange = (delta) => {
@@ -2083,9 +2117,11 @@
             {editMode && (
               <div
                 onMouseDown={(e) => startColResize(e, colKey)}
+                onTouchStart={(e) => startColResize(e, colKey)}
                 onClick={(e) => e.stopPropagation()}
+                style={{ touchAction: "none" }}
                 title="Σύρε δεξιά/αριστερά για αλλαγή πλάτους στήλης"
-                className="absolute top-0 right-0 w-2.5 h-full cursor-col-resize bg-[#6E1927]/20 hover:bg-[#6E1927] transition-colors flex items-center justify-center"
+                className="absolute top-0 right-0 w-4 h-full cursor-col-resize bg-[#6E1927]/25 hover:bg-[#6E1927] transition-colors flex items-center justify-center"
               >
                 <span className="w-[2px] h-4 bg-[#6E1927] rounded-full" />
               </div>
@@ -2388,7 +2424,7 @@
                   {order.invoiceNumber ? (
                     <span className="truncate">{order.invoiceNumber}</span>
                   ) : (
-                    <span className="text-[#9E8E98] text-[10px]">+ ΑΠΥ</span>
+                    <span className="text-[#9E8E98] text-[10px]">+ ΑΠ</span>
                   )}
                 </button>
               )}
