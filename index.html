@@ -344,6 +344,7 @@
 
     .nvr-table-row {
       transition: background-color 0.14s ease;
+      contain: layout style;
     }
     .nvr-table-row:hover {
       background-color: rgba(255, 255, 255, 0.52);
@@ -385,7 +386,7 @@
   <div id="root"></div>
 
   <script type="text/babel" data-presets="react-classic">
-    const { useState, useEffect, useMemo, useRef } = window.React;
+    const { useState, useEffect, useMemo, useRef, useCallback, memo } = window.React;
     const { createRoot } = window.ReactDOM;
 
     // =========================================================================
@@ -1259,11 +1260,17 @@
       };
 
       useEffect(() => {
-        try { localStorage.setItem(LS_ORDERS, JSON.stringify(orders)); } catch {}
+        const timer = setTimeout(() => {
+          try { localStorage.setItem(LS_ORDERS, JSON.stringify(orders)); } catch {}
+        }, 250);
+        return () => clearTimeout(timer);
       }, [orders]);
 
       useEffect(() => {
-        try { localStorage.setItem(LS_CONFIG, JSON.stringify(config)); } catch {}
+        const timer = setTimeout(() => {
+          try { localStorage.setItem(LS_CONFIG, JSON.stringify(config)); } catch {}
+        }, 250);
+        return () => clearTimeout(timer);
       }, [config]);
 
       const writeLayoutPref = (key, value) => {
@@ -1281,11 +1288,13 @@
       };
 
       useEffect(() => {
-        writeLayoutPref(LS_TEXT_OVERRIDES, textOverrides);
+        const timer = setTimeout(() => writeLayoutPref(LS_TEXT_OVERRIDES, textOverrides), 300);
+        return () => clearTimeout(timer);
       }, [textOverrides]);
 
       useEffect(() => {
-        writeLayoutPref(LS_CELL_SIZES, cellSizes);
+        const timer = setTimeout(() => writeLayoutPref(LS_CELL_SIZES, cellSizes), 300);
+        return () => clearTimeout(timer);
       }, [cellSizes]);
 
       const startColResize = (e, colKey) => {
@@ -1295,13 +1304,20 @@
         const startX = isTouch ? e.touches[0].clientX : e.clientX;
         const startWidth = cellSizes.colWidths[colKey] || DEFAULT_CELL_SIZES.colWidths[colKey] || 80;
 
+        let rafId = null;
+        let pendingClientX = startX;
         const applyDelta = (clientX) => {
-          const delta = clientX - startX;
-          const nextWidth = Math.max(34, Math.min(420, Math.round(startWidth + delta)));
-          setCellSizes((prev) => ({
-            ...prev,
-            colWidths: { ...prev.colWidths, [colKey]: nextWidth }
-          }));
+          pendingClientX = clientX;
+          if (rafId !== null) return;
+          rafId = requestAnimationFrame(() => {
+            rafId = null;
+            const delta = pendingClientX - startX;
+            const nextWidth = Math.max(34, Math.min(420, Math.round(startWidth + delta)));
+            setCellSizes((prev) => ({
+              ...prev,
+              colWidths: { ...prev.colWidths, [colKey]: nextWidth }
+            }));
+          });
         };
 
         const onMouseMove = (moveEvent) => applyDelta(moveEvent.clientX);
@@ -1313,6 +1329,7 @@
         };
 
         const cleanup = () => {
+          if (rafId !== null) cancelAnimationFrame(rafId);
           window.removeEventListener("mousemove", onMouseMove);
           window.removeEventListener("mouseup", cleanup);
           window.removeEventListener("touchmove", onTouchMove);
@@ -1393,25 +1410,31 @@
 
           if (Array.isArray(dbOrders) && dbOrders.length > 0) {
             const normalized = dbOrders.map(normalizeOrderFromDb);
-            setOrders(normalized);
+            setOrders((prev) => {
+              if (prev.length === normalized.length && JSON.stringify(prev) === JSON.stringify(normalized)) {
+                return prev;
+              }
+              return normalized;
+            });
           } else if (seedIfEmpty && ordersRef.current.length > 0) {
             await sbFetch("orders", {
               method: "POST",
               body: JSON.stringify(ordersRef.current.map((o) => serializeOrderForDb(o, true)))
             });
-          } else if (Array.isArray(dbOrders)) {
+          } else if (Array.isArray(dbOrders) && ordersRef.current.length === 0) {
             setOrders([]);
           }
 
           if (Array.isArray(dbConfig) && dbConfig.length > 0) {
             const row = dbConfig[0];
-            setConfig({
+            const nextCfg = {
               statuses: row.statuses?.length ? row.statuses : DEFAULT_CONFIG.statuses,
               channels: row.channels?.length ? row.channels : DEFAULT_CONFIG.channels,
               couriers: row.couriers?.length ? row.couriers : DEFAULT_CONFIG.couriers,
               paymentMethods: row.payment_methods?.length ? row.payment_methods : DEFAULT_CONFIG.paymentMethods,
               products: row.products?.length ? row.products : DEFAULT_CONFIG.products
-            });
+            };
+            setConfig((prev) => (JSON.stringify(prev) === JSON.stringify(nextCfg) ? prev : nextCfg));
           }
 
           setSyncState({ status: "synced", lastSync: new Date(), errorMsg: "" });
@@ -1888,19 +1911,19 @@
           return;
         }
 
+        const cleanStr = String(rawVal ?? "").trim();
         let nextOrder = null;
         let dbPatch = null;
         let labelText = "";
 
         if (field === "totalAmount") {
-          const trimmed = String(rawVal ?? "").trim().replace(",", ".");
+          const trimmed = cleanStr.replace(",", ".");
           const num = trimmed === "" ? null : parseFloat(trimmed);
           const cleanVal = num === null || isNaN(num) ? null : num;
           nextOrder = { ...targetOrder, totalAmount: cleanVal };
           dbPatch = { total_amount: cleanVal, updated_at: new Date().toISOString() };
           labelText = `Ποσό (${formatCurrency(cleanVal)})`;
         } else {
-          const cleanStr = String(rawVal ?? "").trim();
           const fieldMap = {
             paymentMethod: "payment_method",
             salesChannel: "sales_channel",
@@ -4001,8 +4024,12 @@
             <div className="nvr-backdrop fixed inset-0 z-50 flex items-center justify-center p-4">
               <div className="nvr-glass-modal rounded-2xl max-w-md w-full overflow-hidden">
                 <div className="px-5 py-4 border-b border-[#D8CFD7] flex items-center justify-between bg-[#EFECEF]">
-                  <h2 className="nvr-display-font text-base sm:text-lg font-bold text-[#40101A]">
-                    📲 Συντόμευση σε Κινητό & Desktop
+                  <h2 className="nvr-display-font text-base sm:text-lg font-bold text-[#40101A] inline-flex items-center gap-2">
+                    <svg viewBox="0 0 16 16" className="w-4 h-4 text-[#6E1927]" fill="none" stroke="currentColor" strokeWidth="1.7" aria-hidden="true">
+                      <rect x="4" y="1.8" width="8" height="12.4" rx="1.6" />
+                      <path d="M7 11.8h2" />
+                    </svg>
+                    <span>Συντόμευση σε Κινητό & Desktop</span>
                   </h2>
                   <button
                     onClick={() => setIsShortcutModalOpen(false)}
@@ -4014,17 +4041,17 @@
 
                 <div className="p-5 space-y-3.5 text-xs text-[#40101A] leading-relaxed">
                   <div className="p-3 rounded-xl bg-white/90 border border-[#D4CAD3]">
-                    <div className="font-extrabold mb-1">📱 iPhone / iPad (Safari)</div>
+                    <div className="font-extrabold mb-1 text-[#6E1927]">iPhone / iPad (Safari)</div>
                     Πάτησε το κουμπί <strong>Κοινή χρήση (Share ↑)</strong> και επίλεξε{" "}
                     <strong>«Προσθήκη στην Οθόνη Αφετηρίας»</strong>.
                   </div>
                   <div className="p-3 rounded-xl bg-white/90 border border-[#D4CAD3]">
-                    <div className="font-extrabold mb-1">🤖 Android (Chrome)</div>
+                    <div className="font-extrabold mb-1 text-[#6E1927]">Android (Chrome)</div>
                     Πάτησε τις <strong>τρεις τελείες (⋮)</strong> πάνω δεξιά και επίλεξε{" "}
                     <strong>«Προσθήκη στην αρχική οθόνη»</strong>.
                   </div>
                   <div className="p-3 rounded-xl bg-white/90 border border-[#D4CAD3]">
-                    <div className="font-extrabold mb-1">💻 Desktop (Chrome / Edge)</div>
+                    <div className="font-extrabold mb-1 text-[#6E1927]">Desktop (Chrome / Edge)</div>
                     Πάτησε <strong>Install as app</strong> από το μενού του browser ώστε να ανοίγει σαν αυτόνομη εφαρμογή.
                   </div>
                 </div>
@@ -4264,7 +4291,10 @@
                   onClick={copyShippingBundle}
                   className="w-full py-2 px-3 rounded-lg text-xs font-extrabold text-[#40101A] bg-white hover:bg-[#F5EFF3] border border-[#C7BEC6] shadow-2xs flex items-center justify-center gap-1.5 transition-colors cursor-pointer"
                 >
-                  <span>📋</span>
+                  <svg viewBox="0 0 16 16" className="w-3.5 h-3.5 text-[#6E1927]" fill="none" stroke="currentColor" strokeWidth="1.7" aria-hidden="true">
+                    <rect x="5" y="4.5" width="7.5" height="9" rx="1.3" />
+                    <path d="M3.5 11V3.5A1.5 1.5 0 0 1 5 2h5.5" />
+                  </svg>
                   <span>Αντιγραφή όλων των στοιχείων αποστολής</span>
                 </button>
               </div>
@@ -5250,8 +5280,11 @@
             {/* Modal Header */}
             <div className="px-5 py-4 border-b border-[#D8CFD7] flex flex-wrap items-center justify-between gap-3 bg-[#EFECEF]/90 shrink-0">
               <div className="flex items-center gap-2.5">
-                <span className="w-8 h-8 rounded-xl bg-[#6E1927] text-white flex items-center justify-center text-base shadow-xs">
-                  ◔
+                <span className="w-8 h-8 rounded-xl bg-[#6E1927] text-white flex items-center justify-center shadow-xs">
+                  <svg viewBox="0 0 16 16" className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth="1.8" aria-hidden="true">
+                    <circle cx="8" cy="8" r="5.5" />
+                    <path d="M8 2.5V8l3.8 2.2" />
+                  </svg>
                 </span>
                 <div>
                   <h2 className="nvr-display-font text-base sm:text-lg font-bold text-[#40101A]">
