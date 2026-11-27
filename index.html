@@ -2,7 +2,7 @@
 <html lang="el">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
   <meta name="theme-color" content="#6E1927" />
   <meta name="apple-mobile-web-app-capable" content="yes" />
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
@@ -79,6 +79,36 @@
         opacity: 1;
         transform: translate3d(0, 0, 0) scale(1);
       }
+    }
+
+    @keyframes nvrSheetUp {
+      from {
+        opacity: 0;
+        transform: translate3d(0, 100%, 0);
+      }
+      to {
+        opacity: 1;
+        transform: translate3d(0, 0, 0);
+      }
+    }
+
+    .nvr-mobile-sheet {
+      animation: nvrSheetUp 0.24s cubic-bezier(0.16, 1, 0.3, 1) both;
+      padding-bottom: max(1rem, env(safe-area-inset-bottom));
+    }
+
+    @media (pointer: coarse) {
+      input, select, textarea {
+        font-size: 16px !important;
+      }
+    }
+
+    .nvr-no-scrollbar::-webkit-scrollbar {
+      display: none;
+    }
+    .nvr-no-scrollbar {
+      -ms-overflow-style: none;
+      scrollbar-width: none;
     }
 
     @keyframes nvrBackdropFade {
@@ -956,10 +986,17 @@
       const [newName, setNewName] = useState("");
       const [newColor, setNewColor] = useState(defaultColor);
       const [menuStyle, setMenuStyle] = useState(null);
+      const [isMobileSheet, setIsMobileSheet] = useState(false);
       const ref = useRef(null);
       const menuRef = useRef(null);
 
       const updateMenuPosition = () => {
+        const mobile = window.innerWidth < 640;
+        setIsMobileSheet(mobile);
+        if (mobile) {
+          setMenuStyle({ zIndex: 9999 });
+          return;
+        }
         if (!ref.current) return;
         const rect = ref.current.getBoundingClientRect();
         const menuWidth = Math.max(240, rect.width);
@@ -1031,95 +1068,142 @@
         setOpen(false);
       };
 
+      const sheetInner = (
+        <>
+          {isMobileSheet && (
+            <div className="px-4 py-3 border-b border-[#D6CED5] flex items-center justify-between bg-white/65 shrink-0">
+              <div className="flex items-center gap-2">
+                <span className="w-8 h-1 rounded-full bg-[#C7BEC6] block sm:hidden" />
+                <span className="text-xs font-extrabold uppercase tracking-wider text-[#40101A]">
+                  Επιλογή {categoryLabel}
+                </span>
+              </div>
+              <button
+                type="button"
+                onClick={() => {
+                  setOpen(false);
+                  setAdding(false);
+                }}
+                className="px-2.5 py-1 rounded-full text-xs font-bold bg-[#E6DFE5] text-[#40101A]"
+              >
+                Κλείσιμο
+              </button>
+            </div>
+          )}
+
+          <div className={`overflow-y-auto ${isMobileSheet ? "p-3 space-y-1.5 max-h-[55vh]" : "p-1.5 space-y-0.5 flex-1"}`}>
+            {options.map((opt) => {
+              const optTokens = getColorTokens(opt.color, defaultColor);
+              const active = opt.name === value;
+              return (
+                <button
+                  key={opt.name}
+                  type="button"
+                  onClick={() => {
+                    onChange(opt.name);
+                    setOpen(false);
+                  }}
+                  className={`w-full flex items-center justify-between ${
+                    isMobileSheet ? "px-3 py-3 rounded-xl text-sm" : "px-2 py-1.5 rounded-lg text-xs"
+                  } transition-colors cursor-pointer ${
+                    active ? "bg-[#E6DFE4] font-bold text-[#40101A]" : "hover:bg-[#EDE8EC] text-[#40101A]"
+                  }`}
+                >
+                  <span className={`inline-flex items-center gap-2 ${isMobileSheet ? "px-3 py-1 text-xs" : "px-2 py-0.5 text-[11px]"} rounded-full font-bold border ${optTokens.pill}`}>
+                    <span className={`w-2 h-2 rounded-full ${optTokens.dot}`} />
+                    {opt.name}
+                  </span>
+                  {active && <span className="text-[#6E1927] font-extrabold text-sm">✓</span>}
+                </button>
+              );
+            })}
+          </div>
+
+          {allowQuickAdd && (
+            <div className="border-t border-[#D6CED5] bg-[#EFECEF] p-2.5 shrink-0">
+              {!adding ? (
+                <button
+                  type="button"
+                  onClick={() => setAdding(true)}
+                  className={`w-full flex items-center gap-1.5 ${isMobileSheet ? "px-3 py-2.5 text-sm" : "px-2 py-1.5 text-xs"} rounded-lg font-semibold text-[#6E1927] hover:bg-[#E4DCE1] transition-colors cursor-pointer`}
+                >
+                  <span>+ Προσθήκη νέας {categoryLabel}...</span>
+                </button>
+              ) : (
+                <div className="space-y-2">
+                  <input
+                    type="text"
+                    value={newName}
+                    onChange={(e) => setNewName(e.target.value)}
+                    onKeyDown={(e) => {
+                      if (e.key === "Enter") {
+                        e.preventDefault();
+                        submitNew();
+                      }
+                      if (e.key === "Escape") setAdding(false);
+                    }}
+                    placeholder={placeholder}
+                    className="w-full px-2.5 py-2 text-xs bg-white text-[#40101A] border border-[#C7BEC6] rounded-lg focus:outline-none focus:border-[#6E1927]"
+                    autoFocus
+                  />
+                  <div className="flex items-center justify-between gap-1">
+                    <div className="flex flex-wrap gap-1.5">
+                      {COLOR_KEYS.slice(0, 7).map((cKey) => (
+                        <button
+                          key={cKey}
+                          type="button"
+                          onClick={() => setNewColor(cKey)}
+                          title={BADGE_COLORS[cKey].label}
+                          className={`${isMobileSheet ? "w-6 h-6" : "w-4 h-4"} rounded-full ${BADGE_COLORS[cKey].dot} ${
+                            newColor === cKey ? "ring-2 ring-offset-1 ring-[#40101A] scale-110" : "opacity-75"
+                          }`}
+                        />
+                      ))}
+                    </div>
+                    <button
+                      type="button"
+                      onClick={submitNew}
+                      disabled={!newName.trim()}
+                      className="px-3 py-1.5 text-xs font-semibold bg-[#6E1927] text-white rounded-lg hover:bg-[#8A2233] disabled:opacity-40 cursor-pointer"
+                    >
+                      Προσθήκη
+                    </button>
+                  </div>
+                </div>
+              )}
+            </div>
+          )}
+        </>
+      );
+
       const dropdownMenu =
         open && menuStyle
           ? window.ReactDOM.createPortal(
-              <div
-                ref={menuRef}
-                style={menuStyle}
-                className="nvr-glass-dropdown rounded-xl flex flex-col overflow-hidden text-left"
-              >
-                <div className="overflow-y-auto p-1.5 space-y-0.5 flex-1">
-                  {options.map((opt) => {
-                    const optTokens = getColorTokens(opt.color, defaultColor);
-                    const active = opt.name === value;
-                    return (
-                      <button
-                        key={opt.name}
-                        type="button"
-                        onClick={() => {
-                          onChange(opt.name);
-                          setOpen(false);
-                        }}
-                        className={`w-full flex items-center justify-between px-2 py-1.5 rounded-lg text-xs transition-colors cursor-pointer ${
-                          active ? "bg-[#E6DFE4] font-bold text-[#40101A]" : "hover:bg-[#EDE8EC] text-[#40101A]"
-                        }`}
-                      >
-                        <span className={`inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full text-[11px] font-bold border ${optTokens.pill}`}>
-                          <span className={`w-1.5 h-1.5 rounded-full ${optTokens.dot}`} />
-                          {opt.name}
-                        </span>
-                        {active && <span className="text-[#6E1927] font-bold">✓</span>}
-                      </button>
-                    );
-                  })}
-                </div>
-
-                {allowQuickAdd && (
-                  <div className="border-t border-[#D6CED5] bg-[#EFECEF] p-2 shrink-0">
-                    {!adding ? (
-                      <button
-                        type="button"
-                        onClick={() => setAdding(true)}
-                        className="w-full flex items-center gap-1.5 px-2 py-1.5 rounded-lg text-xs font-semibold text-[#6E1927] hover:bg-[#E4DCE1] transition-colors cursor-pointer"
-                      >
-                        <span>+ Προσθήκη νέας {categoryLabel}...</span>
-                      </button>
-                    ) : (
-                      <div className="space-y-2">
-                        <input
-                          type="text"
-                          value={newName}
-                          onChange={(e) => setNewName(e.target.value)}
-                          onKeyDown={(e) => {
-                            if (e.key === "Enter") {
-                              e.preventDefault();
-                              submitNew();
-                            }
-                            if (e.key === "Escape") setAdding(false);
-                          }}
-                          placeholder={placeholder}
-                          className="w-full px-2.5 py-1.5 text-xs bg-white text-[#40101A] border border-[#C7BEC6] rounded-lg focus:outline-none focus:border-[#6E1927]"
-                          autoFocus
-                        />
-                        <div className="flex items-center justify-between gap-1">
-                          <div className="flex flex-wrap gap-1">
-                            {COLOR_KEYS.slice(0, 7).map((cKey) => (
-                              <button
-                                key={cKey}
-                                type="button"
-                                onClick={() => setNewColor(cKey)}
-                                title={BADGE_COLORS[cKey].label}
-                                className={`w-4 h-4 rounded-full ${BADGE_COLORS[cKey].dot} ${
-                                  newColor === cKey ? "ring-2 ring-offset-1 ring-[#40101A] scale-110" : "opacity-75"
-                                }`}
-                              />
-                            ))}
-                          </div>
-                          <button
-                            type="button"
-                            onClick={submitNew}
-                            disabled={!newName.trim()}
-                            className="px-2.5 py-1 text-[11px] font-semibold bg-[#6E1927] text-white rounded-md hover:bg-[#8A2233] disabled:opacity-40 cursor-pointer"
-                          >
-                            Προσθήκη
-                          </button>
-                        </div>
-                      </div>
-                    )}
+              isMobileSheet ? (
+                <div
+                  className="nvr-backdrop fixed inset-0 z-[9999] flex items-end justify-center"
+                  onClick={() => {
+                    setOpen(false);
+                    setAdding(false);
+                  }}
+                >
+                  <div
+                    ref={menuRef}
+                    onClick={(e) => e.stopPropagation()}
+                    className="nvr-glass-modal nvr-mobile-sheet w-full rounded-t-3xl flex flex-col overflow-hidden text-left"
+                  >
+                    {sheetInner}
                   </div>
-                )}
-              </div>,
+                </div>
+              ) : (
+                <div
+                  ref={menuRef}
+                  style={menuStyle}
+                  className="nvr-glass-dropdown rounded-xl flex flex-col overflow-hidden text-left"
+                >
+                  {sheetInner}
+                </div>
+              ),
               document.body
             )
           : null;
@@ -1259,8 +1343,10 @@
       const [inlineEdit, setInlineEdit] = useState(null);
       inlineEditRef.current = inlineEdit;
 
+      const [showMobileFilters, setShowMobileFilters] = useState(false);
       const [draggedOrderId, setDraggedOrderId] = useState(null);
       const [dragOverColumn, setDragOverColumn] = useState(null);
+      const [touchDragInfo, setTouchDragInfo] = useState(null);
       const [toast, setToast] = useState(null);
 
       const fileInputRef = useRef(null);
@@ -2279,6 +2365,286 @@
         </thead>
       );
 
+      const renderMobileOrderCard = (order) => {
+        const gift = isOrderGift(order);
+        const hasContact = hasCustomerDetails(order);
+        const attention = getOrderAttention(order);
+
+        return (
+          <div
+            key={order.id}
+            className="bg-white/80 backdrop-blur-md border border-white/85 rounded-xl p-3 space-y-2.5 shadow-2xs"
+          >
+            {/* Row 1: ID + Customer + Amount */}
+            <div className="flex items-start justify-between gap-2">
+              <div className="min-w-0 flex-1">
+                <div className="flex items-center gap-1.5 flex-wrap">
+                  <span className="font-mono text-[11px] font-extrabold text-[#6E1927] bg-[#EFE4E8] px-1.5 py-0.5 rounded">
+                    #{order.id}
+                  </span>
+                  <button
+                    type="button"
+                    onClick={() => setCustomerModalOrder(order)}
+                    className="text-left font-extrabold text-sm text-[#40101A] hover:underline truncate"
+                  >
+                    {order.customer}
+                  </button>
+                  {attention.paidReadyToShip && (
+                    <span
+                      title="Πληρωμένη παραγγελία σε Pending — έτοιμη για αποστολή"
+                      className="px-1.5 py-0.5 rounded text-[9.5px] font-extrabold bg-emerald-100 text-emerald-900 border border-emerald-300"
+                    >
+                      Έτοιμο
+                    </span>
+                  )}
+                  {attention.needsTracking && (
+                    <span
+                      title="Shipped χωρίς Tracking Number"
+                      className="px-1.5 py-0.5 rounded text-[9.5px] font-extrabold bg-amber-100 text-amber-950 border border-amber-400"
+                    >
+                      !TRK
+                    </span>
+                  )}
+                </div>
+
+                <div className="flex items-center gap-2 mt-1 text-[11px] text-[#6E5C68] tabular-nums">
+                  <span>{formatDateGR(order.orderDate)}</span>
+                  <button
+                    type="button"
+                    onClick={() => setCustomerModalOrder(order)}
+                    className="inline-flex items-center gap-1 text-[#6E1927] font-semibold"
+                  >
+                    <span>{hasContact ? "Στοιχεία επικοινωνίας" : "+ Στοιχεία πελάτη"}</span>
+                  </button>
+                </div>
+              </div>
+
+              <div className="flex items-center gap-1.5 shrink-0">
+                {inlineEdit?.orderId === order.id && inlineEdit?.field === "totalAmount" ? (
+                  <input
+                    type="text"
+                    inputMode="decimal"
+                    value={inlineEdit.value}
+                    onChange={(e) => setInlineEdit({ ...inlineEdit, value: e.target.value })}
+                    onBlur={(e) => handleInlineSave(order.id, "totalAmount", e.target.value)}
+                    onKeyDown={(e) => {
+                      if (e.key === "Enter") {
+                        e.preventDefault();
+                        handleInlineSave(order.id, "totalAmount", e.currentTarget.value);
+                      }
+                      if (e.key === "Escape") {
+                        inlineEditRef.current = null;
+                        setInlineEdit(null);
+                      }
+                    }}
+                    className="w-20 px-2 py-1 text-right text-sm font-bold border border-[#6E1927] rounded-lg bg-white text-[#40101A]"
+                    autoFocus
+                  />
+                ) : (
+                  <button
+                    type="button"
+                    onClick={() => {
+                      const initialVal =
+                        order.totalAmount !== null && order.totalAmount !== undefined
+                          ? String(order.totalAmount)
+                          : "";
+                      const nextEd = { orderId: order.id, field: "totalAmount", value: initialVal };
+                      inlineEditRef.current = nextEd;
+                      setInlineEdit(nextEd);
+                    }}
+                    className="px-2 py-1 rounded-lg bg-white/90 border border-[#D8CFD7] text-sm font-black text-[#40101A] tabular-nums"
+                  >
+                    {formatCurrency(order.totalAmount)}
+                  </button>
+                )}
+
+                <button
+                  type="button"
+                  onClick={() => {
+                    setEditingOrder(order);
+                    setDefaultModalStatus(null);
+                    setIsOrderModalOpen(true);
+                  }}
+                  aria-label="Επεξεργασία παραγγελίας"
+                  className="w-8 h-8 rounded-lg bg-[#EFECEF] text-[#40101A] flex items-center justify-center text-xs font-bold"
+                >
+                  ✎
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setOrderToDelete(order)}
+                  aria-label="Διαγραφή παραγγελίας"
+                  className="w-8 h-8 rounded-lg bg-rose-100/80 text-[#8A2233] flex items-center justify-center text-xs font-bold"
+                >
+                  ✕
+                </button>
+              </div>
+            </div>
+
+            {/* Row 2: Vinyl Items + Payment */}
+            <div className="flex flex-wrap items-center justify-between gap-2">
+              <div className="flex flex-wrap gap-1">
+                {order.items.map((item, idx) => {
+                  const cfg = config.products.find((p) => p.name === item.product);
+                  const tok = getColorTokens(cfg?.color, "crimsonVinyl");
+                  return (
+                    <span
+                      key={idx}
+                      className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-md text-[11px] font-bold border ${tok.pill}`}
+                    >
+                      <span className={`w-1.5 h-1.5 rounded-full shrink-0 ${tok.dot}`} />
+                      <span>{cfg?.shortName || item.product}</span>
+                      <span className="px-1 rounded bg-black/20 text-[10px] font-extrabold tabular-nums">
+                        ×{item.qty}
+                      </span>
+                    </span>
+                  );
+                })}
+              </div>
+
+              {gift ? (
+                <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-white text-[#5A4652] border border-[#D4CAD3]">
+                  Δώρο
+                </span>
+              ) : (
+                <div className="flex items-center gap-1.5">
+                  <button
+                    type="button"
+                    onClick={() => handleTogglePaid(order.id, !order.isPaid)}
+                    className={`inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[11px] font-extrabold border ${
+                      order.isPaid
+                        ? "bg-emerald-100 text-emerald-950 border-emerald-300"
+                        : "bg-rose-100 text-rose-950 border-rose-300"
+                    }`}
+                  >
+                    <span className={`w-1.5 h-1.5 rounded-full ${order.isPaid ? "bg-emerald-600" : "bg-rose-600"}`} />
+                    <span>{order.isPaid ? "Πληρωμένο" : "Απλήρωτο"}</span>
+                  </button>
+                  <OptionSelect
+                    compact
+                    value={order.paymentMethod || "Τρόπος..."}
+                    options={[{ name: "—", color: "stone" }, ...(config.paymentMethods || DEFAULT_PAYMENT_METHODS)]}
+                    onChange={(val) => handleInlineSave(order.id, "paymentMethod", val === "—" ? "" : val)}
+                    onQuickAdd={(name, color) => handleAddOption("paymentMethods", name, color)}
+                    categoryLabel="τρόπου πληρωμής"
+                    placeholder="π.χ. PayPal, Κάρτα..."
+                    defaultColor="emerald"
+                  />
+                </div>
+              )}
+            </div>
+
+            {/* Row 3: Channel + Status + Courier */}
+            <div className="flex flex-wrap items-center gap-1.5 pt-2 border-t border-[#EAE2E8]">
+              <OptionSelect
+                compact
+                value={order.salesChannel}
+                options={config.channels}
+                onChange={(val) => handleInlineSave(order.id, "salesChannel", val)}
+                onQuickAdd={(name, color) => handleAddOption("channels", name, color)}
+                categoryLabel="καναλιού"
+                placeholder="π.χ. Discogs..."
+                defaultColor="indigo"
+              />
+              <OptionSelect
+                compact
+                value={order.status}
+                options={config.statuses}
+                onChange={(val) => handleStatusChange(order.id, val)}
+                onQuickAdd={(name, color) => handleAddOption("statuses", name, color)}
+                categoryLabel="κατάστασης"
+                placeholder="π.χ. Ready..."
+                defaultColor="amber"
+              />
+              <OptionSelect
+                compact
+                value={order.courierName}
+                options={config.couriers}
+                onChange={(val) => handleInlineSave(order.id, "courierName", val)}
+                onQuickAdd={(name, color) => handleAddOption("couriers", name, color)}
+                categoryLabel="μεταφορικής"
+                placeholder="π.χ. ACS..."
+                defaultColor="lime"
+              />
+            </div>
+
+            {/* Row 4: Tracking & Notes */}
+            <div className="flex items-center justify-between gap-2 text-xs">
+              {inlineEdit?.orderId === order.id && inlineEdit?.field === "trackingNumber" ? (
+                <input
+                  type="text"
+                  value={inlineEdit.value}
+                  onChange={(e) => setInlineEdit({ ...inlineEdit, value: e.target.value })}
+                  onBlur={(e) => handleInlineSave(order.id, "trackingNumber", e.target.value)}
+                  onKeyDown={(e) => {
+                    if (e.key === "Enter") {
+                      e.preventDefault();
+                      handleInlineSave(order.id, "trackingNumber", e.currentTarget.value);
+                    }
+                    if (e.key === "Escape") {
+                      inlineEditRef.current = null;
+                      setInlineEdit(null);
+                    }
+                  }}
+                  placeholder="Tracking number..."
+                  className="flex-1 px-2 py-1 border border-[#6E1927] rounded-lg bg-white font-mono"
+                  autoFocus
+                />
+              ) : (
+                <div className="flex items-center gap-1.5 min-w-0 flex-1">
+                  <button
+                    type="button"
+                    onClick={() => {
+                      const nextEd = {
+                        orderId: order.id,
+                        field: "trackingNumber",
+                        value: order.trackingNumber || ""
+                      };
+                      inlineEditRef.current = nextEd;
+                      setInlineEdit(nextEd);
+                    }}
+                    className="px-2 py-1 rounded-lg bg-[#F6F4F7] border border-[#D8CFD7] font-mono text-[11px] text-[#40101A] truncate"
+                  >
+                    {order.trackingNumber ? `TRK: ${order.trackingNumber}` : "+ Tracking"}
+                  </button>
+                  {order.trackingNumber && (
+                    <button
+                      type="button"
+                      onClick={() => {
+                        navigator.clipboard?.writeText(order.trackingNumber);
+                        showToast(`Αντιγράφηκε το tracking: ${order.trackingNumber}`);
+                      }}
+                      className="px-2 py-1 rounded-lg bg-[#EFE4E8] text-[#6E1927] text-xs font-bold shrink-0"
+                    >
+                      ⧉
+                    </button>
+                  )}
+                </div>
+              )}
+
+              {order.invoiceNumber && (
+                <span className="font-mono text-[11px] text-[#5A4652] bg-white/75 px-2 py-1 rounded-lg border border-[#D8CFD7] shrink-0">
+                  INV: {order.invoiceNumber}
+                </span>
+              )}
+            </div>
+
+            {order.notes && order.notes.trim() && (
+              <div
+                onClick={() => {
+                  setEditingOrder(order);
+                  setDefaultModalStatus(null);
+                  setIsOrderModalOpen(true);
+                }}
+                className="px-2.5 py-1.5 rounded-lg bg-[#EFE4E8]/85 border border-[#D4BAC3] text-[11px] text-[#40101A]"
+              >
+                💬 {order.notes.trim()}
+              </div>
+            )}
+          </div>
+        );
+      };
+
       const renderRow = (order) => {
         const gift = isOrderGift(order);
         const hasContact = hasCustomerDetails(order);
@@ -2370,7 +2736,7 @@
                       )}
                     </span>
                   ) : (
-                    <span className="opacity-0 group-hover:opacity-100 text-[10px] font-bold text-[#6E5C68] transition-opacity">
+                    <span className="opacity-100 md:opacity-0 md:group-hover:opacity-100 text-[10px] font-bold text-[#6E5C68] transition-opacity">
                       +
                     </span>
                   )}
@@ -2585,7 +2951,7 @@
                         showToast(`Αντιγράφηκε το tracking: ${order.trackingNumber}`);
                       }}
                       title="Αντιγραφή tracking number"
-                      className="opacity-0 group-hover/trk:opacity-100 px-1 py-0.5 rounded text-[10px] text-[#6E5C68] hover:text-[#6E1927] hover:bg-[#E4DCE1] transition-opacity shrink-0 cursor-pointer"
+                      className="opacity-100 md:opacity-0 md:group-hover/trk:opacity-100 px-1.5 py-0.5 rounded text-[11px] text-[#6E5C68] hover:text-[#6E1927] hover:bg-[#E4DCE1] transition-opacity shrink-0 cursor-pointer"
                     >
                       ⧉
                     </button>
@@ -2669,14 +3035,14 @@
       return (
         <div className="min-h-screen flex flex-col">
           {toast && (
-            <div className="nvr-toast-in fixed bottom-5 right-5 z-50 flex items-center gap-2.5 bg-[#3B0D16]/92 backdrop-blur-xl text-[#F9F6F8] px-4 py-3 rounded-2xl shadow-2xl border border-white/25 text-xs sm:text-sm font-semibold">
+            <div style={{ bottom: "max(1.25rem, env(safe-area-inset-bottom))" }} className="nvr-toast-in fixed right-4 left-4 sm:left-auto sm:right-5 z-50 flex items-center gap-2.5 bg-[#3B0D16]/92 backdrop-blur-xl text-[#F9F6F8] px-4 py-3 rounded-2xl shadow-2xl border border-white/25 text-xs sm:text-sm font-semibold">
               <span className="text-[#F4A6B3]">●</span>
               <span>{toast.message}</span>
             </div>
           )}
 
           {/* TOP BAR */}
-          <header className="nvr-glass-header sticky top-0 z-30 transition-all">
+          <header style={{ paddingTop: "env(safe-area-inset-top)" }} className="nvr-glass-header sticky top-0 z-30 transition-all">
             <div className="max-w-[1600px] mx-auto px-3 sm:px-5 min-h-16 py-2 flex flex-wrap items-center justify-between gap-2.5">
               <div className="flex items-center gap-3 min-w-0">
                 <NouvelleVilleLogoBadge size="md" />
@@ -3023,7 +3389,7 @@
             )}
 
             {/* KPI & INVENTORY CARDS */}
-            <section className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-12 gap-3.5">
+            <section className="flex md:grid overflow-x-auto md:overflow-visible snap-x snap-mandatory nvr-no-scrollbar md:grid-cols-2 xl:grid-cols-12 gap-3 -mx-3 px-3 md:mx-0 md:px-0 pb-1 md:pb-0">
               {config.products.map((prod, idx) => {
                 const st = inventoryStats[prod.name] || {
                   initial: prod.initialStock,
@@ -3039,7 +3405,7 @@
                 return (
                   <div
                     key={prod.name}
-                    style={{ animationDelay: `${idx * 65}ms` }} className="group nvr-glass-card nvr-glass-card-hover nvr-animate-in xl:col-span-4 rounded-2xl p-4 flex flex-col justify-between"
+                    style={{ animationDelay: `${idx * 65}ms` }} className="group nvr-glass-card nvr-glass-card-hover nvr-animate-in min-w-[85vw] sm:min-w-[340px] md:min-w-0 snap-center shrink-0 md:shrink xl:col-span-4 rounded-2xl p-4 flex flex-col justify-between"
                   >
                     <div className="flex items-start justify-between gap-2">
                       <div className="flex items-center gap-2.5 min-w-0">
@@ -3176,7 +3542,7 @@
               })}
 
               {/* Summary, Payments & Channel Filter Card */}
-              <div style={{ animationDelay: "130ms" }} className="nvr-glass-card nvr-glass-card-hover nvr-animate-in md:col-span-2 xl:col-span-4 rounded-2xl p-4 flex flex-col justify-between">
+              <div style={{ animationDelay: "130ms" }} className="nvr-glass-card nvr-glass-card-hover nvr-animate-in min-w-[88vw] sm:min-w-[380px] md:min-w-0 snap-center shrink-0 md:shrink md:col-span-2 xl:col-span-4 rounded-2xl p-4 flex flex-col justify-between">
                 <div className="grid grid-cols-3 gap-2 pb-2.5 border-b border-[#DDD5DC] tabular-nums">
                   <div>
                     <EditableText
@@ -3388,7 +3754,28 @@
                 </div>
               </div>
 
-              <div className="flex flex-wrap items-center gap-2 pt-2 border-t border-[#DDD5DC] text-xs">
+              <div className="pt-2 border-t border-[#DDD5DC] text-xs space-y-2">
+                <div className="flex items-center justify-between md:hidden">
+                  <button
+                    type="button"
+                    onClick={() => setShowMobileFilters((p) => !p)}
+                    className="inline-flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg bg-white/85 border border-[#C7BEC6] font-bold text-[#40101A]"
+                  >
+                    <span>⚙ Περισσότερα φίλτρα</span>
+                    {activeFiltersCount > 0 && (
+                      <span className="px-1.5 py-0.2 rounded-full bg-[#6E1927] text-white text-[10px]">
+                        {activeFiltersCount}
+                      </span>
+                    )}
+                    <span className="text-[10px]">{showMobileFilters ? "▴" : "▾"}</span>
+                  </button>
+                  <div className="text-xs text-[#6E5C68] tabular-nums">
+                    <strong className="text-[#40101A]">{filteredOrders.length}</strong> /{" "}
+                    <strong className="text-[#40101A]">{orders.length}</strong>
+                  </div>
+                </div>
+
+                <div className={`${showMobileFilters ? "flex" : "hidden"} md:flex flex-wrap items-center gap-2`}>
                 <EditableText
                   as="span"
                   textKey="filtersLabel"
@@ -3396,7 +3783,7 @@
                   overrides={textOverrides}
                   editMode={editMode}
                   onChangeText={handleEditTextOverride}
-                  className="text-[#6E5C68] font-semibold mr-1"
+                  className="hidden md:inline text-[#6E5C68] font-semibold mr-1"
                 />
 
                 <select
@@ -3490,9 +3877,10 @@
                   </button>
                 )}
 
-                <div className="ml-auto text-xs text-[#6E5C68] tabular-nums">
+                <div className="hidden md:block ml-auto text-xs text-[#6E5C68] tabular-nums">
                   Εμφάνιση <strong className="text-[#40101A]">{filteredOrders.length}</strong> /{" "}
                   <strong className="text-[#40101A]">{orders.length}</strong>
+                </div>
                 </div>
               </div>
             </section>
@@ -3561,7 +3949,16 @@
 
                           {!collapsed && (
                             <>
-                              <div style={{ WebkitOverflowScrolling: "touch" }} className="overflow-x-auto overflow-y-visible">
+                              <div className="md:hidden p-2.5 space-y-2.5">
+                                {grp.orders.length === 0 ? (
+                                  <div className="py-5 text-center text-xs text-[#6E5C68] italic">
+                                    Καμία παραγγελία σε κατάσταση «{grp.statusName}».
+                                  </div>
+                                ) : (
+                                  grp.orders.map(renderMobileOrderCard)
+                                )}
+                              </div>
+                              <div style={{ WebkitOverflowScrolling: "touch" }} className="hidden md:block overflow-x-auto overflow-y-visible">
                                 <table className="w-full table-fixed text-left border-collapse">
                                   {renderColGroup()}
                                   {renderTableHead()}
@@ -3607,7 +4004,16 @@
                   </section>
                 ) : (
                   <section style={{ animationDelay: "220ms" }} className="nvr-glass-card nvr-animate-in rounded-2xl overflow-visible">
-                    <div style={{ WebkitOverflowScrolling: "touch" }} className="overflow-x-auto overflow-y-visible">
+                    <div className="md:hidden p-2.5 space-y-2.5">
+                      {filteredOrders.length === 0 ? (
+                        <div className="py-10 text-center text-[#6E5C68] text-sm font-semibold">
+                          Δεν βρέθηκαν παραγγελίες με αυτά τα φίλτρα.
+                        </div>
+                      ) : (
+                        filteredOrders.map(renderMobileOrderCard)
+                      )}
+                    </div>
+                    <div style={{ WebkitOverflowScrolling: "touch" }} className="hidden md:block overflow-x-auto overflow-y-visible">
                       <table className="w-full table-fixed text-left border-collapse">
                         {renderColGroup()}
                         {renderTableHead()}
@@ -3646,6 +4052,7 @@
                   return (
                     <div
                       key={status}
+                      data-kanban-status={status}
                       onDragOver={(e) => {
                         e.preventDefault();
                         if (dragOverColumn !== status) setDragOverColumn(status);
@@ -3660,7 +4067,7 @@
                       }}
                       style={{ animationDelay: `${idx * 60}ms` }} className={`nvr-glass-card nvr-animate-in rounded-2xl border-t-4 ${
                         tok.borderTop
-                      } p-3 min-h-[380px] transition-all duration-200 ${
+                      } p-3 min-h-[320px] md:min-h-[380px] transition-all duration-200 ${
                         dragOverColumn === status ? "ring-2 ring-[#6E1927] scale-[1.01] bg-white/85" : ""
                       }`}
                     >
@@ -3706,7 +4113,43 @@
                                   setDraggedOrderId(order.id);
                                   e.dataTransfer.setData("text/plain", String(order.id));
                                 }}
-                                className="nvr-btn-press bg-white/80 backdrop-blur-md rounded-xl border border-white/80 p-3 shadow-sm hover:shadow-lg hover:-translate-y-0.5 hover:bg-white/95 hover:border-[#6E1927]/40 transition-all duration-200 cursor-grab active:cursor-grabbing"
+                                onTouchStart={(e) => {
+                                  if (e.target.closest("button, a, input, select")) return;
+                                  const t = e.touches[0];
+                                  setTouchDragInfo({
+                                    orderId: order.id,
+                                    startX: t.clientX,
+                                    startY: t.clientY,
+                                    active: false
+                                  });
+                                }}
+                                onTouchMove={(e) => {
+                                  if (!touchDragInfo || touchDragInfo.orderId !== order.id) return;
+                                  const t = e.touches[0];
+                                  const dx = Math.abs(t.clientX - touchDragInfo.startX);
+                                  const dy = Math.abs(t.clientY - touchDragInfo.startY);
+                                  if (!touchDragInfo.active && (dx > 12 || dy > 12)) {
+                                    setTouchDragInfo((prev) => (prev ? { ...prev, active: true } : null));
+                                    setDraggedOrderId(order.id);
+                                  }
+                                  if (touchDragInfo.active || dx > 12) {
+                                    const el = document.elementFromPoint(t.clientX, t.clientY);
+                                    const colEl = el?.closest("[data-kanban-status]");
+                                    const targetSt = colEl ? colEl.getAttribute("data-kanban-status") : null;
+                                    if (targetSt !== dragOverColumn) setDragOverColumn(targetSt);
+                                  }
+                                }}
+                                onTouchEnd={() => {
+                                  if (touchDragInfo && touchDragInfo.orderId === order.id && touchDragInfo.active && dragOverColumn && dragOverColumn !== status) {
+                                    handleStatusChange(order.id, dragOverColumn);
+                                  }
+                                  setTouchDragInfo(null);
+                                  setDraggedOrderId(null);
+                                  setDragOverColumn(null);
+                                }}
+                                className={`nvr-btn-press bg-white/80 backdrop-blur-md rounded-xl border border-white/80 p-3 shadow-sm hover:shadow-lg hover:-translate-y-0.5 hover:bg-white/95 hover:border-[#6E1927]/40 transition-all duration-200 cursor-grab active:cursor-grabbing ${
+                                  touchDragInfo?.orderId === order.id && touchDragInfo.active ? "opacity-75 ring-2 ring-[#6E1927] scale-[1.02]" : ""
+                                }`}
                               >
                                 <div className="flex items-center justify-between text-[11px] text-[#6E5C68] mb-1 tabular-nums">
                                   <span className="font-mono font-bold text-[#5A4652]">
@@ -3875,7 +4318,7 @@
           </main>
 
           {/* DISCREET SUMMARY FOOTER */}
-          <footer className="max-w-[1600px] w-full mx-auto px-3 sm:px-5 pb-5 pt-1">
+          <footer style={{ paddingBottom: "max(1.25rem, env(safe-area-inset-bottom))" }} className="max-w-[1600px] w-full mx-auto px-3 sm:px-5 pt-1">
             <div className="nvr-glass-card rounded-xl px-4 py-2.5 flex flex-wrap items-center justify-between gap-2 text-[11px] text-[#5A4652] tabular-nums">
               <div className="flex items-center gap-2 font-bold text-[#40101A]">
                 <span className="w-2 h-2 rounded-full bg-[#6E1927]" />
