@@ -48,24 +48,6 @@
       }
     }
 
-    @keyframes nvrDiscShine {
-      0% {
-        left: -65%;
-        opacity: 0;
-      }
-      20% {
-        opacity: 1;
-      }
-      55% {
-        left: 125%;
-        opacity: 1;
-      }
-      56%, 100% {
-        left: 125%;
-        opacity: 0;
-      }
-    }
-
     @keyframes nvrFadeSlideUp {
       from {
         opacity: 0;
@@ -259,24 +241,6 @@
           transparent 255deg
         );
       animation: nvrVinylSpin 10s linear infinite;
-      pointer-events: none;
-    }
-
-    .nvr-vinyl-disc::after {
-      content: "";
-      position: absolute;
-      top: -20%;
-      bottom: -20%;
-      left: -60%;
-      width: 55%;
-      background: linear-gradient(
-        105deg,
-        transparent 0%,
-        rgba(255, 255, 255, 0.48) 50%,
-        transparent 100%
-      );
-      transform: skewX(-20deg);
-      animation: nvrDiscShine 3.6s ease-in-out infinite;
       pointer-events: none;
     }
 
